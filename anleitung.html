@@ -126,16 +126,17 @@ kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--line2);border
 </table>
 
 <h2 id="bearbeiten">4 · Einen Eintrag bearbeiten</h2>
-<p>Schnell & ohne Datei: direkt in der App. Wird lokal im Browser gespeichert.</p>
+<p>Jeder Besucher kann eine Änderung vorschlagen — direkt in der App, ohne Login. Ein Vorschlag wird <b>nicht</b> automatisch übernommen, sondern erst nach Prüfung.</p>
 <ol class="steps">
   <li>Kino in der Liste oder auf der Karte anklicken → Panel öffnet sich rechts.</li>
   <li>Oben im Panel auf <b>„bearbeiten"</b> klicken.</li>
   <li>Felder ändern: Name, Stadt, Land, Website, Notiz, Koordinaten.</li>
   <li><b>Standort korrigieren:</b> Button <b>„📍 Standort auf der Karte anklicken"</b> drücken, dann auf die richtige Stelle der Karte klicken — die Koordinaten werden übernommen. (Alternativ Breite/Länge direkt eintippen.)</li>
-  <li><b>Speichern.</b> Bearbeitete Kinos bekommen ein ✎.</li>
+  <li><b>„Vorschlagen"</b> klicken. Der Vorschlag geht als strukturierter Diff („Feld: bisher → neu") an den Melde-Worker und wird dort als GitHub Issue (Label <code>edit-suggestion</code>) gespeichert.</li>
 </ol>
-<p>Weitere Knöpfe: <b>Original wiederherstellen</b> (setzt diesen Eintrag zurück) und <b>Eintrag ausblenden</b> (versteckt ihn).</p>
-<div class="note"><b>Damit Korrekturen ein Update überleben:</b> oben rechts auf <b>Export</b> klicken → es lädt <code>corrections.json</code> herunter. Diese Datei in den Projektordner legen. Beim nächsten Update werden die Korrekturen automatisch wieder angewendet (über eine stabile ID pro Kino).</div>
+<p>Bis zur Prüfung siehst <b>nur du</b> in deinem eigenen Browser eine Vorschau deiner vorgeschlagenen Änderung (Eintrag bekommt ein ✎ „lokal geändert, Vorschlag ausstehend"). Für alle anderen Besucher ändert sich in der Zwischenzeit nichts.</p>
+<p>Weitere Knöpfe — wirken nur lokal, nicht geteilt: <b>Eigene lokale Änderung zurücksetzen</b> und <b>Bei mir ausblenden</b>.</p>
+<div class="note">Wird ein Vorschlag angenommen, erscheint er als <b>„korrigiert"</b> für <b>alle</b> Besucher — die Bestätigung schreibt automatisch in <code>corrections.json</code> im Repository, und die Seite liest diese Datei bei jedem Laden. Wie Vorschläge geprüft/übernommen werden, steht in <a href="#melden">Abschnitt 9</a>.</div>
 
 <h2 id="koordinaten">5 · Koordinaten verstehen & finden</h2>
 <p>Ein Standort sind zwei Zahlen: <b>Breite (lat)</b> und <b>Länge (lng)</b>.</p>
@@ -211,21 +212,33 @@ dbox,Kinopolis,Musterstadt,Motion-Seats</code></pre>
 <h2 id="fotos">8 · Fotos pro Kino</h2>
 <p>Im Detail-Panel unten <b>„Foto(s) hinzufügen"</b>. Die Bilder werden <b>lokal im Browser</b> gespeichert (IndexedDB) — kein Upload, nur auf diesem Gerät/Browser sichtbar. Klick aufs Bild = groß, ✕ = löschen.</p>
 
-<h2 id="melden">9 · Fehler melden (für alle Besucher)</h2>
-<p>Jeder Besucher der Seite kann einen Eintrag melden — ohne Account, ohne Login. Button <b>„Fehler melden"</b> oben rechts, oder im Detail-Panel eines Kinos der Link <b>„melden"</b> neben „bearbeiten" (dann sind Name/Stadt schon ausgefüllt).</p>
-<p>Die Meldung geht an einen Cloudflare Worker, der daraus automatisch ein <b>GitHub Issue</b> im Repo anlegt. Es wird <b>nichts automatisch in die Daten übernommen</b> — du siehst die Meldung als Issue, prüfst sie und pflegst sie wie gewohnt über <a href="#hinzufuegen">Abschnitt 6</a> ein.</p>
-<div class="note">Damit das funktioniert, muss der Worker einmalig eingerichtet sein — siehe <code>worker/README.md</code> im Repo. Kurzfassung: Worker bei Cloudflare deployen, einen GitHub-Token (nur „Issues: write" auf dieses Repo) als Secret <code>GH_TOKEN</code> hinterlegen, die Worker-URL in <code>config.js</code> eintragen.</div>
+<h2 id="melden">9 · Fehler melden & Vorschläge prüfen</h2>
+<p>Es gibt zwei komplett getrennte, öffentlich nutzbare Wege — beide ohne Account, ohne Login:</p>
+<ul>
+  <li><b>Fehler melden</b> — freier Text („Kino fehlt komplett", „Standort falsch", …). Button oben rechts, oder im Detail-Panel der Link „melden". Landet als GitHub Issue (Label <code>user-report</code>).</li>
+  <li><b>Änderung vorschlagen</b> — der „bearbeiten"-Link (siehe <a href="#bearbeiten">Abschnitt 4</a>). Landet als strukturierter Diff, GitHub Issue mit Label <code>edit-suggestion</code>.</li>
+</ul>
+<p>Beides geht über denselben Cloudflare Worker. In <b>keinem</b> Fall wird automatisch etwas in die echten Daten übernommen — jede Meldung/jeder Vorschlag wartet als Issue auf Prüfung.</p>
+<h3>Vorschläge prüfen (nur für den Betreiber)</h3>
+<p>Dafür gibt es eine <b>separate, nirgends verlinkte Seite</b>: <code>admin.html</code>. Sie ist bewusst nicht Teil der öffentlichen Navigation, damit normale Besucher gar nichts von der Admin-Funktion mitbekommen — die eigentliche Absicherung ist aber immer das Passwort (<code>ADMIN_KEY</code>), das der Worker serverseitig prüft, nicht die Unauffindbarkeit der Seite.</p>
+<ol class="steps">
+  <li><code>admin.html</code> direkt aufrufen (z. B. <code>https://…/admin.html</code>), Admin-Schlüssel eingeben.</li>
+  <li>Liste aller offenen Änderungsvorschläge erscheint, je mit Diff-Tabelle „Feld · Bisher · Vorschlag".</li>
+  <li><b>Übernehmen</b> → wird sofort in <code>corrections.json</code> im Repository geschrieben (per GitHub-Commit) und ist danach für alle Besucher sichtbar. <b>Ablehnen</b> → Issue wird ohne Übernahme geschlossen.</li>
+</ol>
+<div class="note">Einrichtung des Workers (inkl. <code>ADMIN_KEY</code> und der erweiterten Token-Rechte) steht in <code>worker/README.md</code> im Repository.</div>
 
 <h2 id="dateien">10 · Welche Datei macht was?</h2>
 <table>
   <tr><th>Datei</th><th>Zweck</th></tr>
-  <tr><td><code>index.html</code></td><td>die App selbst (Karte, Liste, Filter, Bearbeiten)</td></tr>
+  <tr><td><code>index.html</code></td><td>die öffentliche App (Karte, Liste, Filter, Änderungen vorschlagen) — enthält keinerlei Admin-Code</td></tr>
+  <tr><td><code>admin.html</code></td><td>separate, nirgends verlinkte Seite zum Prüfen/Übernehmen von Vorschlägen</td></tr>
   <tr><td><code>cinema-data.js</code></td><td>die fertigen Daten (wird vom Skript erzeugt — nicht von Hand ändern)</td></tr>
   <tr><td><code>cinema_extra_de.csv</code></td><td>von Hand gepflegte Premium-Format-Säle (hier ergänzt du am meisten)</td></tr>
   <tr><td><code>update.py</code> / <code>update.bat</code></td><td>das Update-/Scrape-Skript</td></tr>
-  <tr><td><code>corrections.json</code></td><td>deine in der App exportierten Korrekturen</td></tr>
-  <tr><td><code>config.js</code></td><td>Worker-URL fürs Meldeformular (nach Deploy eintragen)</td></tr>
-  <tr><td><code>worker/</code></td><td>Cloudflare Worker, der Nutzer-Meldungen als GitHub Issue anlegt</td></tr>
+  <tr><td><code>corrections.json</code></td><td>bestätigte Korrekturen — wird von <code>index.html</code> live geladen UND von <code>update.py</code> beim Neubauen angewendet</td></tr>
+  <tr><td><code>config.js</code></td><td>Worker-URL fürs Melde-/Vorschlagsformular (nach Deploy eintragen)</td></tr>
+  <tr><td><code>worker/</code></td><td>Cloudflare Worker: Meldungen/Vorschläge → GitHub Issue, Admin-Endpunkte → <code>corrections.json</code></td></tr>
   <tr><td><code>.cache/</code></td><td>Zwischenspeicher (IMAX-Quelle, Geocoding, OSM) — kann gelöscht werden, wird neu aufgebaut</td></tr>
 </table>
 

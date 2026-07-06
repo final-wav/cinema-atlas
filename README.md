@@ -11,22 +11,27 @@ bearbeitbare Einträge, eigene Fotos, Event-/Vermietungs-Infos.
 ## Architektur
 
 Statisches Frontend (`index.html` + `cinema-data.js`) auf **GitHub Pages**, plus
-ein optionaler **Cloudflare Worker** für das öffentliche Meldeformular ("Fehler
-melden" → legt ein GitHub Issue an). Die App selbst benötigt keinen Server —
-im laufenden Betrieb wird nichts Fremdes per `fetch()` aufgerufen (Kartenkacheln
-laufen über `<img>`-Tags, PDFs über `<iframe>`, eigene Fotos/Korrekturen liegen
-lokal im Browser via IndexedDB/localStorage).
+ein optionaler **Cloudflare Worker** für zwei Formulare ("Fehler melden" und
+"Änderung vorschlagen" → jeweils ein GitHub Issue) sowie eine separate,
+nirgends verlinkte Seite `admin.html` zum Prüfen und Übernehmen offener
+Vorschläge. Übernommene Korrekturen landen in `corrections.json`, die
+`index.html` bei jedem Aufruf zusätzlich zu `cinema-data.js` live nachlädt —
+neben diesem einen, gleichen-Repo-Abruf ruft die App im laufenden Betrieb
+nichts Fremdes per `fetch()` auf (Kartenkacheln laufen über `<img>`-Tags,
+PDFs über `<iframe>`, eigene Fotos/Entwürfe liegen lokal im Browser via
+IndexedDB/localStorage).
 
 | Datei/Ordner | Zweck |
 |---|---|
-| `index.html` | die App (Karte, Liste, Filter, Bearbeiten, Meldeformular) |
+| `index.html` | die öffentliche App (Karte, Liste, Filter, Änderungen vorschlagen) — ohne jeglichen Admin-Code |
+| `admin.html` | separate, nicht verlinkte Seite zum Prüfen/Übernehmen von Vorschlägen |
 | `anleitung.html` | ausführliche Nutzungsanleitung |
 | `cinema-data.js` | generierte Daten (von `update.py` erzeugt — nicht von Hand ändern) |
 | `cinema_extra_de.csv` | gepflegte Liste der Premium-Format-Säle |
-| `corrections.json` | kuratierte Korrekturen (überleben jedes Update) |
+| `corrections.json` | bestätigte Korrekturen — wird sowohl live von `index.html` geladen als auch von `update.py` beim Neubauen angewendet |
 | `update.py` / `update.bat` | Update-/Scrape-Skript (IMAX-Quelle, OpenStreetMap, Event-Locations) |
-| `config.js` | enthält die Worker-URL fürs Meldeformular |
-| `worker/` | Cloudflare Worker: Meldung → GitHub Issue (siehe `worker/README.md`) |
+| `config.js` | enthält die Worker-URL für Formulare & Admin-Seite |
+| `worker/` | Cloudflare Worker: Meldungen/Vorschläge → GitHub Issue, Admin-Endpunkte → `corrections.json` (siehe `worker/README.md`) |
 
 ## Datenquellen
 
@@ -49,8 +54,9 @@ reichert deutsche Kinos mit Event-/Vermietungsdaten an und schreibt
 
 1. Repository forken oder klonen.
 2. **GitHub Pages** aktivieren: Repo-Settings → Pages → Source: `main` / `/ (root)`.
-3. **Meldeformular** (optional): Cloudflare Worker einrichten, siehe [`worker/README.md`](worker/README.md).
-   Ohne Worker läuft die Seite normal, nur das Meldeformular ist inaktiv.
+3. **Formulare & Admin-Prüfung** (optional): Cloudflare Worker einrichten, siehe
+   [`worker/README.md`](worker/README.md). Ohne Worker läuft die Seite normal,
+   nur „Fehler melden"/„Vorschlagen" sowie der Login auf `admin.html` sind inaktiv.
 
 Beides ist im kostenlosen Tarif nutzbar (GitHub Pages + Cloudflare Workers Free).
 

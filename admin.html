@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cinema Atlas — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --serif:'Fraunces',Georgia,serif; --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  --paper:#f3efe6; --card:#faf8f2; --ink:#1c1a16; --ink2:#6a6456; --line:#d8d1c0; --line2:#c5bca7; --accent:#c1352b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding:40px 22px 90px}
+h1{font-family:var(--serif);font-weight:600;font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:13px;margin-bottom:28px}
+label{display:block;font-size:10px;color:var(--ink2);margin-top:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em}
+input{width:100%;margin-top:4px;background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:2px;padding:9px 10px;font-size:14px;font-family:var(--sans)}
+input:focus{border-color:var(--accent);outline:none}
+button{font-family:var(--sans);font-weight:600;font-size:13.5px;border-radius:2px;padding:9px 16px;cursor:pointer;border:1px solid var(--line2);background:var(--card);color:var(--ink)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.danger{border-color:var(--accent);color:var(--accent);background:var(--card)}
+button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;margin-top:16px}
+.hint{color:var(--ink2);font-size:12.5px;margin-top:10px;min-height:1.2em}
+.card{background:var(--card);border:1px solid var(--line2);border-radius:6px;padding:16px 18px;margin-top:16px}
+.card h3{margin:0 0 4px;font-family:var(--serif);font-weight:500;font-size:18px}
+.card .meta{color:var(--ink2);font-size:12.5px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-weight:400}
+#loginBox,#panel{display:none}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cinema Atlas — Admin</h1>
+  <div class="sub">Interne Seite, nicht öffentlich verlinkt. Änderungsvorschläge prüfen &amp; übernehmen.</div>
+
+  <div id="loginBox">
+    <label>Admin-Schlüssel<input id="key" type="password" autocomplete="current-password"></label>
+    <div class="row"><button class="primary" id="loginBtn">Einloggen</button></div>
+    <div class="hint" id="loginStatus"></div>
+  </div>
+
+  <div id="panel">
+    <div class="row"><button id="refreshBtn">Aktualisieren</button><button id="logoutBtn">Abmelden</button></div>
+    <div class="hint" id="listStatus"></div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const PATCH_FIELDS=['n','ci','co','st','url','note','lat','lng'];
+const FIELD_LABEL={n:'Name',ci:'Stadt',co:'Land',st:'Region',url:'Website',note:'Hinweis',lat:'lat',lng:'lng'};
+
+function key(){ return sessionStorage.getItem('cinemaAdminKey')||''; }
+function isLoggedIn(){ return !!key(); }
+async function api(path,opts={}){
+  const base=window.CINEMA_WORKER_BASE;
+  if(!base) throw new Error('Worker-URL fehlt in config.js');
+  return fetch(base.replace(/\/$/,'')+path,{...opts,
+    headers:{...(opts.headers||{}),'X-Admin-Key':key(),'Content-Type':'application/json'}});
+}
+
+function showLogin(){ document.getElementById('loginBox').style.display='block'; document.getElementById('panel').style.display='none'; }
+function showPanel(){ document.getElementById('loginBox').style.display='none'; document.getElementById('panel').style.display='block'; loadList(); }
+
+document.getElementById('loginBtn').onclick=async()=>{
+  const status=document.getElementById('loginStatus'), btn=document.getElementById('loginBtn');
+  const val=document.getElementById('key').value.trim();
+  if(!val){status.textContent='Bitte Schlüssel eingeben.';return;}
+  if(!window.CINEMA_WORKER_BASE){status.textContent='Worker-URL fehlt in config.js.';return;}
+  sessionStorage.setItem('cinemaAdminKey',val);
+  btn.disabled=true; status.textContent='Prüfe …';
+  try{
+    const res=await api('/admin/suggestions');
+    if(res.status===401){ sessionStorage.removeItem('cinemaAdminKey'); status.textContent='Falscher Schlüssel.'; btn.disabled=false; return; }
+    if(!res.ok){ status.textContent='Fehler ('+res.status+').'; btn.disabled=false; return; }
+    status.textContent=''; btn.disabled=false; showPanel();
+  }catch(e){ sessionStorage.removeItem('cinemaAdminKey'); status.textContent='Verbindung fehlgeschlagen: '+e.message; btn.disabled=false; }
+};
+document.getElementById('key').onkeydown=e=>{if(e.key==='Enter')document.getElementById('loginBtn').click();};
+document.getElementById('logoutBtn').onclick=()=>{ sessionStorage.removeItem('cinemaAdminKey'); showLogin(); };
+document.getElementById('refreshBtn').onclick=()=>loadList();
+
+async function loadList(){
+  const status=document.getElementById('listStatus'), list=document.getElementById('list');
+  status.textContent='Lade …'; list.innerHTML='';
+  try{
+    const res=await api('/admin/suggestions');
+    if(res.status===401){ status.textContent='Sitzung abgelaufen.'; showLogin(); return; }
+    if(!res.ok){ status.textContent='Fehler beim Laden ('+res.status+').'; return; }
+    const j=await res.json(); const items=j.items||[];
+    status.textContent = items.length? `${items.length} offene Vorschläge` : 'Keine offenen Vorschläge.';
+    list.innerHTML = items.map(it=>{
+      const rows=PATCH_FIELDS.filter(k=>it.patch&&it.patch[k]!==undefined&&it.patch[k]!=='')
+        .map(k=>`<tr><td>${esc(FIELD_LABEL[k]||k)}</td><td>${esc((it.original||{})[k]??'-')}</td><td>${esc(it.patch[k])}</td></tr>`).join('');
+      return `<div class="card">
+        <h3>${esc(it.cinema||'(kein Name)')}</h3>
+        <div class="meta">${esc(it.city||'')} · <a href="${esc(it.url)}" target="_blank" rel="noopener">Issue #${it.number} ↗</a> · ${new Date(it.created_at).toLocaleString('de-DE')}</div>
+        <table><thead><tr><th>Feld</th><th>Bisher</th><th>Vorschlag</th></tr></thead><tbody>${rows||'<tr><td colspan="3">(kein strukturierter Vorschlag erkannt)</td></tr>'}</tbody></table>
+        <div class="row">
+          <button class="primary" onclick="approve(${it.number},this)">Übernehmen</button>
+          <button class="danger" onclick="reject(${it.number},this)">Ablehnen</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){ status.textContent='Verbindung fehlgeschlagen: '+e.message; }
+}
+window.approve=async(number,btn)=>{
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const res=await api('/admin/approve',{method:'POST',body:JSON.stringify({number})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    loadList();
+  }catch(e){ alert('Fehler: '+e.message); btn.disabled=false; btn.textContent='Übernehmen'; }
+};
+window.reject=async(number,btn)=>{
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const res=await api('/admin/reject',{method:'POST',body:JSON.stringify({number})});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    loadList();
+  }catch(e){ alert('Fehler: '+e.message); btn.disabled=false; btn.textContent='Ablehnen'; }
+};
+
+isLoggedIn() ? showPanel() : showLogin();
+</script>
+</body>
+</html>

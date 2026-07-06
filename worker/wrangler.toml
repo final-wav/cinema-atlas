@@ -5,5 +5,6 @@ compatibility_date = "2026-01-01"
 [vars]
 GH_REPO = "final-wav/cinema-atlas"
 
-# GH_TOKEN wird NICHT hier eingetragen (landet sonst im Git-Verlauf), sondern als
-# verschlüsseltes Secret gesetzt: siehe README.md ("wrangler secret put GH_TOKEN").
+# GH_TOKEN und ADMIN_KEY werden NICHT hier eingetragen (landen sonst im Git-Verlauf),
+# sondern als verschlüsselte Secrets gesetzt: siehe README.md
+# ("wrangler secret put GH_TOKEN" / "wrangler secret put ADMIN_KEY").

@@ -320,12 +320,22 @@ function dimText(d){
 const active=new Set();   // aktive Chip-Keys der aktuellen Stufe
 let photoCounts={},db=null,coupled=true,scope='premium',detailOn=false,curChips=[];
 
-/* ---- Eigene Korrekturen (localStorage) ---- */
-let OVERRIDES={},editingId=null,pickMode=false;
+/* ---- Korrekturen: geteilt (von Admin bestätigt, aus corrections.json) + lokal (eigener Browser) ---- */
+const PATCH_FIELDS=['n','ci','co','st','url','note','lat','lng'];
+let OVERRIDES={},editingId=null,pickMode=false,SHARED={};
 try{OVERRIDES=JSON.parse(localStorage.getItem('cinemaOverrides')||'{}');}catch(e){}
 function persistOverrides(){localStorage.setItem('cinemaOverrides',JSON.stringify(OVERRIDES));}
-DATA.forEach(d=>{const o=OVERRIDES[d.id];if(o&&!o._delete){['n','ci','co','st','url','note','lat','lng'].forEach(k=>{if(k in o)d[k]=o[k];});d._edited=true;d.exact=true;}});
-const isDeleted=d=>!!(OVERRIDES[d.id]&&OVERRIDES[d.id]._delete);
+function applyPatchTo(d,o,flag){ if(!o||o._delete)return; PATCH_FIELDS.forEach(k=>{if(k in o)d[k]=o[k];}); d[flag]=true; d.exact=true; }
+async function loadSharedCorrections(){
+  try{
+    const res=await fetch('corrections.json',{cache:'no-store'});
+    if(res.ok) SHARED=await res.json();
+  }catch(e){ /* z.B. lokal per file:// geöffnet, oder Datei existiert noch nicht */ }
+  // Reihenfolge: erst geteilte (admin-bestätigte) Korrekturen, dann eigene lokale oben drauf
+  DATA.forEach(d=>applyPatchTo(d,SHARED[d.id],'_approved'));
+  DATA.forEach(d=>applyPatchTo(d,OVERRIDES[d.id],'_edited'));
+}
+const isDeleted=d=>!!((OVERRIDES[d.id]&&OVERRIDES[d.id]._delete)||(SHARED[d.id]&&SHARED[d.id]._delete));
 
 /* ---- IndexedDB ---- */
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('imaxPhotos',1);
@@ -550,7 +560,7 @@ function openDetail(key){
     return `<tr><th><span class="sw" style="background:${catColor(ff.cat)};display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:6px"></span>${esc(lab)}<span class="muted">${det}</span></th><td>${sr}</td></tr>`;
   }).join('');
   dtin.innerHTML=`
-    <div class="dt-kicker">${d.formats.length>1?d.formats.length+' Formate':esc(f.label)}${d.film?' · 70-mm-Film':''}${d._edited?' · bearbeitet':''}<button class="editlink" onclick="startEdit('${d.id}')">bearbeiten</button><button class="editlink" onclick="openReportForm('${d.id}')">melden</button></div>
+    <div class="dt-kicker">${d.formats.length>1?d.formats.length+' Formate':esc(f.label)}${d.film?' · 70-mm-Film':''}${d._edited?' · lokal geändert (Vorschlag ausstehend)':(d._approved?' · korrigiert':'')}<button class="editlink" onclick="startEdit('${d.id}')">bearbeiten</button><button class="editlink" onclick="openReportForm('${d.id}')">melden</button></div>
     <div class="dt-name">${esc(d.n)}</div>
     <div class="dt-loc">${esc(d.ci)}${d.st?', '+esc(d.st):''} — ${esc(d.co)} · ${esc(d.reg)}</div>
     ${d.url?`<a class="dt-web" href="${esc(d.url)}" target="_blank" rel="noopener">Website des Kinos ↗</a>`:''}
@@ -608,8 +618,9 @@ const ev=id=>{const el=document.getElementById(id);return el?el.value.trim():'';
 window.startEdit=function(id){
   const d=dataById[id];if(!d||!dtin)return; editingId=id;
   dtin.innerHTML=`
-    <div class="dt-kicker">Eintrag bearbeiten</div>
+    <div class="dt-kicker">Änderung vorschlagen</div>
     <div class="dt-name" style="font-size:21px">${esc(d.n)}</div>
+    <div class="hint">Wird als Vorschlag eingereicht und von Hand geprüft. Bis dahin siehst nur du hier die Vorschau.</div>
     <div class="editform">
       <label>Name<input id="e_n" value="${esc(d.n)}"></label>
       <label>Stadt<input id="e_ci" value="${esc(d.ci)}"></label>
@@ -622,24 +633,39 @@ window.startEdit=function(id){
       </div>
       <button class="ghost" id="e_pick" type="button">📍 Standort auf der Karte anklicken</button>
       <div class="hint" id="e_pickhint">Button drücken, dann auf die Karte klicken — die Koordinaten werden übernommen.</div>
-      <div class="erow"><button class="addbtn" id="e_save" type="button">Speichern</button>
+      <div class="erow"><button class="addbtn" id="e_save" type="button">Vorschlagen</button>
         <button class="ghost" id="e_cancel" type="button">Abbrechen</button></div>
-      <div class="erow"><button class="ghost" id="e_reset" type="button">Original wiederherstellen</button>
-        <button class="ghost danger" id="e_del" type="button">Eintrag ausblenden</button></div>
+      <div class="hint" id="e_status"></div>
+      <div class="erow"><button class="ghost" id="e_reset" type="button">Eigene lokale Änderung zurücksetzen</button>
+        <button class="ghost danger" id="e_del" type="button">Bei mir ausblenden</button></div>
     </div>`;
   sidepanel.classList.add('open');
   document.getElementById('e_pick').onclick=()=>{pickMode=true;
     document.getElementById('e_pickhint').textContent='Klicke jetzt auf die Karte …';
     if(innerWidth<=880){document.body.classList.add('showmap');viewBtn.textContent='Liste';if(map)map.invalidateSize();}};
   document.getElementById('e_cancel').onclick=()=>{pickMode=false;openDetail(id);};
-  document.getElementById('e_save').onclick=()=>{
-    saveOverride(d,{n:ev('e_n'),ci:ev('e_ci'),co:ev('e_co'),url:ev('e_url'),note:ev('e_note'),
-      lat:parseFloat(ev('e_lat')),lng:parseFloat(ev('e_lng'))});
-    pickMode=false; openDetail(id);
+  document.getElementById('e_save').onclick=async()=>{
+    const patch={n:ev('e_n'),ci:ev('e_ci'),co:ev('e_co'),url:ev('e_url'),note:ev('e_note'),
+      lat:parseFloat(ev('e_lat')),lng:parseFloat(ev('e_lng'))};
+    const btn=document.getElementById('e_save'), status=document.getElementById('e_status');
+    if(!window.CINEMA_WORKER_BASE){
+      saveOverride(d,patch); pickMode=false; openDetail(id);
+      alert('Hinweis: Meldefunktion ist nicht eingerichtet (config.js) — die Änderung ist nur in diesem Browser sichtbar und wurde nicht übermittelt.');
+      return;
+    }
+    btn.disabled=true; status.textContent='Wird gesendet …';
+    try{
+      const original={n:d.n,ci:d.ci,co:d.co,url:d.url||'',note:d.note||'',lat:d.lat,lng:d.lng};
+      const res=await fetch(window.CINEMA_WORKER_BASE.replace(/\/$/,'')+'/suggest',{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id,cinema:d.n,city:d.ci,original,patch})});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      saveOverride(d,patch); pickMode=false; openDetail(id);
+    }catch(e){ status.textContent='Senden fehlgeschlagen: '+e.message; btn.disabled=false; }
   };
-  document.getElementById('e_reset').onclick=()=>{ if(!confirm('Diesen Eintrag auf die Originaldaten zurücksetzen?'))return;
+  document.getElementById('e_reset').onclick=()=>{ if(!confirm('Deine eigene lokale Änderung an diesem Eintrag verwerfen?'))return;
     delete OVERRIDES[id]; persistOverrides(); location.reload(); };
-  document.getElementById('e_del').onclick=()=>{ if(!confirm('Diesen Eintrag ausblenden?'))return;
+  document.getElementById('e_del').onclick=()=>{ if(!confirm('Diesen Eintrag nur bei dir (lokal) ausblenden?'))return;
     OVERRIDES[id]={_delete:true}; persistOverrides(); pickMode=false; closeDetail(); render(); };
 };
 
@@ -796,9 +822,12 @@ const viewBtn=document.getElementById('viewBtn');
 viewBtn.onclick=()=>{document.body.classList.toggle('showmap');viewBtn.textContent=document.body.classList.contains('showmap')?'Liste':'Karte';if(map)setTimeout(()=>map.invalidateSize(),50);};
 
 /* ---- Boot ---- */
-initMap();
-setScope('premium');
-openDB().then(async()=>{photoCounts=await countAll();render();if(map)drawMarkers(lastBase);}).catch(()=>{});
+(async function boot(){
+  await loadSharedCorrections();
+  initMap();
+  setScope('premium');
+  openDB().then(async()=>{photoCounts=await countAll();render();if(map)drawMarkers(lastBase);}).catch(()=>{});
+})();
 </script>
 </body>
 </html>
