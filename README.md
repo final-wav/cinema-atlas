@@ -32,8 +32,9 @@ lokal im Browser via IndexedDB/localStorage).
 
 - **IMAX weltweit** — Community-Datenbank [r-imax/imaxguide](https://github.com/r-imax/imaxguide) (Leinwandmaße, Projektortyp).
 - **Alle übrigen Kinos** — [OpenStreetMap](https://www.openstreetmap.org) (Overpass API), aktuell Deutschland.
-- **Premium-Formate** (Dolby Cinema, ScreenX, 4DX, iSense, Dolby Atmos, D-BOX) — recherchiert, gepflegt in `cinema_extra_de.csv`.
+- **Premium-Formate** (Dolby Cinema, ScreenX, 4DX, iSense, Dolby Atmos, D-BOX) — recherchiert bei den großen Kinoketten (u. a. CineStar, UCI, Cineplex, Kinopolis), gepflegt in `cinema_extra_de.csv`; einzelne Kinos zusätzlich auf Anfrage recherchiert und ergänzt.
 - **Event-/Vermietungsdaten** (Säle, Sitzplätze, Fotos, Datenblatt) — [red-carpet-event.de](https://www.red-carpet-event.de), soweit vorhanden.
+- **Geocoding** — Stadtnamen ↔ Koordinaten über die [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) und (zur Ergänzung fehlender Stadtnamen aus OpenStreetMap) [BigDataCloud](https://www.bigdatacloud.com/reverse-geocoding-api).
 
 ## Daten aktualisieren
 
