@@ -105,7 +105,10 @@ input:focus,select:focus{border-color:var(--accent)}
 
 /* Layout */
 main{flex:1;display:flex;min-height:0;position:relative}
-#listpane{width:46%;max-width:620px;min-width:360px;display:flex;flex-direction:column;border-right:1px solid var(--line2)}
+#listpane{width:34%;max-width:520px;min-width:280px;flex:none;display:flex;flex-direction:column;border-right:1px solid var(--line2)}
+#resizer{width:7px;flex:none;cursor:col-resize;position:relative;background:transparent;touch-action:none}
+#resizer::after{content:"";position:absolute;top:0;bottom:0;left:3px;width:1px;background:var(--line2)}
+#resizer:hover::after,#resizer.dragging::after{left:2px;width:3px;background:var(--accent)}
 .listhead{padding:9px 22px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;
   letter-spacing:.04em;color:var(--ink2);display:flex;justify-content:space-between;align-items:center;flex:none}
 .listhead select{font-size:11px;padding:3px 6px}
@@ -199,6 +202,7 @@ footer{display:none}
   header,.modebar,.controls,footer{display:none!important}
   main{position:static;display:block}
   #listpane{width:auto;max-width:none;min-width:0;border:0;height:100%}
+  #resizer{display:none}
 
   /* map fills the whole screen behind the floating UI */
   #map{position:fixed;inset:0;width:auto;height:auto;min-width:0;z-index:0}
@@ -334,6 +338,7 @@ footer{display:none}
     </div>
     <div id="rows"></div>
   </section>
+  <div id="resizer" title="Ziehen, um die Breite anzupassen"></div>
   <div id="map"></div>
   <aside id="sidepanel"><button class="dt-x" id="sidex">×</button><div class="dt-in" id="sidein"></div></aside>
 </main>
@@ -1018,6 +1023,37 @@ applyTheme(localStorage.getItem('imaxTheme')||'light');
 /* ---- Legacy toggle button (hidden on mobile; kept as a reference used by startEdit) ---- */
 const viewBtn=document.getElementById('viewBtn');
 viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout(()=>map.invalidateSize(),50);};
+
+/* ---- Seitenleiste per Ziehgriff anpassen ---- */
+(function initResizer(){
+  const listpane=document.getElementById('listpane'), resizer=document.getElementById('resizer');
+  if(!listpane||!resizer) return;
+  const MIN=280, MAX=650;
+  const saved=parseInt(localStorage.getItem('listpaneWidth'),10);
+  if(saved && saved>=MIN && saved<=MAX){ listpane.style.width=saved+'px'; listpane.style.maxWidth='none'; }
+  let dragging=false, raf=null;
+  function apply(x){
+    const rect=listpane.parentElement.getBoundingClientRect();
+    let w=Math.round(x-rect.left);
+    w=Math.max(MIN,Math.min(MAX,w));
+    listpane.style.width=w+'px'; listpane.style.maxWidth='none';
+    if(map){ if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>map.invalidateSize()); }
+  }
+  resizer.addEventListener('pointerdown',e=>{
+    if(innerWidth<=820) return; // mobil: kein Resize
+    dragging=true; resizer.classList.add('dragging'); resizer.setPointerCapture(e.pointerId);
+    document.body.style.userSelect='none';
+  });
+  resizer.addEventListener('pointermove',e=>{ if(dragging) apply(e.clientX); });
+  function stop(){
+    if(!dragging) return;
+    dragging=false; resizer.classList.remove('dragging'); document.body.style.userSelect='';
+    localStorage.setItem('listpaneWidth', parseInt(listpane.style.width,10));
+    if(map) setTimeout(()=>map.invalidateSize(),50);
+  }
+  resizer.addEventListener('pointerup',stop);
+  resizer.addEventListener('pointercancel',stop);
+})();
 
 /* ---- Boot ---- */
 (async function boot(){
