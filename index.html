@@ -120,6 +120,11 @@ main{flex:1;display:flex;min-height:0;position:relative}
   font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
 .row .meta .sw{width:8px;height:8px;border-radius:1px;display:inline-block;margin-right:5px;vertical-align:middle}
 .row .seventy{color:var(--accent);font-weight:600}
+.row .ndist{color:var(--accent);font-weight:600;font-family:var(--mono);letter-spacing:0;text-transform:none}
+.nearnote{padding:12px 22px;font-size:12.5px;line-height:1.45;color:var(--ink2);
+  background:color-mix(in srgb,var(--accent) 9%,transparent);border-bottom:1px solid var(--line2)}
+.nearnote b{color:var(--ink)}
+.nearnote .txtbtn{margin-left:8px}
 .row .dim{text-align:right;font-family:var(--mono);font-size:13px;line-height:1.3;white-space:nowrap}
 .row .dim small{display:block;color:var(--ink2);font-size:10px;letter-spacing:.04em;text-transform:uppercase}
 mark{background:color-mix(in srgb,var(--accent) 22%,transparent);color:inherit;padding:0 1px}
@@ -474,7 +479,16 @@ const qEl=document.getElementById('q'),f70=document.getElementById('film70'),
   fcom=document.getElementById('commercial'),sortEl=document.getElementById('sort'),
   cpl=document.getElementById('coupled'),regionEl=document.getElementById('region'),
   countryEl=document.getElementById('country');
-[qEl,f70,fcom,sortEl].forEach(e=>e.addEventListener('input',render));
+// Tippen in der Suche verlässt den Umkreis-Modus und filtert wieder normal
+qEl.addEventListener('input',()=>{ if(nearAnchor||nearError){nearAnchor=null;nearError='';clearNearMarker();} render(); });
+[f70,fcom,sortEl].forEach(e=>e.addEventListener('input',render));
+// Enter / „Suchen“: wenn die Textsuche nichts findet, die nächsten Kinos zeigen
+qEl.addEventListener('keydown',e=>{
+  if(e.key!=='Enter') return;
+  e.preventDefault();
+  if(nearAnchor) return;                 // schon im Umkreis-Modus
+  if(qEl.value.trim() && lastBase.length===0) searchNearest(qEl.value);
+});
 cpl.addEventListener('change',()=>{coupled=cpl.checked;render();});
 
 // Region- und Länder-Dropdowns füllen
@@ -498,11 +512,74 @@ function zoomToFilter(){
   if(b.isValid())map.flyToBounds(b,{padding:[40,40],maxZoom:11,duration:.6});
 }
 
+/* ---- Umkreissuche: wenn die Textsuche nichts findet, den Ort geokodieren
+       und die nächstgelegenen Kinos nach Entfernung zeigen ---- */
+let nearAnchor=null;   // {lat,lng,label} — aktiver Suchort
+let nearError='';      // gesuchter Ort, der nicht gefunden wurde
+let nearBusy=false;
+const NEAR_MAX=60;
+function distKm(aLat,aLng,bLat,bLng){
+  const R=6371,toR=x=>x*Math.PI/180;
+  const dLa=toR(bLat-aLat),dLo=toR(bLng-aLng);
+  const s=Math.sin(dLa/2)**2+Math.cos(toR(aLat))*Math.cos(toR(bLat))*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.min(1,Math.sqrt(s)));
+}
+const fmtDist=km=> km<1?Math.round(km*1000)+' m' : km<10?km.toFixed(1)+' km' : Math.round(km)+' km';
+async function geocodePlace(q){
+  const url='https://geocoding-api.open-meteo.com/v1/search?count=1&language=de&format=json&name='+encodeURIComponent(q);
+  const r=await fetch(url); if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  if(!j.results||!j.results.length) return null;
+  const g=j.results[0];
+  return {lat:g.latitude,lng:g.longitude,label:[g.name,g.admin1,g.country].filter(Boolean).join(', ')};
+}
+async function searchNearest(q){
+  q=(q||'').trim(); if(!q||nearBusy) return;
+  nearBusy=true; nearError=''; setCountBusy('Suche Ort „'+q+'“ …');
+  try{
+    const geo=await geocodePlace(q);
+    if(!geo){ nearAnchor=null; nearError=q; nearBusy=false; render(); return; }
+    nearAnchor=geo; nearBusy=false; render();
+    placeNearMarker(geo); fitNear();
+  }catch(e){ nearAnchor=null; nearError=q; nearBusy=false; render(); }
+}
+function clearNear(){ nearAnchor=null; nearError=''; qEl.value=''; clearNearMarker(); render(); }
+function setCountBusy(t){ const el=document.getElementById('count'); if(el)el.textContent=t; }
+let nearMarker=null;
+function clearNearMarker(){ if(nearMarker&&map){try{map.removeLayer(nearMarker);}catch(e){}} nearMarker=null; }
+function placeNearMarker(a){
+  if(!map)return; clearNearMarker();
+  try{
+    nearMarker=L.circleMarker([a.lat,a.lng],{renderer:dotRenderer,radius:9,weight:3,
+      color:cv('--accent'),fillColor:cv('--accent'),fillOpacity:.22}).addTo(map);
+    nearMarker.bindPopup('<div class="pp"><div class="nm">'+esc(a.label)+'</div><div class="mt">Suchort</div></div>');
+  }catch(e){}
+}
+function fitNear(){
+  if(!map||!nearAnchor)return;
+  try{
+    const pts=[[nearAnchor.lat,nearAnchor.lng]].concat(lastBase.slice(0,6).map(d=>[d.lat,d.lng]));
+    const b=L.latLngBounds(pts); if(b.isValid())map.flyToBounds(b,{padding:[50,50],maxZoom:11,duration:.6});
+  }catch(e){}
+}
+
 /* ---- Filter ---- */
 function baseFiltered(){
   const terms=norm(qEl.value).split(/\s+/).filter(Boolean);
   const allowed=new Set();
   curChips.forEach(c=>{if(active.has(c.key))c.cats.forEach(x=>allowed.add(x));});
+  // Umkreis-Modus: Textsuche fand nichts, Ort ist geokodiert → nächste Kinos
+  // (Format-/70mm-/kommerziell-Filter bleiben aktiv; Region/Land werden ignoriert,
+  //  damit wirklich die nächstgelegenen Säle erscheinen — auch grenzübergreifend)
+  if(nearAnchor){
+    let arr=DATA.filter(d=>!isDeleted(d))
+      .filter(d=>d.cats.some(c=>allowed.has(c)))
+      .filter(d=>!f70.checked||d.film)
+      .filter(d=>!fcom.checked||d.com);
+    arr.forEach(d=>d._dist=distKm(nearAnchor.lat,nearAnchor.lng,d.lat,d.lng));
+    arr.sort((a,b)=>a._dist-b._dist);
+    return arr.slice(0,NEAR_MAX);
+  }
   let arr=DATA.filter(d=>!isDeleted(d))
     .filter(d=>d.cats.some(c=>allowed.has(c)))
     .filter(d=>!regionEl.value||d.reg===regionEl.value)
@@ -521,6 +598,7 @@ function baseFiltered(){
   return arr;
 }
 function inBounds(arr){
+  if(nearAnchor)return arr;   // Umkreis: immer alle nächsten zeigen, nicht am Ausschnitt filtern
   if(!coupled||!map)return arr;
   const b=map.getBounds();
   return arr.filter(d=>b.contains([d.lat,d.lng]));
@@ -534,9 +612,11 @@ function renderList(){
   const base=lastBase;
   const vis=inBounds(base);
   const terms=norm(qEl.value).split(/\s+/).filter(Boolean);
-  document.getElementById('count').textContent =
-    (coupled&&map? `${vis.length} im Kartenausschnitt · ` : '') + `${base.length} Treffer (von ${DATA.length})`;
-  const html=vis.map(d=>{
+  const near=!!nearAnchor, q=qEl.value.trim();
+  if(!nearBusy) document.getElementById('count').textContent =
+    near ? `„${nearAnchor.label}“ — nächste Kinos in der Umgebung`
+         : (coupled&&map? `${vis.length} im Kartenausschnitt · ` : '') + `${base.length} Treffer (von ${DATA.length})`;
+  const rows=vis.map(d=>{
     const id=d.id,n=photoCounts[id]||0,dt=dimText(d);
     const badges=d.cats.map(c=>`<span><span class="sw" style="background:${catColor(c)}"></span>${FORMATS[c]?FORMATS[c].short:c}</span>`).join('');
     return `<div class="row" data-id="${esc(id)}" data-key="${esc(id)}">
@@ -544,6 +624,7 @@ function renderList(){
         <div class="name">${hl(d.n,terms)}${d._edited?'<span class="edited" title="lokal bearbeitet">✎</span>':''}</div>
         <div class="loc">${hl(d.ci,terms)}${d.st?', '+esc(d.st):''} — ${hl(d.co,terms)}</div>
         <div class="meta">
+          ${near&&d._dist!=null?`<span class="ndist">≈ ${fmtDist(d._dist)}</span>`:''}
           ${badges}
           ${d.film?'<span class="seventy">70 mm</span>':''}
           ${n?`<span>${n} Foto${n>1?'s':''}</span>`:''}
@@ -551,11 +632,27 @@ function renderList(){
       </div>
       <div class="dim">${dt.main}<small>${dt.sub}</small></div>
     </div>`;
-  }).join('') || `<div class="empty" style="padding:30px 22px">Keine Säle im aktuellen Ausschnitt. Karte herauszoomen oder „an Karte koppeln“ abschalten.</div>`;
+  }).join('');
+  let html;
+  if(near){
+    html=`<div class="nearnote">Keine direkten Treffer für „${esc(q)}“ — hier die nächsten Kinos zu <b>${esc(nearAnchor.label)}</b>.<button class="txtbtn" id="nearClear">zurücksetzen</button></div>`+rows;
+  }else if(rows){
+    html=rows;
+  }else if(nearError){
+    html=`<div class="empty" style="padding:30px 22px">Ort „${esc(nearError)}“ nicht gefunden. Bitte Schreibweise prüfen.<button class="txtbtn" id="nearClear" style="display:block;margin-top:10px">zurücksetzen</button></div>`;
+  }else if(q && base.length===0){
+    html=`<div class="empty" style="padding:30px 22px">Keine direkten Treffer für „${esc(q)}“.<button class="addbtn" id="nearGo" style="display:block;margin-top:14px">Kinos in der Nähe zeigen</button></div>`;
+  }else{
+    html=`<div class="empty" style="padding:30px 22px">Keine Säle im aktuellen Ausschnitt. Karte herauszoomen oder „an Karte koppeln“ abschalten.</div>`;
+  }
   rowsEl.innerHTML=html;
 }
 const rowsEl=document.getElementById('rows');
-rowsEl.addEventListener('click',e=>{const r=e.target.closest('.row');if(r)openDetail(r.dataset.key);});
+rowsEl.addEventListener('click',e=>{
+  if(e.target.closest('#nearGo')){ searchNearest(qEl.value); return; }
+  if(e.target.closest('#nearClear')){ clearNear(); return; }
+  const r=e.target.closest('.row');if(r)openDetail(r.dataset.key);
+});
 rowsEl.addEventListener('mouseover',e=>{const r=e.target.closest('.row');if(r)highlightMarker(r.dataset.id,true);});
 rowsEl.addEventListener('mouseout',e=>{const r=e.target.closest('.row');if(r)highlightMarker(r.dataset.id,false);});
 
