@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinema Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<style>
+:root{
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  /* light (paper) */
+  --paper:#f3efe6; --paper2:#eae4d7; --card:#f7f4ec;
+  --ink:#1c1a16; --ink2:#6a6456; --line:#d8d1c0; --line2:#c5bca7;
+  --accent:#c1352b; --accent-ink:#fff;
+  --c-film143:#c1352b; --c-laser143:#b07d12; --c-dome:#2c7a57;
+  --c-gtxt190:#2f5d8a; --c-cola190:#6b5b95; --c-xenon190:#8a8275;
+  --c-other190:#9a917f; --c-other:#b3aa96;
+  --c-dolby_cinema:#3b4cc0; --c-screenx:#0e7c86; --c-fourdx:#c0398b;
+  --c-atmos:#9a7d2e; --c-isense:#a8632a; --c-cinema:#9aa0a6; --c-dbox:#1f7a6b;
+  --shadow:none;
+}
+html[data-theme="dark"]{
+  --paper:#14110d; --paper2:#1c1813; --card:#1a1610;
+  --ink:#ece6d8; --ink2:#9c9382; --line:#322c24; --line2:#433c31;
+  --accent:#e2574c; --accent-ink:#1a120f;
+  --c-film143:#e2574c; --c-laser143:#d7a23f; --c-dome:#46a87f;
+  --c-gtxt190:#5d92c9; --c-cola190:#9d8ec9; --c-xenon190:#a39a89;
+  --c-other190:#8d8475; --c-other:#7d7567;
+  --c-dolby_cinema:#6f7fe0; --c-screenx:#3fb0bb; --c-fourdx:#e06bb4;
+  --c-atmos:#c4ab66; --c-isense:#cf9152; --c-cinema:#7f8690; --c-dbox:#3fb0a0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:14px;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* Masthead */
+header{border-bottom:1px solid var(--line2);padding:14px 22px 12px;display:flex;align-items:baseline;gap:18px;flex:none}
+.brand{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:-.01em;line-height:1}
+.brand .x{color:var(--accent)}
+.tag{font-size:12px;color:var(--ink2);max-width:520px;line-height:1.45}
+.tag b{color:var(--ink);font-weight:600}
+.spacer{flex:1}
+.themebtn{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  background:none;border:1px solid var(--line2);color:var(--ink);border-radius:2px;padding:6px 11px;cursor:pointer}
+.themebtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Controls */
+.controls{border-bottom:1px solid var(--line);padding:10px 22px;display:flex;flex-wrap:wrap;
+  gap:14px 20px;align-items:center;flex:none}
+.ctl{display:flex;align-items:center;gap:8px}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+input[type=search],select{font-family:var(--sans);font-size:13px;background:var(--card);color:var(--ink);
+  border:1px solid var(--line2);border-radius:2px;padding:7px 10px;outline:none}
+input[type=search]{min-width:230px}
+input:focus,select:focus{border-color:var(--accent)}
+.facets{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+.facet{font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink);background:none;border:0;border-bottom:2px solid transparent;padding:3px 0;cursor:pointer;
+  display:inline-flex;gap:6px;align-items:center}
+.facet .sw{width:9px;height:9px;border-radius:1px;flex:none}
+.facet .ct{font-family:var(--mono);font-weight:400;color:var(--ink2);letter-spacing:0;font-size:11px}
+.facet.off{opacity:.35}
+.facet.on{border-bottom-color:var(--ink)}
+.facet:hover{color:var(--accent)}
+.fgroup{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink2);opacity:.75;padding:0 4px 0 8px;border-left:1px solid var(--line2)}
+.fgroup:first-child{border-left:0;padding-left:0}
+.modebar{display:flex;align-items:center;gap:16px;padding:9px 22px;border-bottom:1px solid var(--line);flex:none}
+.modesw{display:inline-flex;border:1px solid var(--line2);border-radius:3px;overflow:hidden;flex:none}
+.modesw button{font-family:var(--serif);font-size:14.5px;background:none;border:0;color:var(--ink2);
+  padding:6px 16px;cursor:pointer;border-right:1px solid var(--line2);white-space:nowrap}
+.modesw button:last-child{border-right:0}
+.modesw button.active{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.modesw button:not(.active):hover{color:var(--ink)}
+.modehint{font-size:12px;color:var(--ink2)}
+.dt-web{display:inline-block;margin-top:10px;font-size:13px;font-weight:600}
+.evbox{font-size:13.5px;line-height:1.5} .evbox .evlink{display:block;margin:5px 0;font-weight:500}
+.hallstbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+.hallstbl th{text-align:left;font-family:var(--mono);font-weight:400;font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink2);padding:5px 6px;border-bottom:1px solid var(--line2)}
+.hallstbl td{padding:5px 6px;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.hallstbl tr.imaxrow td{color:var(--accent)}
+.hallstbl tfoot td{font-weight:600;border-bottom:0;padding-top:8px}
+.rcegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:10px 0}
+.rcethumb{position:relative;border:1px solid var(--line);border-radius:2px;overflow:hidden;aspect-ratio:4/3;background:#000;cursor:zoom-in}
+.rcethumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+.rcethumb:hover img{transform:scale(1.05)}
+.rcethumb .cap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.72));
+  color:#fff;font-size:10px;padding:10px 6px 4px;line-height:1.2}
+@media(max-width:880px){.modehint{display:none}}
+.txtbtn{background:none;border:0;color:var(--ink2);font-size:11px;cursor:pointer;text-decoration:underline;font-family:var(--mono)}
+.check{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
+.check input{accent-color:var(--accent)}
+.viewtg{display:none}
+
+/* Layout */
+main{flex:1;display:flex;min-height:0;position:relative}
+#listpane{width:46%;max-width:620px;min-width:360px;display:flex;flex-direction:column;border-right:1px solid var(--line2)}
+.listhead{padding:9px 22px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;
+  letter-spacing:.04em;color:var(--ink2);display:flex;justify-content:space-between;align-items:center;flex:none}
+.listhead select{font-size:11px;padding:3px 6px}
+#rows{overflow:auto;flex:1}
+.row{padding:13px 22px;border-bottom:1px solid var(--line);cursor:pointer;display:grid;
+  grid-template-columns:1fr auto;column-gap:16px;align-items:start}
+.row:hover,.row.hot{background:var(--paper2)}
+.row .name{font-family:var(--serif);font-weight:500;font-size:16.5px;line-height:1.18;letter-spacing:-.005em}
+.row .extra{color:var(--accent);font-family:var(--mono);font-size:10px;vertical-align:super}
+.row .loc{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.row .meta{margin-top:6px;display:flex;flex-wrap:wrap;gap:9px;align-items:center;
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.row .meta .sw{width:8px;height:8px;border-radius:1px;display:inline-block;margin-right:5px;vertical-align:middle}
+.row .seventy{color:var(--accent);font-weight:600}
+.row .dim{text-align:right;font-family:var(--mono);font-size:13px;line-height:1.3;white-space:nowrap}
+.row .dim small{display:block;color:var(--ink2);font-size:10px;letter-spacing:.04em;text-transform:uppercase}
+mark{background:color-mix(in srgb,var(--accent) 22%,transparent);color:inherit;padding:0 1px}
+.rowdetail{background:var(--paper2);border-bottom:2px solid var(--line2)}
+.rowdetail .dt-in{padding:22px 22px 30px}
+.rowdetail .dt-name{font-size:22px}
+
+#map{flex:1;min-width:0}
+.leaflet-container{background:var(--paper2);font-family:var(--sans)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card);color:var(--ink);border-radius:2px;box-shadow:0 2px 14px rgba(0,0,0,.25)}
+.leaflet-popup-content{margin:11px 13px;font-size:12px}
+.pp .nm{font-family:var(--serif);font-size:14px;font-weight:500}
+.pp .mt{color:var(--ink2);margin-top:3px}
+.marker-cluster div{font-family:var(--mono);font-weight:500}
+
+/* Detail slide-over */
+#sidepanel{position:absolute;top:0;right:0;bottom:0;width:480px;max-width:92%;background:var(--card);
+  border-left:1px solid var(--line2);transform:translateX(101%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+  overflow:auto;z-index:1200;box-shadow:-8px 0 30px rgba(0,0,0,.16)}
+#sidepanel.open{transform:none}
+.dt-x{position:absolute;top:14px;right:16px;background:none;border:0;font-size:22px;line-height:1;color:var(--ink2);cursor:pointer}
+.dt-x:hover{color:var(--accent)}
+.dt-in{padding:26px 26px 50px}
+.dt-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.dt-name{font-family:var(--serif);font-weight:600;font-size:27px;line-height:1.1;margin:8px 0 4px;letter-spacing:-.01em}
+.dt-loc{color:var(--ink2);font-size:13px}
+.dt-svg{margin:22px 0 8px;border:1px solid var(--line);background:var(--paper);border-radius:2px;padding:14px}
+.dt-cap{font-family:var(--mono);font-size:10.5px;color:var(--ink2);letter-spacing:.04em;text-align:center;margin-top:6px}
+.specs{width:100%;border-collapse:collapse;margin:18px 0 4px;font-size:13px}
+.specs th{text-align:left;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink2);padding:7px 0;width:42%;vertical-align:top;border-bottom:1px solid var(--line)}
+.specs td{padding:7px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px}
+.sectit{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink2);margin:26px 0 12px;border-bottom:1px solid var(--line2);padding-bottom:6px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px}
+.thumb{position:relative;border:1px solid var(--line);border-radius:2px;overflow:hidden;aspect-ratio:4/3;background:#000}
+.thumb img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;display:block}
+.thumb .del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.62);color:#fff;border:0;width:22px;height:22px;border-radius:50%;cursor:pointer}
+.addbtn{display:inline-block;margin-top:12px;font-family:var(--sans);font-weight:600;font-size:12.5px;
+  background:var(--accent);color:var(--accent-ink);border-radius:2px;padding:8px 14px;cursor:pointer}
+.hint{color:var(--ink2);font-size:11px;line-height:1.5;margin-top:9px}
+.empty{color:var(--ink2);font-size:12px;padding:6px 0}
+.specs .muted{color:var(--ink2);font-weight:400}
+.editlink{background:none;border:0;color:var(--accent);font-size:11px;cursor:pointer;text-decoration:underline;margin-left:8px;font-family:var(--mono)}
+.editform label{display:block;font-size:10px;color:var(--ink2);margin-top:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em}
+.editform input,.editform select{width:100%;margin-top:4px;background:var(--paper);color:var(--ink);border:1px solid var(--line2);border-radius:2px;padding:7px 9px;font-size:13px;font-family:var(--sans)}
+.editform input:focus,.editform select:focus{border-color:var(--accent);outline:none}
+.editform .erow{display:flex;gap:10px}.editform .erow>label,.editform .erow>button{flex:1}
+.ghost{background:none;border:1px solid var(--line2);color:var(--ink);border-radius:2px;padding:9px 12px;font-size:13px;cursor:pointer;margin-top:10px}
+.ghost:hover{border-color:var(--accent)}
+.ghost.danger{color:var(--accent);border-color:var(--accent)}
+.edited{color:var(--accent);font-size:11px;margin-left:5px}
+
+footer{display:none}
+@media(max-width:880px){
+  main{display:block}
+  #listpane,#map{width:100%;max-width:none;height:calc(100vh - 0px)}
+  #listpane{border-right:0}
+  #map{display:none}
+  body.showmap #listpane{display:none}
+  body.showmap #map{display:block}
+  .viewtg{display:inline-flex}
+  #sidepanel{width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Cinema<span class="x">·</span>Atlas</div>
+  <div class="tag">Kinosäle nach Premium-Format — IMAX weltweit (mit Leinwandmaßen), dazu <b>Dolby&nbsp;Cinema</b>, <b>ScreenX</b>, <b>4DX</b>, <b>iSense</b> &amp; <b>Dolby&nbsp;Atmos</b> (Start: Deutschland).</div>
+  <div class="spacer"></div>
+  <button class="themebtn viewtg" id="viewBtn">Karte</button>
+  <a class="themebtn" href="anleitung.html" target="_blank" style="text-decoration:none" title="Anleitung: Einträge hinzufügen, bearbeiten, Formate, Koordinaten">Anleitung</a>
+  <button class="themebtn" id="reportBtn" title="Ein fehlendes oder falsches Kino melden">Fehler melden</button>
+  <button class="themebtn" id="exportBtn" title="Eigene Korrekturen als corrections.json speichern (für update.py)">Export</button>
+  <button class="themebtn" id="themeBtn">Dunkel</button>
+</header>
+
+<div class="modebar">
+  <div class="modesw">
+    <button data-mode="imax">IMAX</button>
+    <button data-mode="premium">Premium</button>
+    <button data-mode="cinema">Alle Kinos</button>
+  </div>
+  <span class="modehint" id="modehint"></span>
+</div>
+
+<div class="controls">
+  <div class="ctl"><input type="search" id="q" placeholder="Suche: Kino, Stadt, Land …"></div>
+  <div class="ctl"><span class="lbl">Region</span>
+    <select id="region"><option value="">alle</option></select></div>
+  <div class="ctl"><span class="lbl">Land</span>
+    <select id="country"><option value="">alle Länder</option></select></div>
+  <div class="facets" id="facets"></div>
+  <button class="txtbtn" id="allOn">alle</button>
+  <button class="txtbtn" id="allOff">keine</button>
+  <div class="spacer" style="flex:1"></div>
+  <label class="check" id="detailWrap" style="display:none"><input type="checkbox" id="detailToggle"> 1.90-Technik aufschlüsseln</label>
+  <label class="check"><input type="checkbox" id="film70"> 70-mm-fähig</label>
+  <label class="check"><input type="checkbox" id="commercial"> kommerziell</label>
+  <label class="check"><input type="checkbox" id="coupled" checked> an Karte koppeln</label>
+</div>
+
+<main>
+  <section id="listpane">
+    <div class="listhead">
+      <span id="count">—</span>
+      <span>sortieren:
+        <select id="sort">
+          <option value="co">Land</option>
+          <option value="n">Name</option>
+          <option value="ci">Stadt</option>
+          <option value="area">Leinwandfläche</option>
+          <option value="ar">Seitenverhältnis</option>
+        </select>
+      </span>
+    </div>
+    <div id="rows"></div>
+  </section>
+  <div id="map"></div>
+  <aside id="sidepanel"><button class="dt-x" id="sidex">×</button><div class="dt-in" id="sidein"></div></aside>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="cinema-data.js"></script>
+<script src="config.js"></script>
+<script>
+const FORMATS={
+  film143:{label:"IMAX 70 mm Film",short:"70 mm · 1.43",ar:"1.43:1",group:"imax"},
+  laser143:{label:"IMAX 1.43:1 Laser",short:"1.43 · Laser",ar:"1.43:1",group:"imax"},
+  dome:{label:"IMAX Dome",short:"Dome",ar:"Dome",group:"imax"},
+  gtxt190:{label:"IMAX 1.90:1 GT/XT",short:"1.90 · GT/XT",ar:"1.90:1",group:"imax"},
+  cola190:{label:"IMAX 1.90:1 CoLa",short:"1.90 · CoLa",ar:"1.90:1",group:"imax"},
+  xenon190:{label:"IMAX 1.90:1 Xenon",short:"1.90 · Xenon",ar:"1.90:1",group:"imax"},
+  other190:{label:"IMAX 1.90:1 ?",short:"1.90 · ?",ar:"1.90:1",group:"imax"},
+  other:{label:"IMAX Sonstige",short:"Sonstige",ar:"—",group:"imax"},
+  dolby_cinema:{label:"Dolby Cinema",short:"Dolby Cinema",ar:"—",group:"weitere"},
+  screenx:{label:"ScreenX 270°",short:"ScreenX",ar:"—",group:"weitere"},
+  fourdx:{label:"4DX",short:"4DX",ar:"—",group:"weitere"},
+  isense:{label:"iSense (UCI)",short:"iSense",ar:"—",group:"weitere"},
+  atmos:{label:"Dolby Atmos",short:"Atmos",ar:"—",group:"weitere"},
+  dbox:{label:"D-BOX Motion",short:"D-BOX",ar:"—",group:"weitere"},
+  cinema:{label:"Kino (allgemein)",short:"Kino",ar:"—",group:"cinema"},
+};
+const IMAXCATS=new Set(['film143','laser143','dome','gtxt190','cola190','xenon190','other190','other']);
+const FDESC={
+  dolby_cinema:"Dolby Cinema — Dolby-Vision-Laserprojektion (sehr hoher Kontrast, HDR) plus Dolby Atmos in einem eigens gestalteten Saal.",
+  screenx:"ScreenX (CJ 4DPLEX) — 270°-Panorama: das Bild wird auf die linke und rechte Seitenwand erweitert.",
+  fourdx:"4DX (CJ 4DPLEX) — Bewegungssitze plus Effekte: Wind, Wasser, Nebel, Duft synchron zum Film.",
+  isense:"iSense — UCI-Premiumsaal mit großer Leinwand und Dolby Atmos.",
+  atmos:"Dolby Atmos — objektbasierter 3D-Ton mit zusätzlichen Deckenlautsprechern.",
+  dbox:"D-BOX Motion-Seats — einzelne Sitze bewegen sich synchron zum Film (Bewegung wie bei 4DX, jedoch ohne Wind/Wasser/Duft).",
+  cinema:"Reguläres Kino — Standort & Website aus OpenStreetMap. Ein evtl. vorhandenes Premium-Format ist hier nicht separat erfasst.",
+};
+const IMAXCATSARR=[...IMAXCATS];
+// Eine Hierarchie: grobe Stufe (Umschalter) -> passende Chips. Keine Wiederholung.
+const SCOPES={
+  imax:{chips:[
+    {key:'70',  label:'70 mm Film', cats:['film143'], color:'--c-film143'},
+    {key:'l143',label:'1.43:1 Laser',cats:['laser143'],color:'--c-laser143'},
+    {key:'190', label:'1.90:1',     cats:['gtxt190','cola190','xenon190','other190','other'],color:'--c-gtxt190'},
+    {key:'dome',label:'Dome',       cats:['dome'],    color:'--c-dome'},
+  ], detail:[ // ersetzt '190', wenn „aufschlüsseln" an ist
+    {key:'gtxt190', label:'1.90 GT/XT',cats:['gtxt190'], color:'--c-gtxt190'},
+    {key:'cola190', label:'1.90 CoLa', cats:['cola190'], color:'--c-cola190'},
+    {key:'xenon190',label:'1.90 Xenon',cats:['xenon190','other190','other'],color:'--c-xenon190'},
+  ]},
+  premium:{chips:[
+    {key:'imax',        label:'IMAX',        cats:IMAXCATSARR,    color:'--c-film143'},
+    {key:'dolby_cinema',label:'Dolby Cinema',cats:['dolby_cinema'],color:'--c-dolby_cinema'},
+    {key:'screenx',     label:'ScreenX',     cats:['screenx'],   color:'--c-screenx'},
+    {key:'fourdx',      label:'4DX',         cats:['fourdx'],    color:'--c-fourdx'},
+    {key:'isense',      label:'iSense',      cats:['isense'],    color:'--c-isense'},
+    {key:'atmos',       label:'Dolby Atmos', cats:['atmos'],     color:'--c-atmos'},
+    {key:'dbox',        label:'D-BOX',       cats:['dbox'],      color:'--c-dbox'},
+  ]},
+  cinema:{chips:[
+    {key:'imax',   label:'IMAX',            cats:IMAXCATSARR, color:'--c-film143'},
+    {key:'premium',label:'Premium-Formate', cats:['dolby_cinema','screenx','fourdx','isense','atmos','dbox'],color:'--c-dolby_cinema'},
+    {key:'cinema', label:'sonstige Kinos',  cats:['cinema'],  color:'--c-cinema'},
+  ]},
+};
+const cv=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim()||'#888';
+const catColor=cat=>cv('--c-'+cat);
+const norm=s=>(s||"").toString().normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const cid=d=>slug(d.n+'-'+d.ci);
+const area=d=>d.cat==='dome'?(d.w?Math.PI*(d.w/2)*(d.w/2):0):((d.w||0)*(d.h||0));
+function dimText(d){
+  if(d.cat==='dome') return d.w?{main:'Ø '+d.w+' m',sub:'Kuppel'}:{main:'—',sub:''};
+  if(d.w&&d.h) return {main:d.w+' × '+d.h,sub:'Meter (B×H)'};
+  if(d.w) return {main:d.w+' m',sub:''};
+  return {main:'—',sub:'k. A.'};
+}
+
+const active=new Set();   // aktive Chip-Keys der aktuellen Stufe
+let photoCounts={},db=null,coupled=true,scope='premium',detailOn=false,curChips=[];
+
+/* ---- Eigene Korrekturen (localStorage) ---- */
+let OVERRIDES={},editingId=null,pickMode=false;
+try{OVERRIDES=JSON.parse(localStorage.getItem('cinemaOverrides')||'{}');}catch(e){}
+function persistOverrides(){localStorage.setItem('cinemaOverrides',JSON.stringify(OVERRIDES));}
+DATA.forEach(d=>{const o=OVERRIDES[d.id];if(o&&!o._delete){['n','ci','co','st','url','note','lat','lng'].forEach(k=>{if(k in o)d[k]=o[k];});d._edited=true;d.exact=true;}});
+const isDeleted=d=>!!(OVERRIDES[d.id]&&OVERRIDES[d.id]._delete);
+
+/* ---- IndexedDB ---- */
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('imaxPhotos',1);
+  r.onupgradeneeded=e=>{e.target.result.createObjectStore('photos',{keyPath:'id',autoIncrement:true}).createIndex('cinema','cinema',{unique:false});};
+  r.onsuccess=e=>{db=e.target.result;res();};r.onerror=()=>rej();});}
+const ps=m=>db.transaction('photos',m).objectStore('photos');
+const addPhoto=(c,b)=>new Promise((s,j)=>{const r=ps('readwrite').add({cinema:c,blob:b,ts:Date.now()});r.onsuccess=s;r.onerror=j;});
+const delPhoto=i=>new Promise((s,j)=>{const r=ps('readwrite').delete(i);r.onsuccess=s;r.onerror=j;});
+const getPhotos=c=>new Promise((s,j)=>{const o=[];const r=ps('readonly').index('cinema').openCursor(IDBKeyRange.only(c));r.onsuccess=e=>{const k=e.target.result;if(k){o.push({id:k.value.id,blob:k.value.blob});k.continue();}else s(o);};r.onerror=j;});
+const countAll=()=>new Promise((s,j)=>{const m={};const r=ps('readonly').openCursor();r.onsuccess=e=>{const k=e.target.result;if(k){m[k.value.cinema]=(m[k.value.cinema]||0)+1;k.continue();}else s(m);};r.onerror=j;});
+
+/* ---- Facets ---- */
+const facetsEl=document.getElementById('facets');
+const chipCount=c=>DATA.reduce((s,d)=>s+(d.cats.some(x=>c.cats.includes(x))?1:0),0);
+function chipDefs(){
+  let chips=SCOPES[scope].chips.slice();
+  if(scope==='imax'&&detailOn){
+    const i=chips.findIndex(c=>c.key==='190');
+    if(i>=0) chips.splice(i,1,...SCOPES.imax.detail);
+  }
+  return chips;
+}
+function renderChips(){
+  curChips=chipDefs();
+  active.clear(); curChips.forEach(c=>active.add(c.key));   // neue Stufe: alles an
+  facetsEl.innerHTML='';
+  curChips.forEach(c=>{
+    const b=document.createElement('button');b.className='facet on';b.dataset.k=c.key;
+    b.innerHTML=`<span class="sw" style="background:${cv(c.color)}"></span>${c.label}<span class="ct">${chipCount(c)}</span>`;
+    b.onclick=()=>{b.classList.toggle('off');b.classList.toggle('on');active.has(c.key)?active.delete(c.key):active.add(c.key);render();};
+    facetsEl.appendChild(b);
+  });
+}
+document.getElementById('allOn').onclick=()=>{curChips.forEach(c=>active.add(c.key));facetsEl.querySelectorAll('.facet').forEach(b=>{b.classList.add('on');b.classList.remove('off');});render();};
+document.getElementById('allOff').onclick=()=>{active.clear();facetsEl.querySelectorAll('.facet').forEach(b=>{b.classList.remove('on');b.classList.add('off');});render();};
+
+// Umschalter: IMAX -> Premium -> Alle Kinos (einzige Stelle für die grobe Ebene)
+const SCOPEHINT={
+  imax:'Nur IMAX — weltweit, mit Leinwandmaßen.',
+  premium:'IMAX + Premium-Formate (Dolby Cinema, ScreenX, 4DX, iSense, Atmos) — derzeit Deutschland.',
+  cinema:'Zusätzlich alle übrigen Kinos aus OpenStreetMap (derzeit Deutschland), mit Website-Link.'};
+function setScope(s){
+  scope=s;
+  document.querySelectorAll('.modesw button').forEach(b=>b.classList.toggle('active',b.dataset.mode===s));
+  const mh=document.getElementById('modehint'); if(mh)mh.textContent=SCOPEHINT[s]||'';
+  document.getElementById('detailWrap').style.display=s==='imax'?'':'none';
+  renderChips();
+  render();
+}
+document.querySelectorAll('.modesw button').forEach(b=>b.onclick=()=>setScope(b.dataset.mode));
+document.getElementById('detailToggle').addEventListener('change',e=>{detailOn=e.target.checked;renderChips();render();});
+
+/* ---- Controls ---- */
+const qEl=document.getElementById('q'),f70=document.getElementById('film70'),
+  fcom=document.getElementById('commercial'),sortEl=document.getElementById('sort'),
+  cpl=document.getElementById('coupled'),regionEl=document.getElementById('region'),
+  countryEl=document.getElementById('country');
+[qEl,f70,fcom,sortEl].forEach(e=>e.addEventListener('input',render));
+cpl.addEventListener('change',()=>{coupled=cpl.checked;render();});
+
+// Region- und Länder-Dropdowns füllen
+[...new Set(DATA.map(d=>d.reg))].sort((a,b)=>a.localeCompare(b,'de'))
+  .forEach(r=>regionEl.add(new Option(r,r)));
+function fillCountries(){
+  const reg=regionEl.value, cur=countryEl.value;
+  const cnt={};DATA.filter(d=>!reg||d.reg===reg).forEach(d=>cnt[d.co]=(cnt[d.co]||0)+1);
+  countryEl.innerHTML='<option value="">alle Länder</option>';
+  Object.keys(cnt).sort((a,b)=>a.localeCompare(b,'de'))
+    .forEach(c=>countryEl.add(new Option(`${c} (${cnt[c]})`,c)));
+  countryEl.value=[...countryEl.options].some(o=>o.value===cur)?cur:'';
+}
+fillCountries();
+regionEl.addEventListener('change',()=>{fillCountries();render();zoomToFilter();});
+countryEl.addEventListener('change',()=>{render();zoomToFilter();});
+function zoomToFilter(){
+  if(!map||!lastBase.length)return;
+  if(!regionEl.value&&!countryEl.value){map.flyTo([25,5],2,{duration:.6});return;}
+  const b=L.latLngBounds(lastBase.map(d=>[d.lat,d.lng]));
+  if(b.isValid())map.flyToBounds(b,{padding:[40,40],maxZoom:11,duration:.6});
+}
+
+/* ---- Filter ---- */
+function baseFiltered(){
+  const terms=norm(qEl.value).split(/\s+/).filter(Boolean);
+  const allowed=new Set();
+  curChips.forEach(c=>{if(active.has(c.key))c.cats.forEach(x=>allowed.add(x));});
+  let arr=DATA.filter(d=>!isDeleted(d))
+    .filter(d=>d.cats.some(c=>allowed.has(c)))
+    .filter(d=>!regionEl.value||d.reg===regionEl.value)
+    .filter(d=>!countryEl.value||d.co===countryEl.value)
+    .filter(d=>!f70.checked||d.film)
+    .filter(d=>!fcom.checked||d.com)
+    .filter(d=>{if(!terms.length)return true;const h=norm([d.n,d.ci,d.st,d.co,d.reg].join(' '));return terms.every(t=>h.includes(t));});
+  const k=sortEl.value;
+  arr.sort((a,b)=>{
+    let va,vb;
+    if(k==='area'){va=area(b);vb=area(a);} // desc
+    else if(k==='ar'){va=norm(FORMATS[a.cat].ar);vb=norm(FORMATS[b.cat].ar);}
+    else {va=norm(a[k]);vb=norm(b[k]);}
+    if(va<vb)return -1;if(va>vb)return 1;return norm(a.n)<norm(b.n)?-1:1;
+  });
+  return arr;
+}
+function inBounds(arr){
+  if(!coupled||!map)return arr;
+  const b=map.getBounds();
+  return arr.filter(d=>b.contains([d.lat,d.lng]));
+}
+function hl(t,terms){let s=esc(t);terms.forEach(x=>{if(!x)return;s=s.replace(new RegExp('('+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');});return s;}
+
+/* ---- Render ---- */
+let lastBase=[];
+function render(){ lastBase=baseFiltered(); drawMarkers(lastBase); renderList(); }
+function renderList(){
+  const base=lastBase;
+  const vis=inBounds(base);
+  const terms=norm(qEl.value).split(/\s+/).filter(Boolean);
+  document.getElementById('count').textContent =
+    (coupled&&map? `${vis.length} im Kartenausschnitt · ` : '') + `${base.length} Treffer (von ${DATA.length})`;
+  const html=vis.map(d=>{
+    const id=d.id,n=photoCounts[id]||0,dt=dimText(d);
+    const badges=d.cats.map(c=>`<span><span class="sw" style="background:${catColor(c)}"></span>${FORMATS[c]?FORMATS[c].short:c}</span>`).join('');
+    return `<div class="row" data-id="${esc(id)}" data-key="${esc(id)}">
+      <div>
+        <div class="name">${hl(d.n,terms)}${d._edited?'<span class="edited" title="lokal bearbeitet">✎</span>':''}</div>
+        <div class="loc">${hl(d.ci,terms)}${d.st?', '+esc(d.st):''} — ${hl(d.co,terms)}</div>
+        <div class="meta">
+          ${badges}
+          ${d.film?'<span class="seventy">70 mm</span>':''}
+          ${n?`<span>${n} Foto${n>1?'s':''}</span>`:''}
+        </div>
+      </div>
+      <div class="dim">${dt.main}<small>${dt.sub}</small></div>
+    </div>`;
+  }).join('') || `<div class="empty" style="padding:30px 22px">Keine Säle im aktuellen Ausschnitt. Karte herauszoomen oder „an Karte koppeln“ abschalten.</div>`;
+  rowsEl.innerHTML=html;
+}
+const rowsEl=document.getElementById('rows');
+rowsEl.addEventListener('click',e=>{const r=e.target.closest('.row');if(r)openDetail(r.dataset.key);});
+rowsEl.addEventListener('mouseover',e=>{const r=e.target.closest('.row');if(r)highlightMarker(r.dataset.id,true);});
+rowsEl.addEventListener('mouseout',e=>{const r=e.target.closest('.row');if(r)highlightMarker(r.dataset.id,false);});
+
+/* ---- Map ---- */
+let map,cluster,markerById={},dataById={},dotRenderer=null;
+DATA.forEach(d=>dataById[d.id]=d);
+function initMap(){
+  map=L.map('map',{worldCopyJump:true,zoomControl:true}).setView([25,5],2);
+  map.createPane('dots');map.getPane('dots').style.zIndex=650;
+  dotRenderer=L.svg({pane:'dots'});
+  setTiles();
+  cluster=L.markerClusterGroup({maxClusterRadius:48,chunkedLoading:true,showCoverageOnHover:false});
+  map.addLayer(cluster);
+  let t;map.on('moveend',()=>{if(coupled){clearTimeout(t);t=setTimeout(renderList,120);}});
+  map.on('click',e=>{ if(!pickMode)return; pickMode=false;
+    const la=e.latlng.lat.toFixed(5),ln=e.latlng.lng.toFixed(5);
+    const eLat=document.getElementById('e_lat'),eLng=document.getElementById('e_lng');
+    if(eLat&&eLng){eLat.value=la;eLng.value=ln;}
+    const ph=document.getElementById('e_pickhint'); if(ph)ph.textContent='Standort gesetzt: '+la+', '+ln+' — jetzt „Speichern".';
+  });
+  drawMarkers(lastBase.length?lastBase:baseFiltered());
+}
+// Karte folgt dem Theme: Hell = OpenStreetMap, Dunkel = Voyager (invertiert -> farbig & dunkel)
+const MAPSTYLES={
+  light:{url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', sub:'abc', max:19, attr:'OpenStreetMap'},
+  dark: {url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', sub:'abcd', max:20, attr:'OpenStreetMap, CARTO', filter:'invert(1) hue-rotate(180deg) brightness(.92) contrast(.95)'},
+};
+let tileLayer=null;
+function setTiles(){
+  const s = MAPSTYLES[document.documentElement.dataset.theme] || MAPSTYLES.light;
+  if(tileLayer) map.removeLayer(tileLayer);
+  tileLayer=L.tileLayer(s.url, {maxZoom:s.max, subdomains:s.sub, attribution:'&copy; '+s.attr}).addTo(map);
+  map.getPane('tilePane').style.filter = s.filter || '';
+}
+function drawMarkers(arr){
+  if(!map)return;
+  cluster.clearLayers();markerById={};
+  const ms=arr.map(d=>{
+    const id=d.id,n=photoCounts[id]||0;
+    const rad=d.cat==='film143'?12:(d.cat==='cinema'?10:11);
+    const m=L.circleMarker([d.lat,d.lng],{renderer:dotRenderer,radius:rad,weight:2,color:cv('--paper'),fillColor:catColor(d.cat),fillOpacity:.95});
+    m._key=id;m._base=rad;
+    m.bindPopup(`<div class="pp"><div class="nm">${esc(d.n)}</div>
+      <div class="mt">${esc(d.ci)}${d.st?', '+esc(d.st):''}, ${esc(d.co)}</div>
+      <div class="mt">${d.cats.map(c=>FORMATS[c]?FORMATS[c].label:c).join(' · ')}${d.film?' · 70 mm':''}</div>
+      <div class="mt">${dimText(d).main!=='—'?dimText(d).main+' m':''}${n?(dimText(d).main!=='—'?' · ':'')+n+' Foto'+(n>1?'s':''):''}</div></div>`);
+    m.on('click',()=>openDetail(id));
+    markerById[id]=m;
+    return m;
+  });
+  cluster.addLayers(ms);
+}
+function highlightMarker(id,on){
+  const m=markerById[id];if(!m)return;
+  m.setStyle({radius:on?m._base+4:m._base,weight:on?2.6:1.8,color:on?cv('--accent'):cv('--paper')});
+  if(on&&m._map)m.bringToFront();
+}
+
+/* ---- Detail (Panel rechts) ---- */
+const sidepanel=document.getElementById('sidepanel');
+const dtin=document.getElementById('sidein');
+document.getElementById('sidex').onclick=closeDetail;
+function closeDetail(){sidepanel.classList.remove('open');}
+const PRIO=c=>{const o=['film143','laser143','dome','gtxt190','cola190','xenon190','other190','other','dolby_cinema','screenx','fourdx','isense','atmos','dbox','cinema'];const i=o.indexOf(c);return i<0?99:i;};
+function openDetail(key){
+  const d=dataById[key];if(!d){console.warn('openDetail: kein Eintrag für',key);return;}
+  try{
+  const f=FORMATS[d.cat],id=d.id;
+  const imf=d.formats.find(ff=>IMAXCATS.has(ff.cat)&&ff.w);
+  const graphic=imf
+    ? `<div class="dt-svg">${screenGraphic(imf)}</div><div class="dt-cap">Leinwand maßstabsgetreu — Figur = 1,80 m</div>`
+    : (FDESC[d.cat]?`<div class="dt-svg" style="font-size:13.5px;line-height:1.6">${esc(FDESC[d.cat])}</div>`:'');
+  const fmtRows=d.formats.slice().sort((a,b)=>PRIO(a.cat)-PRIO(b.cat)).map(ff=>{
+    const lab=FORMATS[ff.cat]?FORMATS[ff.cat].label:ff.cat;
+    let det='';
+    if(IMAXCATS.has(ff.cat)){
+      if(ff.ar) det+=' · '+ff.ar;
+      if(ff.cat==='dome'&&ff.w) det+=' · Ø '+ff.w+' m';
+      else if(ff.w&&ff.h) det+=' · '+ff.w+'×'+ff.h+' m';
+    }
+    if(ff.note) det+=' · '+esc(ff.note);
+    const sr=ff.srcurl?`<a href="${esc(ff.srcurl)}" target="_blank" rel="noopener">${esc(ff.src)} ↗</a>`:esc(ff.src||'');
+    return `<tr><th><span class="sw" style="background:${catColor(ff.cat)};display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:6px"></span>${esc(lab)}<span class="muted">${det}</span></th><td>${sr}</td></tr>`;
+  }).join('');
+  dtin.innerHTML=`
+    <div class="dt-kicker">${d.formats.length>1?d.formats.length+' Formate':esc(f.label)}${d.film?' · 70-mm-Film':''}${d._edited?' · bearbeitet':''}<button class="editlink" onclick="startEdit('${d.id}')">bearbeiten</button><button class="editlink" onclick="openReportForm('${d.id}')">melden</button></div>
+    <div class="dt-name">${esc(d.n)}</div>
+    <div class="dt-loc">${esc(d.ci)}${d.st?', '+esc(d.st):''} — ${esc(d.co)} · ${esc(d.reg)}</div>
+    ${d.url?`<a class="dt-web" href="${esc(d.url)}" target="_blank" rel="noopener">Website des Kinos ↗</a>`:''}
+    ${graphic}
+    <div class="sectit">Formate &amp; Quellen</div>
+    <table class="specs">${fmtRows}</table>
+    <div class="sectit">Weiteres</div>
+    <table class="specs">
+      <tr><th>Kommerzielle Filme</th><td>${d.com?'ja':'nein'}</td></tr>
+      <tr><th>Standort</th><td>${d.lat.toFixed(3)}, ${d.lng.toFixed(3)}${d.exact===false?' (genähert)':''}</td></tr>
+    </table>
+    ${(d.rce||d.pdf)?`<div class="sectit">Event & Vermietung</div>
+      <div class="evbox">
+        ${d.pdf?`<a class="evlink" href="${esc(d.pdf)}" target="_blank" rel="noopener">📄 Event-Datenblatt (PDF) — Säle, Leinwandmaße, Sitze ↗</a>`:''}
+        ${d.rce?`<a class="evlink" href="${esc(d.rce)}" target="_blank" rel="noopener">Location-Details bei red-carpet-event.de ↗</a>`:''}
+        ${hallsTable(d,imf)}
+        ${d.pdf?`<button class="ghost" style="margin-top:6px" onclick="showPdf(this,'${esc(d.pdf)}')">Datenblatt hier ansehen</button>`:''}
+        ${rcePhotoGrid(d)}
+      </div>`:''}
+    <div class="sectit">Eigene Fotos</div>
+    <div class="pgrid" id="pgrid"></div>
+    <label class="addbtn">Foto(s) hinzufügen<input type="file" id="pfile" accept="image/*" multiple hidden></label>
+    <div class="hint">Lokal in diesem Browser gespeichert (IndexedDB) — kein Upload. Klick aufs Bild = groß, ✕ = löschen.</div>`;
+  sidepanel.classList.add('open'); sidepanel.scrollTop=0;
+  curId=id;fillPhotos();
+  if(map && isFinite(d.lat)&&isFinite(d.lng)){ try{
+    const ll=[d.lat,d.lng];
+    if(!map.getBounds().pad(-0.15).contains(ll))   // nur springen, wenn außerhalb des Ausschnitts
+      map.flyTo(ll, Math.max(map.getZoom()||2,6), {duration:.5});
+  }catch(e){console.warn('flyTo übersprungen',e);} }
+  document.getElementById('pfile').onchange=async e=>{
+    for(const file of [...e.target.files]){try{await addPhoto(curId,file);}catch(err){alert('Fehler: '+err);}}
+    e.target.value='';photoCounts=await countAll();fillPhotos();
+  };
+  }catch(err){console.error('openDetail-Fehler:',err);
+    if(dtin) dtin.innerHTML='<div class="dt-kicker" style="color:var(--accent)">Anzeige-Fehler</div><div class="hint">'+esc((err&&err.message)||String(err))+'</div>';
+    sidepanel.classList.add('open');}
+}
+let curId=null,urls=[];
+function revoke(){urls.forEach(u=>URL.revokeObjectURL(u));urls=[];}
+async function fillPhotos(){
+  const g=document.getElementById('pgrid');if(!g)return;revoke();
+  let ph=[];try{ph=await getPhotos(curId);}catch(e){}
+  g.innerHTML=ph.length?'':'<div class="empty">Noch keine Fotos.</div>';
+  ph.forEach(p=>{const u=URL.createObjectURL(p.blob);urls.push(u);
+    const el=document.createElement('div');el.className='thumb';
+    el.innerHTML=`<img src="${u}"><button class="del" title="Löschen">✕</button>`;
+    el.querySelector('img').onclick=()=>window.open(u,'_blank');
+    el.querySelector('.del').onclick=async()=>{await delPhoto(p.id);photoCounts=await countAll();fillPhotos();render();};
+    g.appendChild(el);});
+}
+
+/* ---- Bearbeiten ---- */
+const ev=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+window.startEdit=function(id){
+  const d=dataById[id];if(!d||!dtin)return; editingId=id;
+  dtin.innerHTML=`
+    <div class="dt-kicker">Eintrag bearbeiten</div>
+    <div class="dt-name" style="font-size:21px">${esc(d.n)}</div>
+    <div class="editform">
+      <label>Name<input id="e_n" value="${esc(d.n)}"></label>
+      <label>Stadt<input id="e_ci" value="${esc(d.ci)}"></label>
+      <label>Land<input id="e_co" value="${esc(d.co)}"></label>
+      <label>Website (URL)<input id="e_url" value="${esc(d.url||'')}"></label>
+      <label>Notiz<input id="e_note" value="${esc(d.note||'')}"></label>
+      <div class="erow">
+        <label>Breite (lat)<input id="e_lat" value="${d.lat}"></label>
+        <label>Länge (lng)<input id="e_lng" value="${d.lng}"></label>
+      </div>
+      <button class="ghost" id="e_pick" type="button">📍 Standort auf der Karte anklicken</button>
+      <div class="hint" id="e_pickhint">Button drücken, dann auf die Karte klicken — die Koordinaten werden übernommen.</div>
+      <div class="erow"><button class="addbtn" id="e_save" type="button">Speichern</button>
+        <button class="ghost" id="e_cancel" type="button">Abbrechen</button></div>
+      <div class="erow"><button class="ghost" id="e_reset" type="button">Original wiederherstellen</button>
+        <button class="ghost danger" id="e_del" type="button">Eintrag ausblenden</button></div>
+    </div>`;
+  sidepanel.classList.add('open');
+  document.getElementById('e_pick').onclick=()=>{pickMode=true;
+    document.getElementById('e_pickhint').textContent='Klicke jetzt auf die Karte …';
+    if(innerWidth<=880){document.body.classList.add('showmap');viewBtn.textContent='Liste';if(map)map.invalidateSize();}};
+  document.getElementById('e_cancel').onclick=()=>{pickMode=false;openDetail(id);};
+  document.getElementById('e_save').onclick=()=>{
+    saveOverride(d,{n:ev('e_n'),ci:ev('e_ci'),co:ev('e_co'),url:ev('e_url'),note:ev('e_note'),
+      lat:parseFloat(ev('e_lat')),lng:parseFloat(ev('e_lng'))});
+    pickMode=false; openDetail(id);
+  };
+  document.getElementById('e_reset').onclick=()=>{ if(!confirm('Diesen Eintrag auf die Originaldaten zurücksetzen?'))return;
+    delete OVERRIDES[id]; persistOverrides(); location.reload(); };
+  document.getElementById('e_del').onclick=()=>{ if(!confirm('Diesen Eintrag ausblenden?'))return;
+    OVERRIDES[id]={_delete:true}; persistOverrides(); pickMode=false; closeDetail(); render(); };
+};
+
+/* ---- Fehler melden (öffentlich, geht als GitHub Issue über den Cloudflare Worker) ---- */
+window.openReportForm=function(id){
+  const d = id ? dataById[id] : null;
+  dtin.innerHTML = `
+    <div class="dt-kicker">Kino melden</div>
+    <div class="dt-name" style="font-size:21px">Fehlt ein Kino oder stimmt etwas nicht?</div>
+    <div class="hint" style="margin-top:6px">Kurze Beschreibung reicht — jede Meldung wird von Hand geprüft, bevor sie übernommen wird. Kein Login nötig.</div>
+    <div class="editform">
+      <label>Kino-Name<input id="r_n" value="${d?esc(d.n):''}"></label>
+      <label>Stadt<input id="r_ci" value="${d?esc(d.ci):''}"></label>
+      <label>Art der Meldung<select id="r_kind">
+        <option value="fehlt">Kino fehlt komplett</option>
+        <option value="standort">Standort ist falsch</option>
+        <option value="format">Format/Ausstattung falsch oder fehlt</option>
+        <option value="sonstiges">Sonstiges</option>
+      </select></label>
+      <label>Beschreibung<input id="r_msg" placeholder="z. B. welches Format, welche Adresse …"></label>
+      <label>Kontakt (optional, für Rückfragen)<input id="r_contact" placeholder="E-Mail"></label>
+      <input type="text" id="r_hp" name="website" autocomplete="off" tabindex="-1" aria-hidden="true"
+        style="position:absolute;left:-9999px;width:1px;height:1px">
+      <div class="erow"><button class="addbtn" id="r_send" type="button">Melden</button>
+        <button class="ghost" id="r_cancel" type="button">Abbrechen</button></div>
+      <div class="hint" id="r_status"></div>
+    </div>`;
+  sidepanel.classList.add('open'); sidepanel.scrollTop=0;
+  document.getElementById('r_cancel').onclick=closeDetail;
+  document.getElementById('r_send').onclick=async()=>{
+    const status=document.getElementById('r_status'), btn=document.getElementById('r_send');
+    const base=window.CINEMA_WORKER_BASE;
+    const payload={cinema:ev('r_n'),city:ev('r_ci'),kind:document.getElementById('r_kind').value,
+      message:ev('r_msg'),contact:ev('r_contact'),website:ev('r_hp')};
+    if(!payload.message){status.textContent='Bitte kurz beschreiben, worum es geht.';return;}
+    if(!base){status.textContent='Meldefunktion ist noch nicht eingerichtet (Worker-URL fehlt in config.js).';return;}
+    btn.disabled=true; status.textContent='Wird gesendet …';
+    try{
+      const res=await fetch(base.replace(/\/$/,'')+'/report',{method:'POST',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      status.textContent='Danke! Die Meldung wurde übermittelt.'; btn.style.display='none';
+    }catch(e){ status.textContent='Senden fehlgeschlagen — versuch es später nochmal.'; btn.disabled=false; }
+  };
+};
+document.getElementById('reportBtn').onclick=()=>openReportForm();
+
+function saveOverride(d,patch){
+  const o=OVERRIDES[d.id]||{};
+  for(const k in patch){const v=patch[k]; if(v===''||v===null||(typeof v==='number'&&isNaN(v)))continue; o[k]=v;}
+  OVERRIDES[d.id]=o; persistOverrides();
+  Object.assign(d,o); d._edited=true; d.exact=true; render();
+}
+function hallsTable(d,imf){
+  if(!d.halls || !d.halls.length) return '';
+  const rows=d.halls.map(h=>{
+    const isImax = /imax/i.test(h.name);
+    return `<tr${isImax?' class="imaxrow"':''}><td>${esc(h.name)}</td><td>${h.seats}</td><td>${h.screen?esc(h.screen):'—'}</td></tr>`;
+  }).join('');
+  const hasScreens = d.halls.some(h=>h.screen);
+  let hint='';
+  if(hasScreens){
+    hint = imf
+      ? `Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung) — weicht vom `+
+        `projizierten ${esc(imf.ar||'IMAX')}-Bild oben ab (das ist die Betreiberangabe).`
+      : `Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung).`;
+  }
+  return `<table class="hallstbl">
+    <thead><tr><th>Saal</th><th>Sitzplätze</th><th>Leinwand B×H</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td>Gesamt (${d.halls.length} Säle)</td><td>${d.hallSeats||''}</td><td></td></tr></tfoot>
+  </table>
+  ${hint?`<div class="hint">${hint}</div>`:''}`;
+}
+function rcePhotoGrid(d){
+  if(!d.rcePhotos || !d.rcePhotos.length) return '';
+  const tiles=d.rcePhotos.map(p=>
+    `<div class="rcethumb" onclick="window.open('${esc(p.url)}','_blank')">
+      <img src="${esc(p.thumb)}" loading="lazy" alt="${esc(p.caption)}">
+      ${p.caption?`<div class="cap">${esc(p.caption)}</div>`:''}
+    </div>`).join('');
+  return `<div class="small" style="margin-top:12px;color:var(--ink2)">Fotos (red-carpet-event.de)</div>
+    <div class="rcegrid">${tiles}</div>`;
+}
+window.showPdf=function(btn,url){
+  const f=document.createElement('iframe');
+  f.src=url; f.title='Event-Datenblatt';
+  f.style.cssText='width:100%;height:520px;border:1px solid var(--line2);border-radius:6px;margin-top:10px;background:#fff';
+  btn.replaceWith(f);
+};
+document.getElementById('exportBtn').onclick=()=>{
+  if(!Object.keys(OVERRIDES).length){alert('Noch keine eigenen Korrekturen vorhanden.\\nBearbeite ein Kino (Detail → „bearbeiten").');return;}
+  const blob=new Blob([JSON.stringify(OVERRIDES,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='corrections.json';
+  document.body.appendChild(a);a.click();a.remove();
+};
+
+/* ---- To-scale screen graphic ---- */
+function screenGraphic(d){
+  const W=420,H=210,padL=12,padR=12,padT=10,padB=26,ground=H-padB;
+  const availW=W-padL-padR, availH=ground-padT;
+  const human=1.8;
+  if(d.cat==='dome'&&d.w){
+    const dia=d.w, sc=Math.min(availW/dia, (availH)/(dia/2));
+    const r=dia*sc/2, cx=W/2, cy=ground;
+    const hh=human*sc, hw=Math.max(hh*0.22,3), hx=cx-r+4;
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <line x1="${padL}" y1="${ground}" x2="${W-padR}" y2="${ground}" stroke="${cv('--line2')}"/>
+      <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy} Z" fill="${catColor(d.cat)}" fill-opacity=".22" stroke="${catColor(d.cat)}" stroke-width="1.5"/>
+      ${humanPath(hx,ground,hh,hw)}
+      <text x="${cx}" y="${ground+17}" text-anchor="middle" font-family="${cv('--mono')}" font-size="11" fill="${cv('--ink2')}">Ø ${dia} m</text>
+    </svg>`;
+  }
+  const w=d.w,h=d.h;
+  if(!w||!h){
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <rect x="${padL}" y="${padT}" width="${availW}" height="${availH}" fill="none" stroke="${cv('--line2')}" stroke-dasharray="4 4"/>
+      <text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="${cv('--mono')}" font-size="12" fill="${cv('--ink2')}">keine Maßangabe</text></svg>`;
+  }
+  const sc=Math.min(availW/w, availH/Math.max(h,human));
+  const sw=w*sc, sh=h*sc, sx=padL, sy=ground-sh;
+  const hh=human*sc, hw=Math.max(hh*0.22,3), hx=sx+sw+10;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
+    <line x1="${padL}" y1="${ground}" x2="${W-padR}" y2="${ground}" stroke="${cv('--line2')}"/>
+    <rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" fill="${catColor(d.cat)}" fill-opacity=".18" stroke="${catColor(d.cat)}" stroke-width="1.5"/>
+    ${humanPath(hx,ground,hh,hw)}
+    <text x="${sx+sw/2}" y="${ground+17}" text-anchor="middle" font-family="${cv('--mono')}" font-size="11" fill="${cv('--ink2')}">${w} m</text>
+    <text x="${sx-4}" y="${sy+sh/2}" text-anchor="end" dominant-baseline="middle" font-family="${cv('--mono')}" font-size="11" fill="${cv('--ink2')}" transform="rotate(-90 ${sx-4} ${sy+sh/2})">${h} m</text>
+  </svg>`;
+}
+function humanPath(x,ground,hh,hw){
+  const headR=Math.max(hh*0.08,1.6), bodyTop=ground-hh+headR*2;
+  return `<g fill="${cv('--ink2')}">
+    <circle cx="${x}" cy="${ground-hh+headR}" r="${headR}"/>
+    <rect x="${x-hw/2}" y="${bodyTop}" width="${hw}" height="${ground-bodyTop}" rx="${hw/2}"/>
+  </g>`;
+}
+
+/* ---- Theme ---- */
+const themeBtn=document.getElementById('themeBtn');
+function applyTheme(t){
+  document.documentElement.dataset.theme=t;
+  themeBtn.textContent = t==='dark'?'Hell':'Dunkel';
+  localStorage.setItem('imaxTheme',t);
+  // refresh swatch colors + markers
+  document.querySelectorAll('.facet').forEach(b=>{b.querySelector('.sw').style.background=catColor(b.dataset.k);});
+  if(map){setTiles();drawMarkers(lastBase.length?lastBase:baseFiltered());}
+}
+themeBtn.onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+applyTheme(localStorage.getItem('imaxTheme')||'light');
+
+/* ---- Mobile view toggle ---- */
+const viewBtn=document.getElementById('viewBtn');
+viewBtn.onclick=()=>{document.body.classList.toggle('showmap');viewBtn.textContent=document.body.classList.contains('showmap')?'Liste':'Karte';if(map)setTimeout(()=>map.invalidateSize(),50);};
+
+/* ---- Boot ---- */
+initMap();
+setScope('premium');
+openDB().then(async()=>{photoCounts=await countAll();render();if(map)drawMarkers(lastBase);}).catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.cache/
+.claude/
+_check.js
+_check.mjs
+__pycache__/
+*.pyc

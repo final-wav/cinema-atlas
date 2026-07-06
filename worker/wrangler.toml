@@ -1,0 +1,9 @@
+name = "cinema-atlas-report"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+GH_REPO = "final-wav/cinema-atlas"
+
+# GH_TOKEN wird NICHT hier eingetragen (landet sonst im Git-Verlauf), sondern als
+# verschlüsseltes Secret gesetzt: siehe README.md ("wrangler secret put GH_TOKEN").

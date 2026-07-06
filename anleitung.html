@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinema Atlas — Anleitung & Einstellungen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --serif:'Fraunces',Georgia,serif; --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  --paper:#f3efe6; --card:#faf8f2; --ink:#1c1a16; --ink2:#6a6456; --line:#d8d1c0; --line2:#c5bca7; --accent:#c1352b;
+}
+@media(prefers-color-scheme:dark){:root{--paper:#14110d;--card:#1b1712;--ink:#ece6d8;--ink2:#9c9382;--line:#322c24;--line2:#433c31;--accent:#e2574c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+.wrap{max-width:880px;margin:0 auto;padding:0 22px 90px}
+header{border-bottom:1px solid var(--line2);margin-bottom:8px}
+header .in{max-width:880px;margin:0 auto;padding:26px 22px 20px}
+h1{font-family:var(--serif);font-weight:600;font-size:34px;letter-spacing:-.01em;margin:0}
+h1 .x{color:var(--accent)}
+.sub{color:var(--ink2);margin-top:6px}
+.back{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;border:1px solid var(--line2);padding:6px 12px;border-radius:3px}
+.back:hover{border-color:var(--accent)}
+h2{font-family:var(--serif);font-weight:600;font-size:24px;margin:46px 0 6px;padding-top:10px;border-top:1px solid var(--line);scroll-margin-top:14px}
+h3{font-family:var(--sans);font-weight:600;font-size:16px;margin:26px 0 6px}
+p,li{color:var(--ink)}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em;background:var(--card);border:1px solid var(--line);border-radius:3px;padding:1px 5px}
+pre{font-family:var(--mono);font-size:13px;line-height:1.5;background:var(--card);border:1px solid var(--line2);border-radius:6px;
+  padding:14px 16px;overflow:auto}
+pre code{background:none;border:0;padding:0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:8px;vertical-align:middle;flex:none}
+.key{font-family:var(--mono);font-size:12.5px;color:var(--accent)}
+.toc{background:var(--card);border:1px solid var(--line2);border-radius:8px;padding:14px 20px;margin:18px 0}
+.toc ol{margin:6px 0 0;padding-left:20px} .toc li{margin:3px 0}
+.note{background:var(--card);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:10px 14px;margin:14px 0;color:var(--ink2);font-size:14px}
+.step{counter-reset:none}
+ol.steps{padding-left:0;list-style:none;counter-reset:s}
+ol.steps>li{counter-increment:s;position:relative;padding:6px 0 6px 40px;border-bottom:1px solid var(--line)}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:6px;width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:#fff;font-family:var(--mono);font-size:13px;display:flex;align-items:center;justify-content:center}
+kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:1px 6px;background:var(--card)}
+.small{color:var(--ink2);font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>Cinema<span class="x">·</span>Atlas — Anleitung</h1>
+  <div class="sub">Wie du Kinos findest, Einträge bearbeitest, neue hinzufügst, Koordinaten setzt und die Daten aktualisierst.</div>
+  <a class="back" href="index.html">← zurück zur Karte</a>
+</div></header>
+
+<div class="wrap">
+
+<div class="toc">
+  <b>Inhalt</b>
+  <ol>
+    <li><a href="#was">Was ist Cinema Atlas?</a></li>
+    <li><a href="#bedienen">Die App bedienen (Stufen, Filter, Karte)</a></li>
+    <li><a href="#formate">Format-Glossar — was bedeutet IMAX, iSense, 4DX …?</a></li>
+    <li><a href="#bearbeiten">Einen Eintrag bearbeiten</a></li>
+    <li><a href="#koordinaten">Koordinaten verstehen & finden</a></li>
+    <li><a href="#hinzufuegen">Neue Einträge hinzufügen</a></li>
+    <li><a href="#update">Daten aktualisieren (Update-/Scrape-Skript)</a></li>
+    <li><a href="#fotos">Fotos pro Kino</a></li>
+    <li><a href="#melden">Fehler melden (für alle Besucher)</a></li>
+    <li><a href="#dateien">Welche Datei macht was?</a></li>
+    <li><a href="#probleme">Problemlösung</a></li>
+  </ol>
+</div>
+
+<h2 id="was">1 · Was ist Cinema Atlas?</h2>
+<p>Eine durchsuch- und filterbare Liste + Karte von Kinosälen, sortiert nach <b>Premium-Format</b>. Die Daten stammen aus drei Quellen, die beim Update automatisch zusammengeführt werden:</p>
+<ul>
+  <li><b>IMAX weltweit</b> — aus der Community-Datenbank <a href="https://github.com/r-imax/imaxguide" target="_blank">r-imax/imaxguide</a> (inkl. Leinwandmaße & Projektortyp).</li>
+  <li><b>Premium-Formate (Deutschland)</b> — Dolby Cinema, ScreenX, 4DX, iSense, Dolby Atmos, D-BOX — gepflegt in der Datei <code>cinema_extra_de.csv</code>.</li>
+  <li><b>Alle übrigen Kinos</b> — aus <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a> (mit Website-Link), aktuell für Deutschland.</li>
+</ul>
+<p><b>Wichtig:</b> Ein physisches Kino ist <b>immer ein Eintrag</b>, auch wenn es mehrere Formate hat (z. B. Traumpalast Leonberg = IMAX + Atmos + D-BOX). Das Zusammenführen passiert automatisch über Name + Standort-Nähe.</p>
+
+<h2 id="bedienen">2 · Die App bedienen</h2>
+<h3>Die drei Stufen (oben)</h3>
+<table>
+  <tr><th>Stufe</th><th>zeigt</th></tr>
+  <tr><td><b>IMAX</b></td><td>nur IMAX-Säle (weltweit, mit Leinwandmaßen)</td></tr>
+  <tr><td><b>Premium</b></td><td>IMAX + Dolby Cinema, ScreenX, 4DX, iSense, Atmos, D-BOX</td></tr>
+  <tr><td><b>Alle Kinos</b></td><td>zusätzlich alle übrigen Kinos (OpenStreetMap)</td></tr>
+</table>
+<p>Darunter passen sich die <b>Format-Filter (Chips)</b> der gewählten Stufe an. In der IMAX-Stufe gibt es zusätzlich den Schalter <i>„1.90-Technik aufschlüsseln"</i> (trennt GT/XT · CoLa · Xenon).</p>
+<h3>Weitere Bedienelemente</h3>
+<ul>
+  <li><b>Suche</b> — Kino, Stadt, Land, Bundesland (umlaut-/akzentunabhängig, mehrere Wörter).</li>
+  <li><b>Region / Land</b> — grenzt ein und springt mit der Karte dorthin.</li>
+  <li><b>an Karte koppeln</b> — Liste zeigt nur, was im Kartenausschnitt liegt. Ausschalten = alle Treffer.</li>
+  <li><b>sortieren</b> — u. a. nach Leinwandfläche.</li>
+  <li><b>Hell / Dunkel</b> (oben rechts) — die Karte folgt automatisch (Hell = OpenStreetMap, Dunkel = Voyager Dunkel).</li>
+</ul>
+
+<h2 id="formate">3 · Format-Glossar</h2>
+<p>Jede Farbe steht für ein Format. Ein Kino kann mehrere haben (mehrere Punkte/Badges).</p>
+<h3>IMAX</h3>
+<table>
+  <tr><th>Farbe</th><th>Format</th><th>Bedeutung</th></tr>
+  <tr><td><span class="dot" style="background:#c1352b"></span></td><td><b>IMAX 70 mm Film</b> (1.43:1)</td><td>Echter 15/70-mm-Film. Größte, fast quadratische Bildfläche — die seltenste & begehrteste Variante (z. B. Oppenheimer in 70 mm).</td></tr>
+  <tr><td><span class="dot" style="background:#b07d12"></span></td><td><b>IMAX 1.43:1 Laser</b></td><td>Dual-Laser, volle 1.43-Höhe — digital, ohne Filmrolle. Gleiche riesige Leinwand wie 70 mm.</td></tr>
+  <tr><td><span class="dot" style="background:#2c7a57"></span></td><td><b>IMAX Dome</b></td><td>Gewölbte Kuppel (Planetarien/Museen). Maßangabe = Durchmesser.</td></tr>
+  <tr><td><span class="dot" style="background:#2f5d8a"></span></td><td><b>IMAX 1.90:1 GT/XT</b></td><td>Dual-Laser-Flaggschiff im Breitformat 1.90 (GT- bzw. Laser-XT-System).</td></tr>
+  <tr><td><span class="dot" style="background:#6b5b95"></span></td><td><b>IMAX 1.90:1 CoLa</b></td><td>„Commercial Laser" — das verbreitete moderne IMAX&nbsp;with&nbsp;Laser im Multiplex, 1.90.</td></tr>
+  <tr><td><span class="dot" style="background:#8a8275"></span></td><td><b>IMAX 1.90:1 Xenon</b></td><td>Älteres Digital-IMAX mit Xenon-Lampen (umgangssprachlich „LieMAX"), 1.90.</td></tr>
+</table>
+<h3>Weitere Premium-Formate</h3>
+<table>
+  <tr><th>Farbe</th><th>Format</th><th>Bedeutung</th></tr>
+  <tr><td><span class="dot" style="background:#3b4cc0"></span></td><td><b>Dolby Cinema</b></td><td>Dolby-Vision-Laserprojektion (HDR, extremer Kontrast) + Dolby Atmos in eigens gestaltetem Saal.</td></tr>
+  <tr><td><span class="dot" style="background:#0e7c86"></span></td><td><b>ScreenX 270°</b></td><td>Bild wird auf die Seitenwände erweitert — 270°-Panorama (CJ&nbsp;4DPLEX).</td></tr>
+  <tr><td><span class="dot" style="background:#c0398b"></span></td><td><b>4DX</b></td><td>Bewegungssitze + Effekte: Wind, Wasser, Nebel, Duft (CJ&nbsp;4DPLEX).</td></tr>
+  <tr><td><span class="dot" style="background:#a8632a"></span></td><td><b>iSense (UCI)</b></td><td>UCI-Premiumsaal: große Leinwand + Dolby Atmos.</td></tr>
+  <tr><td><span class="dot" style="background:#9a7d2e"></span></td><td><b>Dolby Atmos</b></td><td>Objektbasierter 3D-Ton mit zusätzlichen Deckenlautsprechern.</td></tr>
+  <tr><td><span class="dot" style="background:#1f7a6b"></span></td><td><b>D-BOX Motion</b></td><td>Einzelne Bewegungssitze synchron zum Film (wie 4DX, aber nur Sitzbewegung).</td></tr>
+  <tr><td><span class="dot" style="background:#9aa0a6"></span></td><td><b>Kino (allgemein)</b></td><td>Reguläres Kino aus OpenStreetMap ohne erfasstes Premium-Format (mit Website-Link).</td></tr>
+</table>
+
+<h2 id="bearbeiten">4 · Einen Eintrag bearbeiten</h2>
+<p>Schnell & ohne Datei: direkt in der App. Wird lokal im Browser gespeichert.</p>
+<ol class="steps">
+  <li>Kino in der Liste oder auf der Karte anklicken → Panel öffnet sich rechts.</li>
+  <li>Oben im Panel auf <b>„bearbeiten"</b> klicken.</li>
+  <li>Felder ändern: Name, Stadt, Land, Website, Notiz, Koordinaten.</li>
+  <li><b>Standort korrigieren:</b> Button <b>„📍 Standort auf der Karte anklicken"</b> drücken, dann auf die richtige Stelle der Karte klicken — die Koordinaten werden übernommen. (Alternativ Breite/Länge direkt eintippen.)</li>
+  <li><b>Speichern.</b> Bearbeitete Kinos bekommen ein ✎.</li>
+</ol>
+<p>Weitere Knöpfe: <b>Original wiederherstellen</b> (setzt diesen Eintrag zurück) und <b>Eintrag ausblenden</b> (versteckt ihn).</p>
+<div class="note"><b>Damit Korrekturen ein Update überleben:</b> oben rechts auf <b>Export</b> klicken → es lädt <code>corrections.json</code> herunter. Diese Datei in den Projektordner legen. Beim nächsten Update werden die Korrekturen automatisch wieder angewendet (über eine stabile ID pro Kino).</div>
+
+<h2 id="koordinaten">5 · Koordinaten verstehen & finden</h2>
+<p>Ein Standort sind zwei Zahlen: <b>Breite (lat)</b> und <b>Länge (lng)</b>.</p>
+<ul>
+  <li><b>lat</b> = Nord/Süd, −90 bis +90. Deutschland ≈ <code>47</code>–<code>55</code>.</li>
+  <li><b>lng</b> = Ost/West, −180 bis +180. Deutschland ≈ <code>6</code>–<code>15</code>.</li>
+  <li><b>Reihenfolge immer lat, lng.</b> 5 Nachkommastellen ≈ 1&nbsp;Meter genau.</li>
+</ul>
+<h3>Koordinaten herausfinden</h3>
+<ul>
+  <li><b>In der App (am einfachsten):</b> Eintrag → bearbeiten → „📍 Standort auf der Karte anklicken".</li>
+  <li><b>Google Maps:</b> auf den Ort <b>rechtsklicken</b> → die erste Zeile sind die Koordinaten (z. B. <code>51.51790, 7.45730</code>) → anklicken kopiert sie. Erste Zahl = lat, zweite = lng.</li>
+  <li><b>OpenStreetMap:</b> rechtsklick → „Adresse anzeigen" bzw. die URL enthält <code>#map=…/lat/lng</code>.</li>
+</ul>
+
+<h2 id="hinzufuegen">6 · Neue Einträge hinzufügen</h2>
+<p>Je nach Art des Saals gibt es zwei Wege. Danach jeweils das <a href="#update">Update</a> laufen lassen.</p>
+
+<h3>A) Premium-Format-Saal (Dolby Cinema, ScreenX, 4DX, iSense, Atmos, D-BOX)</h3>
+<p>Datei <code>cinema_extra_de.csv</code> öffnen (mit Editor oder Excel) und eine Zeile anhängen. Spalten:</p>
+<pre><code>format,cinema,city,note</code></pre>
+<p>Beispiele:</p>
+<pre><code>atmos,Cineplex,Musterstadt,
+4dx → fourdx,Cineplex,Musterstadt,Bewegungssitze
+dbox,Kinopolis,Musterstadt,Motion-Seats</code></pre>
+<p>Gültige <b>format</b>-Schlüssel:</p>
+<table>
+  <tr><th>Schlüssel</th><th>Format</th></tr>
+  <tr><td><span class="key">dolby_cinema</span></td><td>Dolby Cinema</td></tr>
+  <tr><td><span class="key">screenx</span></td><td>ScreenX 270°</td></tr>
+  <tr><td><span class="key">fourdx</span></td><td>4DX</td></tr>
+  <tr><td><span class="key">isense</span></td><td>iSense (UCI)</td></tr>
+  <tr><td><span class="key">atmos</span></td><td>Dolby Atmos</td></tr>
+  <tr><td><span class="key">dbox</span></td><td>D-BOX Motion</td></tr>
+</table>
+<p class="small">Koordinaten musst du hier nicht angeben — sie werden automatisch aus dem Stadtnamen ermittelt (Stadt-Mitte). Für den exakten Punkt danach einfach in der App per „Standort auf der Karte anklicken" feinjustieren.</p>
+
+<h3>B) IMAX-Saal (mit Leinwandmaßen & exaktem Standort)</h3>
+<p>Diese werden in <code>update.py</code> gepflegt — dort die Funktion <code>imax_extra(...)</code> in der Liste der Ergänzungen ergänzen:</p>
+<pre><code>imax_extra("germany", "Stadt", "Kinoname &amp; IMAX",
+           "1.90:1", "IMAX CoLa", 22.0, 11.6,
+           note="Hinweis", lat=51.5179, lng=7.4573)</code></pre>
+<p>Die Parameter der Reihe nach:</p>
+<table>
+  <tr><th>Parameter</th><th>Bedeutung / mögliche Werte</th></tr>
+  <tr><td>1 Land</td><td>Länder-Schlüssel, z. B. <code>"germany"</code></td></tr>
+  <tr><td>2 Stadt</td><td>Stadtname</td></tr>
+  <tr><td>3 Name</td><td>Kinoname</td></tr>
+  <tr><td>4 AR</td><td>Seitenverhältnis: <code>"1.43:1"</code>, <code>"1.90:1"</code> oder <code>"Dome 1.43:1"</code></td></tr>
+  <tr><td>5 Projektor</td><td><code>"IMAX GT Laser"</code>, <code>"IMAX Laser XT"</code>, <code>"IMAX CoLa"</code> oder <code>"IMAX Digital"</code></td></tr>
+  <tr><td>6 / 7 Breite / Höhe</td><td>Leinwand in Metern (Zahl) — unbekannt: <code>None</code></td></tr>
+  <tr><td>note</td><td>optionaler Hinweis</td></tr>
+  <tr><td>lat / lng</td><td>exakte Koordinaten (empfohlen; sonst Stadt-Mitte)</td></tr>
+</table>
+<p class="small">Der Projektor bestimmt die Farbe: GT&nbsp;Laser/Laser&nbsp;XT → blau (GT/XT), CoLa → violett, Digital → taupe; bei AR 1.43 mit Film → rot (70&nbsp;mm), sonst orange (Laser).</p>
+
+<h3>C) Ein ganz normales Kino (ohne Premium-Format)</h3>
+<p>Für Deutschland kommen diese <b>automatisch</b> aus OpenStreetMap — du musst nichts tun. Fehlt eins, trag es zuerst bei <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a> ein (dann ist es nach dem nächsten Update auch hier), oder ergänze es manuell wie unter B).</p>
+
+<h2 id="update">7 · Daten aktualisieren (Update-/Scrape-Skript)</h2>
+<p>Eine Webseite darf fremde Seiten nicht selbst auslesen — deshalb läuft die Aktualisierung als <b>lokales Skript</b>.</p>
+<ol class="steps">
+  <li><b>update.bat</b> doppelklicken (oder im Terminal <code>python update.py</code>).</li>
+  <li>Warten — das Skript zieht IMAX neu, liest <code>cinema_extra_de.csv</code>, holt alle Kinos aus OpenStreetMap, geocodet, führt Dubletten zusammen und wendet <code>corrections.json</code> an.</li>
+  <li>Es schreibt <code>cinema-data.js</code> neu. Danach die Webseite mit <kbd>Strg</kbd>+<kbd>F5</kbd> neu laden.</li>
+</ol>
+<p><b>Voraussetzungen:</b> Python&nbsp;3, git und Internet.</p>
+<h3>Weitere Länder „komplett" (alle Kinos) holen</h3>
+<p>In <code>update.py</code> die Zeile <code>OSM_COUNTRIES</code> erweitern, z. B. Österreich &amp; Schweiz:</p>
+<pre><code>OSM_COUNTRIES=[("DE","germany"), ("AT","austria"), ("CH","switzerland")]</code></pre>
+<div class="note">Robust: Der OSM-Abruf wird zwischengespeichert (<code>.cache/osm_DE.json</code>). Falls der OSM-Server mal nicht antwortet, nimmt das Skript automatisch den letzten guten Stand — es gehen keine Kinos verloren.</div>
+
+<h2 id="fotos">8 · Fotos pro Kino</h2>
+<p>Im Detail-Panel unten <b>„Foto(s) hinzufügen"</b>. Die Bilder werden <b>lokal im Browser</b> gespeichert (IndexedDB) — kein Upload, nur auf diesem Gerät/Browser sichtbar. Klick aufs Bild = groß, ✕ = löschen.</p>
+
+<h2 id="melden">9 · Fehler melden (für alle Besucher)</h2>
+<p>Jeder Besucher der Seite kann einen Eintrag melden — ohne Account, ohne Login. Button <b>„Fehler melden"</b> oben rechts, oder im Detail-Panel eines Kinos der Link <b>„melden"</b> neben „bearbeiten" (dann sind Name/Stadt schon ausgefüllt).</p>
+<p>Die Meldung geht an einen Cloudflare Worker, der daraus automatisch ein <b>GitHub Issue</b> im Repo anlegt. Es wird <b>nichts automatisch in die Daten übernommen</b> — du siehst die Meldung als Issue, prüfst sie und pflegst sie wie gewohnt über <a href="#hinzufuegen">Abschnitt 6</a> ein.</p>
+<div class="note">Damit das funktioniert, muss der Worker einmalig eingerichtet sein — siehe <code>worker/README.md</code> im Repo. Kurzfassung: Worker bei Cloudflare deployen, einen GitHub-Token (nur „Issues: write" auf dieses Repo) als Secret <code>GH_TOKEN</code> hinterlegen, die Worker-URL in <code>config.js</code> eintragen.</div>
+
+<h2 id="dateien">10 · Welche Datei macht was?</h2>
+<table>
+  <tr><th>Datei</th><th>Zweck</th></tr>
+  <tr><td><code>index.html</code></td><td>die App selbst (Karte, Liste, Filter, Bearbeiten)</td></tr>
+  <tr><td><code>cinema-data.js</code></td><td>die fertigen Daten (wird vom Skript erzeugt — nicht von Hand ändern)</td></tr>
+  <tr><td><code>cinema_extra_de.csv</code></td><td>von Hand gepflegte Premium-Format-Säle (hier ergänzt du am meisten)</td></tr>
+  <tr><td><code>update.py</code> / <code>update.bat</code></td><td>das Update-/Scrape-Skript</td></tr>
+  <tr><td><code>corrections.json</code></td><td>deine in der App exportierten Korrekturen</td></tr>
+  <tr><td><code>config.js</code></td><td>Worker-URL fürs Meldeformular (nach Deploy eintragen)</td></tr>
+  <tr><td><code>worker/</code></td><td>Cloudflare Worker, der Nutzer-Meldungen als GitHub Issue anlegt</td></tr>
+  <tr><td><code>.cache/</code></td><td>Zwischenspeicher (IMAX-Quelle, Geocoding, OSM) — kann gelöscht werden, wird neu aufgebaut</td></tr>
+</table>
+
+<h2 id="probleme">11 · Problemlösung</h2>
+<ul>
+  <li><b>Änderung wird nicht angezeigt</b> → <kbd>Strg</kbd>+<kbd>F5</kbd> (harter Neuladen).</li>
+  <li><b>Nach dem Update fehlen plötzlich viele Kinos</b> → OSM-Server war kurz nicht erreichbar; einfach Update nochmal starten (es nutzt sonst den Cache).</li>
+  <li><b>Ein Standort ist falsch</b> → Eintrag → bearbeiten → „Standort auf der Karte anklicken" → Speichern → Export.</li>
+  <li><b>Etwas im Detail-Panel klemmt</b> → in der Konsole (<kbd>F12</kbd>) nach roten Fehlern sehen.</li>
+</ul>
+
+</div>
+</body>
+</html>
