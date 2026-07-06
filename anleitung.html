@@ -27,7 +27,7 @@ h2{font-family:var(--serif);font-weight:600;font-size:24px;margin:46px 0 6px;pad
 h3{font-family:var(--sans);font-weight:600;font-size:16px;margin:26px 0 6px}
 p,li{color:var(--ink)}
 a{color:var(--accent)}
-code{font-family:var(--mono);font-size:.88em;background:var(--card);border:1px solid var(--line);border-radius:3px;padding:1px 5px}
+code{font-family:var(--mono);font-size:.88em;background:var(--card);border:1px solid var(--line);border-radius:3px;padding:1px 5px;overflow-wrap:anywhere;word-break:break-word}
 pre{font-family:var(--mono);font-size:13px;line-height:1.5;background:var(--card);border:1px solid var(--line2);border-radius:6px;
   padding:14px 16px;overflow:auto}
 pre code{background:none;border:0;padding:0}
@@ -46,6 +46,16 @@ ol.steps>li::before{content:counter(s);position:absolute;left:0;top:6px;width:26
   background:var(--accent);color:#fff;font-family:var(--mono);font-size:13px;display:flex;align-items:center;justify-content:center}
 kbd{font-family:var(--mono);font-size:.85em;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:1px 6px;background:var(--card)}
 .small{color:var(--ink2);font-size:13px}
+@media(max-width:560px){
+  body{font-size:14px}
+  .wrap{padding:0 15px 70px}
+  header .in{padding:20px 15px 16px}
+  h1{font-size:26px}
+  h2{font-size:21px;margin-top:36px}
+  h3{font-size:15px}
+  table{font-size:13px;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  th,td{padding:7px 8px}
+}
 </style>
 </head>
 <body>
