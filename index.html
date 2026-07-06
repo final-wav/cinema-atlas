@@ -38,7 +38,7 @@ html[data-theme="dark"]{
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);
-  font-size:14px;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+  font-size:14px;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 a{color:var(--accent)}
 .mono{font-family:var(--mono)}
 .tnum{font-variant-numeric:tabular-nums}
@@ -175,14 +175,53 @@ mark{background:color-mix(in srgb,var(--accent) 22%,transparent);color:inherit;p
 
 footer{display:none}
 @media(max-width:880px){
-  main{display:block}
-  #listpane,#map{width:100%;max-width:none;height:calc(100vh - 0px)}
+  /* single column: list OR map, toggled via .viewtg button */
+  main{display:block;overflow:hidden}
+  #listpane,#map{width:100%;max-width:none;min-width:0;height:100%}
   #listpane{border-right:0}
   #map{display:none}
   body.showmap #listpane{display:none}
   body.showmap #map{display:block}
   .viewtg{display:inline-flex}
-  #sidepanel{width:100%}
+  #sidepanel{width:100%;max-width:100%}
+
+  /* masthead: drop the tagline, keep brand + actions on one wrapping row */
+  header{padding:10px 16px;gap:10px;flex-wrap:wrap}
+  .brand{font-size:21px}
+  .tag{display:none}
+  .themebtn{padding:6px 9px;font-size:10px}
+
+  /* mode switch full-width, comfortable tap targets */
+  .modebar{padding:8px 16px}
+  .modesw{flex:1;display:flex}
+  .modesw button{flex:1;text-align:center;padding:9px 8px;font-size:14px}
+
+  /* controls: search on its own row, chips scroll sideways instead of stacking tall */
+  .controls{padding:9px 16px;gap:9px 12px;flex-wrap:wrap}
+  .controls .ctl:first-child{flex:1 1 100%}
+  input[type=search]{min-width:0;width:100%}
+  #region,#country{flex:1;min-width:0}
+  .facets{flex:1 1 100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    gap:2px 12px;padding-bottom:4px;scrollbar-width:none}
+  .facets::-webkit-scrollbar{display:none}
+  .facet{white-space:nowrap;flex:none;padding:5px 0}
+  .controls .spacer{display:none}
+  .check{font-size:12px}
+
+  /* list rows: a touch more breathing room, dimensions wrap under the name */
+  .listhead{padding:9px 16px}
+  .row{padding:14px 16px}
+  .row .name{font-size:17px}
+
+  .dt-in{padding:22px 20px 60px}
+  .dt-name{font-size:23px}
+}
+@media(max-width:520px){
+  header{padding:9px 13px}
+  .brand{font-size:19px}
+  /* stack region + country selects full width so labels don't get crushed */
+  .controls .ctl{flex:1 1 100%}
+  .row{grid-template-columns:1fr auto}
 }
 </style>
 </head>
