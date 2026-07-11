@@ -165,6 +165,9 @@ def load():
     cinema_extra("germany","Iserlohn","Filmpalast Iserlohn","https://iserlohn.filmpalast.de/",
       51.375943,7.696702,srcurl="https://www.openstreetmap.org/way/71002352",
       note="Kurt-Schumacher-Ring 1-3, 58636 Iserlohn")
+    cinema_extra("germany","Borken","Kinocenter Borken","https://www.kinocenterborken.de",
+      51.847211,6.860071,srcurl="https://www.openstreetmap.org/way/244101550",
+      note="Johann-Walling-Straße 26, 46325 Borken")
 
     # Premium-Formate aus gepflegter CSV (Dolby Cinema, ScreenX, 4DX, iSense, Atmos)
     n_extra=0
