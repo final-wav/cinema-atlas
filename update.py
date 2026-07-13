@@ -65,6 +65,7 @@ C = {
  "southafrica":("Südafrika","ZA","Afrika",-29,24),"southkorea":("Südkorea","KR","Asien & Naher Osten",36.5,127.8),
  "spain":("Spanien","ES","Europa",40.2,-3.7),"sweden":("Schweden","SE","Europa",62,15),
  "switzerland":("Schweiz","CH","Europa",46.8,8.2),"taiwan":("Taiwan","TW","Asien & Naher Osten",23.7,121),
+ "turkey":("Türkei","TR","Europa",38.9,35.2),
  "thailand":("Thailand","TH","Asien & Naher Osten",15.0,101),"ukraine":("Ukraine","UA","Europa",49,32),
  "unitedarabemirates":("VAE","AE","Asien & Naher Osten",24,54),"unitedkingdom":("UK","GB","Europa",54,-2.5),
  "unitedstates":("USA","US","Nordamerika",39.5,-98.35),"vietnam":("Vietnam","VN","Asien & Naher Osten",16,108),
@@ -107,6 +108,13 @@ SRC={
 # Länder, für die ALLE Kinos aus OpenStreetMap geladen werden (ISO-2 -> slug)
 OSM_COUNTRIES=[("DE","germany")]
 
+# Namenskorrekturen für imaxguide-Zeilen, deren Name sonst nicht mit anderen Quellen
+# (Premium-Format-CSV, OSM) fürs selbe Kino zusammenfindet (führt zu Karteileichen-Duplikaten).
+# Schlüssel: (Länder-Slug, Stadt, Original-Name) -> neuer Name.
+IMAXGUIDE_NAME_FIX={
+  ("germany","Leonberg","IMAX Leonberg"):"Traumpalast Leonberg & IMAX",
+}
+
 # ---------------------------------------------------------------- 2) Daten laden
 def load():
     rows=[]
@@ -117,7 +125,9 @@ def load():
         with open(f,encoding="utf-8") as fh:
             for r in csv.DictReader(fh):
                 cat,film=classify_imax(r.get("Screen Aspect Ratio (AR)",""),r.get("Digital Projector",""),r.get("Film Projector",""))
-                rows.append({"n":(r.get("Location Name") or "").strip(),"ci":(r.get("City") or "").strip(),
+                city=(r.get("City") or "").strip()
+                name=IMAXGUIDE_NAME_FIX.get((slug,city,(r.get("Location Name") or "").strip()),(r.get("Location Name") or "").strip())
+                rows.append({"n":name,"ci":city,
                   "st":(r.get("State") or "").strip(),"co":nm,"slug":slug,"reg":reg,
                   "ar":(r.get("Screen Aspect Ratio (AR)") or "").strip(),"cat":cat,"film":film,
                   "dp":(r.get("Digital Projector") or "").strip(),"fp":(r.get("Film Projector") or "").strip(),
@@ -148,6 +158,26 @@ def load():
     imax_extra("romania","Bukarest","Cinema City Cotroceni & IMAX","1.90:1","",None,None)
     imax_extra("romania","Timișoara","Cinema City & IMAX","1.90:1","",None,None)
     imax_extra("slovakia","Bratislava","Cinemax & IMAX","1.90:1","",None,None)
+    # Türkei — komplett fehlend in imaxguide; alle 9 Säle laut offizieller Betreiberseite
+    # (paribucineverse.com/ayricalikli-salonlar/imax), Stand 2026
+    imax_extra("turkey","Istanbul","Paribu Cineverse İstinyePark & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · İstinyePark AVM, Sarıyer",lat=41.1103,lng=29.0326)
+    imax_extra("turkey","Istanbul","Paribu Cineverse Marmara Park & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · Marmara Park AVM, Esenyurt",lat=41.0097,lng=28.6593)
+    imax_extra("turkey","Istanbul","Paribu Cineverse Akasya & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · Akasya AVM, Üsküdar · 431 Sitze",lat=41.0016,lng=29.0548)
+    imax_extra("turkey","Istanbul","Paribu Cineverse Hilltown Küçükyalı & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · Hilltown AVM, Maltepe · 301 Sitze",lat=40.9526,lng=29.1221)
+    imax_extra("turkey","Ankara","Paribu Cineverse ANKAmall & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · ANKAmall · 278 Sitze",lat=39.9512,lng=32.8315)
+    imax_extra("turkey","Ankara","Paribu Cineverse Panora & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · Panora AVM · neuestes IMAX der Türkei",lat=39.8481,lng=32.8330)
+    imax_extra("turkey","Bursa","Paribu Cineverse Bursa Marka & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · Sur Yapı Marka AVM, Nilüfer",lat=40.2071,lng=28.9958)
+    imax_extra("turkey","Adana","Paribu Cineverse M1 Adana & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · M1 Adana AVM · 324 Sitze",lat=37.0177,lng=35.2419)
+    imax_extra("turkey","Izmir","Paribu Cineverse MaviBahçe & IMAX","1.90:1","IMAX CoLa",None,None,
+      "IMAX with Laser · MaviBahçe AVM · 456 Sitze, größtes IMAX der Türkei",lat=38.4736,lng=27.0743)
 
     # Reguläre Kinos, die der OSM-Massenabruf verpasst hat (manuell nachgetragen, meist mit OSM als Quelle verifiziert)
     def cinema_extra(slug,city,name,url,lat,lng,srcurl="",note=""):
@@ -426,8 +456,15 @@ def merge_venues(rows):
             if v["co"]!=r["co"]: continue
             d=_dist((v["lat"],v["lng"]),(r["lat"],r["lng"]))
             sh=v["_core"]&rc
-            ov=(len(sh)/min(len(v["_core"]),len(rc))) if (v["_core"] and rc) else 0
-            if (v["_core"]==rc and rc and d<=20) or (ov>=0.6 and len(sh)>=2 and d<=15) or (ov>=0.6 and d<=2.5):
+            # Zwei Ähnlichkeitsmaße: min-Verhältnis ist grosszügig (gut für "kurzer OSM-Name ist
+            # Teilmenge des ausführlicheren Namens", abgesichert durch sehr geringe Distanz);
+            # Jaccard ist strenger (nötig für den 15km-Pfad, sonst verschmelzen verschiedene
+            # Filialen derselben Kette, die sich nur den Markennamen teilen, z.B. mehrere
+            # Paribu-Cineverse-Standorte in Istanbul).
+            ov_loose=(len(sh)/min(len(v["_core"]),len(rc))) if (v["_core"] and rc) else 0
+            union=v["_core"]|rc
+            ov_strict=(len(sh)/len(union)) if union else 0
+            if (v["_core"]==rc and rc and d<=20) or (ov_strict>=0.6 and len(sh)>=2 and d<=15) or (ov_loose>=0.6 and d<=2.5):
                 m=v; break
         if m is None:
             venues.append({"n":r["n"],"ci":r["ci"],"st":r["st"],"co":r["co"],"reg":r["reg"],
