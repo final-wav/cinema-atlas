@@ -163,7 +163,7 @@ def load():
     imax_extra("turkey","Istanbul","Paribu Cineverse İstinyePark & IMAX","1.90:1","IMAX CoLa",None,None,
       "IMAX with Laser · İstinyePark AVM, Sarıyer",lat=41.1103,lng=29.0326)
     imax_extra("turkey","Istanbul","Paribu Cineverse Marmara Park & IMAX","1.90:1","IMAX CoLa",None,None,
-      "IMAX with Laser · Marmara Park AVM, Esenyurt",lat=41.0097,lng=28.6593)
+      "IMAX with Laser · Marmara Park AVM, Esenyurt · 388 Sitze",lat=41.0097,lng=28.6593)
     imax_extra("turkey","Istanbul","Paribu Cineverse Akasya & IMAX","1.90:1","IMAX CoLa",None,None,
       "IMAX with Laser · Akasya AVM, Üsküdar · 431 Sitze",lat=41.0016,lng=29.0548)
     imax_extra("turkey","Istanbul","Paribu Cineverse Hilltown Küçükyalı & IMAX","1.90:1","IMAX CoLa",None,None,
