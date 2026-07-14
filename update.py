@@ -199,6 +199,23 @@ def load():
       51.847211,6.860071,srcurl="https://www.openstreetmap.org/way/244101550",
       note="Johann-Walling-Straße 26, 46325 Borken")
 
+    # ---- Klassisches 70 mm (5-Perf, Todd-AO) — NICHT IMAX (das ist 15/70, 1.43:1). Getrennt erfasst. ----
+    def film70_extra(slug,city,name,url,lat,lng,srcurl="",note=""):
+        nm,iso,reg,clat,clng=C[slug]
+        rows.append({"n":name,"ci":city,"st":"","co":nm,"slug":slug,"reg":reg,"ar":"2.20:1","cat":"classic70","film":False,
+          "dp":"","fp":"5/70","w":None,"h":None,"com":True,"tier":"cinema","url":url,
+          "src":"in70mm.com" if srcurl else "manuell ergänzt","srcurl":srcurl,"note":note,
+          "lat":lat,"lng":lng,"exact":True})
+    film70_extra("germany","Berlin","Zoo Palast","https://zoopalast.premiumkino.de/",
+      52.5061,13.3342,srcurl="https://www.in70mm.com/news/2014/zoo/de/index.htm",
+      note="klassisches 70 mm (5-Perf, Todd-AO) — reaktivierter Projektor · Hardenbergstraße 29a")
+    film70_extra("germany","Berlin","Delphi Filmpalast","https://www.yorck.de/kinos/delphi-filmpalast",
+      52.5056,13.3226,srcurl="https://www.in70mm.com/news/2024/delphi/index.htm",
+      note="klassisches 70 mm (5-Perf) · Kantstraße 12a")
+    film70_extra("germany","Karlsruhe","Schauburg","https://www.schauburg.de/",
+      49.0013,8.3985,srcurl="https://www.in70mm.com/festival/karlsruhe/index.htm",
+      note="klassisches 70 mm auf gekrümmter Todd-AO-Leinwand · Marienstraße 16")
+
     # Premium-Formate aus gepflegter CSV (Dolby Cinema, ScreenX, 4DX, iSense, Atmos)
     n_extra=0
     if os.path.exists(EXTRA):
@@ -433,7 +450,7 @@ def geocode_all(rows):
 
 # ---------------------------------------------------------------- 3b) Zusammenführen (ein Kino = ein Eintrag)
 PRIORITY=['film143','laser143','dome','gtxt190','cola190','xenon190','other190','other',
-          'dolby_cinema','screenx','fourdx','isense','atmos','dbox','cinema']
+          'classic70','dolby_cinema','screenx','fourdx','isense','atmos','dbox','cinema']
 def _srcrank(s): return 0 if s=="OpenStreetMap" else 1
 _STOP={'imax','and','und','der','die','das','am','im','the','cinema','cinemas','kino','kinos','3d','dome','amp','hauptbahnhof','hbf'}
 def _core(name):

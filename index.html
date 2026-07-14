@@ -23,6 +23,7 @@
   --c-other190:#9a917f; --c-other:#b3aa96;
   --c-dolby_cinema:#3b4cc0; --c-screenx:#0e7c86; --c-fourdx:#c0398b;
   --c-atmos:#9a7d2e; --c-isense:#a8632a; --c-cinema:#9aa0a6; --c-dbox:#1f7a6b;
+  --c-classic70:#c85a1e;
   --shadow:none;
 }
 html[data-theme="dark"]{
@@ -34,6 +35,7 @@ html[data-theme="dark"]{
   --c-other190:#8d8475; --c-other:#7d7567;
   --c-dolby_cinema:#6f7fe0; --c-screenx:#3fb0bb; --c-fourdx:#e06bb4;
   --c-atmos:#c4ab66; --c-isense:#cf9152; --c-cinema:#7f8690; --c-dbox:#3fb0a0;
+  --c-classic70:#e88a4a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -317,7 +319,7 @@ footer{display:none}
   <button class="txtbtn" id="allOff">keine</button>
   <div class="spacer" style="flex:1"></div>
   <label class="check" id="detailWrap" style="display:none"><input type="checkbox" id="detailToggle"> 1.90-Technik aufschlüsseln</label>
-  <label class="check"><input type="checkbox" id="film70"> 70-mm-fähig</label>
+  <label class="check" title="Nur echte IMAX-70-mm-Filmprojektion (15/70, 1.43:1) — nicht klassisches 70 mm"><input type="checkbox" id="film70"> IMAX 70-mm-Film</label>
   <label class="check"><input type="checkbox" id="commercial"> kommerziell</label>
   <label class="check"><input type="checkbox" id="coupled" checked> an Karte koppeln</label>
 </div>
@@ -357,6 +359,7 @@ const FORMATS={
   xenon190:{label:"IMAX 1.90:1 Xenon",short:"1.90 · Xenon",ar:"1.90:1",group:"imax"},
   other190:{label:"IMAX 1.90:1 ?",short:"1.90 · ?",ar:"1.90:1",group:"imax"},
   other:{label:"IMAX Sonstige",short:"Sonstige",ar:"—",group:"imax"},
+  classic70:{label:"70 mm (klassisch, 5-Perf)",short:"70 mm · 2.20",ar:"2.20:1",group:"weitere"},
   dolby_cinema:{label:"Dolby Cinema",short:"Dolby Cinema",ar:"—",group:"weitere"},
   screenx:{label:"ScreenX 270°",short:"ScreenX",ar:"—",group:"weitere"},
   fourdx:{label:"4DX",short:"4DX",ar:"—",group:"weitere"},
@@ -367,6 +370,7 @@ const FORMATS={
 };
 const IMAXCATS=new Set(['film143','laser143','dome','gtxt190','cola190','xenon190','other190','other']);
 const FDESC={
+  classic70:"70 mm (klassisch) — analoge 5-Perf-Filmprojektion (Todd-AO-Linie, ~2,20:1) auf großer, teils gekrümmter Leinwand. NICHT IMAX: IMAX-70-mm läuft mit 15 Perforationen quer und ist fast quadratisch (1,43:1). Klassisches 70 mm ist 5-Perf, vertikal, breit-panoramisch.",
   dolby_cinema:"Dolby Cinema — Dolby-Vision-Laserprojektion (sehr hoher Kontrast, HDR) plus Dolby Atmos in einem eigens gestalteten Saal.",
   screenx:"ScreenX (CJ 4DPLEX) — 270°-Panorama: das Bild wird auf die linke und rechte Seitenwand erweitert.",
   fourdx:"4DX (CJ 4DPLEX) — Bewegungssitze plus Effekte: Wind, Wasser, Nebel, Duft synchron zum Film.",
@@ -390,6 +394,7 @@ const SCOPES={
   ]},
   premium:{chips:[
     {key:'imax',        label:'IMAX',        cats:IMAXCATSARR,    color:'--c-film143'},
+    {key:'classic70',   label:'70 mm (klassisch)',cats:['classic70'],color:'--c-classic70'},
     {key:'dolby_cinema',label:'Dolby Cinema',cats:['dolby_cinema'],color:'--c-dolby_cinema'},
     {key:'screenx',     label:'ScreenX',     cats:['screenx'],   color:'--c-screenx'},
     {key:'fourdx',      label:'4DX',         cats:['fourdx'],    color:'--c-fourdx'},
@@ -399,7 +404,7 @@ const SCOPES={
   ]},
   cinema:{chips:[
     {key:'imax',   label:'IMAX',            cats:IMAXCATSARR, color:'--c-film143'},
-    {key:'premium',label:'Premium-Formate', cats:['dolby_cinema','screenx','fourdx','isense','atmos','dbox'],color:'--c-dolby_cinema'},
+    {key:'premium',label:'Premium-Formate', cats:['dolby_cinema','screenx','fourdx','isense','atmos','dbox','classic70'],color:'--c-dolby_cinema'},
     {key:'cinema', label:'sonstige Kinos',  cats:['cinema'],  color:'--c-cinema'},
   ]},
 };
@@ -741,7 +746,7 @@ const sidepanel=document.getElementById('sidepanel');
 const dtin=document.getElementById('sidein');
 document.getElementById('sidex').onclick=closeDetail;
 function closeDetail(){sidepanel.classList.remove('open');}
-const PRIO=c=>{const o=['film143','laser143','dome','gtxt190','cola190','xenon190','other190','other','dolby_cinema','screenx','fourdx','isense','atmos','dbox','cinema'];const i=o.indexOf(c);return i<0?99:i;};
+const PRIO=c=>{const o=['film143','laser143','dome','gtxt190','cola190','xenon190','other190','other','classic70','dolby_cinema','screenx','fourdx','isense','atmos','dbox','cinema'];const i=o.indexOf(c);return i<0?99:i;};
 function openDetail(key){
   const d=dataById[key];if(!d){console.warn('openDetail: kein Eintrag für',key);return;}
   try{
