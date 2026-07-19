@@ -26,10 +26,19 @@ def log(*a): print(*a, flush=True)
 # ---------------------------------------------------------------- 1) IMAX-Quelle ziehen
 def sync_repo():
     if os.path.isdir(os.path.join(REPODIR, ".git")):
-        log("• imaxguide: git pull …")
-        r=subprocess.run(["git","-C",REPODIR,"pull","--depth","1"],capture_output=True,text=True)
+        log("• imaxguide: git fetch …")
+        # fetch + hard reset statt pull: robust gegen "unrelated histories" bei
+        # --depth-1-Klonen, wenn sich der Upstream-Verlauf verschoben hat (rebase o.ä.)
+        r=subprocess.run(["git","-C",REPODIR,"fetch","--depth","1","origin"],capture_output=True,text=True)
         if r.returncode!=0:
-            log("  (pull fehlgeschlagen, nutze vorhandenen Stand)\n  ",r.stderr.strip()[:200])
+            log("  (fetch fehlgeschlagen, nutze vorhandenen Stand)\n  ",r.stderr.strip()[:200])
+        else:
+            head=subprocess.run(["git","-C",REPODIR,"symbolic-ref","refs/remotes/origin/HEAD"],
+                capture_output=True,text=True)
+            branch=(head.stdout.strip().rsplit("/",1)[-1]) if head.returncode==0 else "main"
+            r2=subprocess.run(["git","-C",REPODIR,"reset","--hard",f"origin/{branch}"],capture_output=True,text=True)
+            if r2.returncode!=0:
+                log("  (reset fehlgeschlagen, nutze vorhandenen Stand)\n  ",r2.stderr.strip()[:200])
     else:
         log("• imaxguide: git clone …")
         r=subprocess.run(["git","clone","--depth","1","https://github.com/r-imax/imaxguide.git",REPODIR],
@@ -114,6 +123,13 @@ OSM_COUNTRIES=[("DE","germany")]
 IMAXGUIDE_NAME_FIX={
   ("germany","Leonberg","IMAX Leonberg"):"Traumpalast Leonberg & IMAX",
 }
+# Feld-Korrekturen für veraltete imaxguide-Zeilen (Quelle noch nicht aktualisiert).
+# Schlüssel: (Länder-Slug, Stadt, Original-Name) -> {Feld: neuer Wert}.
+IMAXGUIDE_FIELD_FIX={
+  ("belgium","Brussels","Kinepolis Brussels & IMAX"):
+    {"Film Projector":"IMAX GT3D 15/70 mm",
+     "note":"Seit Juni 2026 auch als IMAX-70mm-Filmsaal (neben Laser) — eine von 3 Sälen weltweit mit beiden Formaten."},
+}
 
 # ---------------------------------------------------------------- 2) Daten laden
 def load():
@@ -124,16 +140,20 @@ def load():
         nm,iso,reg,clat,clng=C[slug]
         with open(f,encoding="utf-8") as fh:
             for r in csv.DictReader(fh):
-                cat,film=classify_imax(r.get("Screen Aspect Ratio (AR)",""),r.get("Digital Projector",""),r.get("Film Projector",""))
                 city=(r.get("City") or "").strip()
-                name=IMAXGUIDE_NAME_FIX.get((slug,city,(r.get("Location Name") or "").strip()),(r.get("Location Name") or "").strip())
+                orig_name=(r.get("Location Name") or "").strip()
+                name=IMAXGUIDE_NAME_FIX.get((slug,city,orig_name),orig_name)
+                fieldfix=IMAXGUIDE_FIELD_FIX.get((slug,city,orig_name),{})
+                fp_val=fieldfix.get("Film Projector",(r.get("Film Projector") or "").strip())
+                cat,film=classify_imax(r.get("Screen Aspect Ratio (AR)",""),r.get("Digital Projector",""),fp_val)
                 rows.append({"n":name,"ci":city,
                   "st":(r.get("State") or "").strip(),"co":nm,"slug":slug,"reg":reg,
                   "ar":(r.get("Screen Aspect Ratio (AR)") or "").strip(),"cat":cat,"film":film,
-                  "dp":(r.get("Digital Projector") or "").strip(),"fp":(r.get("Film Projector") or "").strip(),
+                  "dp":(r.get("Digital Projector") or "").strip(),"fp":fp_val,
                   "w":num(r.get("Width")),"h":num(r.get("Height")),
                   "com":(r.get("Commercial films shown?","").strip().lower()=="yes"),
-                  "tier":"imax","url":"","src":"imaxguide","srcurl":"https://github.com/r-imax/imaxguide","note":""})
+                  "tier":"imax","url":"","src":"imaxguide","srcurl":"https://github.com/r-imax/imaxguide",
+                  "note":fieldfix.get("note","")})
     # verifizierte IMAX-Ergänzungen (in der Quelle (noch) nicht enthalten)
     def imax_extra(slug,city,name,ar,dp,w,h,note="",lat=None,lng=None):
         nm,iso,reg,clat,clng=C[slug];cat,film=classify_imax(ar,dp,"No")
