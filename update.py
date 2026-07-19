@@ -257,45 +257,85 @@ def _norm(s):
     s=unicodedata.normalize("NFD",s or "").encode("ascii","ignore").decode().lower()
     return re.sub(r"[^a-z0-9 ]"," ",s)
 
-OVERPASS=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"]
+OVERPASS=["https://overpass-api.de/api/interpreter",
+          "https://overpass.kumi.systems/api/interpreter",
+          "https://lz4.overpass-api.de/api/interpreter"]
+# Deutschland wird in Bundesländer zerlegt. Grund: EINE deutschlandweite
+# Overpass-Abfrage läuft ins Timeout und liefert dann *stillschweigend Teildaten*
+# (Overpass antwortet mit HTTP 200 + "remark: … timed out" + halber Ergebnisliste).
+# Das war die Ursache dafür, dass viele Kinos fehlten (v.a. im Osten). Pro
+# Bundesland ist die Abfrage klein genug, um garantiert vollständig zu sein.
+DE_SUBAREAS=["DE-BW","DE-BY","DE-BE","DE-BB","DE-HB","DE-HH","DE-HE","DE-MV",
+             "DE-NI","DE-NW","DE-RP","DE-SL","DE-SN","DE-ST","DE-SH","DE-TH"]
+
+def _overpass_elements(q):
+    """Fragt die Overpass-Endpoints der Reihe nach ab. Erkennt Timeout-Teildaten
+    (remark) und behandelt sie als Fehler, damit keine unvollständigen Daten
+    übernommen/gecacht werden."""
+    last=None
+    for ep in OVERPASS:
+        try:
+            req=urllib.request.Request(ep,data=urllib.parse.urlencode({"data":q}).encode(),
+                headers={"User-Agent":"cinema-atlas/1.0 (github.com/final-wav/cinema-atlas)"})
+            j=json.load(urllib.request.urlopen(req,timeout=240))
+            rem=(j.get("remark") or "").lower()
+            if "timed out" in rem or "runtime error" in rem:
+                raise RuntimeError("Overpass-Teilantwort verworfen: "+rem[:100])
+            return j.get("elements",[])
+        except Exception as e:
+            last=e; log(f"    Overpass-Fehler ({ep.split('/')[2]}): {str(e)[:110]}")
+    raise last or RuntimeError("kein Overpass-Endpoint erreichbar")
+
+def _osm_row(el,nm,reg):
+    t=el.get("tags",{})
+    # Name-Fallback: sonst gingen unbenannte, aber via operator/brand identifizierbare Kinos verloren
+    name=(t.get("name") or t.get("official_name") or t.get("operator") or t.get("brand") or "").strip()
+    if not name: return None
+    lat=el.get("lat") or (el.get("center") or {}).get("lat")
+    lng=el.get("lon") or (el.get("center") or {}).get("lon")
+    if lat is None or lng is None: return None
+    return {"n":name,"ci":(t.get("addr:city") or t.get("addr:town") or t.get("addr:suburb") or "").strip(),
+      "st":"","co":nm,"reg":reg,"ar":"","cat":"cinema","film":False,"dp":"","fp":"","w":None,"h":None,
+      "com":True,"tier":"cinema","url":(t.get("website") or t.get("contact:website") or t.get("url") or "").strip(),
+      "src":"OpenStreetMap","srcurl":f"https://www.openstreetmap.org/{el['type']}/{el['id']}","note":"",
+      "lat":round(float(lat),5),"lng":round(float(lng),5),"exact":True}
+
 def fetch_osm():
     out=[]
     for iso,slug in OSM_COUNTRIES:
         nm,iso2,reg,clat,clng=C[slug]
-        cache=os.path.join(CACHE,f"osm_{iso}.json")
-        q=(f'[out:json][timeout:180];area["ISO3166-1"="{iso}"][admin_level=2];'
-           '(node["amenity"="cinema"](area);way["amenity"="cinema"](area);relation["amenity"="cinema"](area););out center tags;')
-        log(f"• OSM: lade alle Kinos {iso} … (kann etwas dauern)")
-        rows_c=None
-        for ep in OVERPASS:
+        # DE gestückelt nach Bundesländern; jedes andere Land als Ganzes
+        subs = DE_SUBAREAS if iso=="DE" else [iso]
+        log(f"• OSM: lade alle Kinos {iso} in {len(subs)} Teilgebiet(en) …")
+        seen=set(); rows_c=[]; per={}; failed=[]
+        for code in subs:
+            cache=os.path.join(CACHE,f"osm_{code}.json")
+            sel = (f'["ISO3166-2"="{code}"][admin_level=4]' if "-" in code
+                   else f'["ISO3166-1"="{code}"][admin_level=2]')
+            q=(f'[out:json][timeout:180];area{sel}->.a;'
+               '(node["amenity"="cinema"](area.a);way["amenity"="cinema"](area.a);'
+               'relation["amenity"="cinema"](area.a););out center tags;')
+            els=None
             try:
-                req=urllib.request.Request(ep,data=urllib.parse.urlencode({"data":q}).encode(),
-                    headers={"User-Agent":"cinema-atlas/1.0"})
-                j=json.load(urllib.request.urlopen(req,timeout=240))
-                rows_c=[]
-                for el in j.get("elements",[]):
-                    t=el.get("tags",{}); name=(t.get("name") or "").strip()
-                    if not name: continue
-                    lat=el.get("lat") or (el.get("center") or {}).get("lat")
-                    lng=el.get("lon") or (el.get("center") or {}).get("lon")
-                    if lat is None or lng is None: continue
-                    rows_c.append({"n":name,"ci":(t.get("addr:city") or t.get("addr:town") or t.get("addr:suburb") or "").strip(),
-                      "st":"","co":nm,"reg":reg,"ar":"","cat":"cinema","film":False,"dp":"","fp":"","w":None,"h":None,
-                      "com":True,"tier":"cinema","url":(t.get("website") or t.get("contact:website") or t.get("url") or "").strip(),
-                      "src":"OpenStreetMap","srcurl":f"https://www.openstreetmap.org/{el['type']}/{el['id']}","note":"",
-                      "lat":round(float(lat),5),"lng":round(float(lng),5),"exact":True})
-                if rows_c:
-                    json.dump(rows_c,open(cache,"w",encoding="utf-8"))   # Cache aktualisieren
-                    log(f"  {len(rows_c)} Kinos geladen")
-                    break
-            except Exception as e:
-                log(f"  OSM-Fehler ({ep.split('/')[2]}):",str(e)[:120])
-        if not rows_c:   # Abruf fehlgeschlagen -> letzten guten Stand aus Cache nehmen
-            if os.path.exists(cache):
-                rows_c=json.load(open(cache,encoding="utf-8"))
-                log(f"  -> {len(rows_c)} Kinos aus Cache (.cache/osm_{iso}.json) übernommen")
-            else:
-                rows_c=[]; log("  -> kein Cache vorhanden, OSM-Kinos fehlen diesmal")
+                els=_overpass_elements(q)
+                json.dump(els,open(cache,"w",encoding="utf-8"))     # nur *vollständige* Antwort cachen
+            except Exception:
+                if os.path.exists(cache):
+                    els=json.load(open(cache,encoding="utf-8"))
+                    log(f"  {code}: Abruf fehlgeschlagen -> {len(els)} aus Cache")
+                else:
+                    failed.append(code); log(f"  {code}: Abruf fehlgeschlagen, kein Cache -> LÜCKE"); continue
+            got=[r for r in (_osm_row(e,nm,reg) for e in els) if r]
+            per[code]=len(got)
+            for r in got:
+                if r["srcurl"] in seen: continue
+                seen.add(r["srcurl"]); rows_c.append(r)
+        # Vollständigkeits-Report, damit stille Teildaten sofort auffallen
+        if len(subs)>1:
+            log("  Kinos je Gebiet: "+", ".join(f"{k}={per.get(k,0)}" for k in subs))
+        if failed:
+            log("  ⚠ UNVOLLSTÄNDIG — fehlgeschlagene Gebiete: "+", ".join(failed))
+        log(f"  OSM {iso}: {len(rows_c)} Kinos (dedupliziert)"+(" — UNVOLLSTÄNDIG!" if failed else ""))
         out.extend(rows_c)
     return out
 
@@ -501,7 +541,14 @@ def merge_venues(rows):
             ov_loose=(len(sh)/min(len(v["_core"]),len(rc))) if (v["_core"] and rc) else 0
             union=v["_core"]|rc
             ov_strict=(len(sh)/len(union)) if union else 0
-            if (v["_core"]==rc and rc and d<=20) or (ov_strict>=0.6 and len(sh)>=2 and d<=15) or (ov_loose>=0.6 and d<=2.5):
+            same_core=(v["_core"]==rc and rc)
+            same_city=bool(v["_city"] and rcity and v["_city"]==rcity)
+            # Identischer Kern aus nur EINEM Token (z.B. "Cineplex") darf NICHT über 20 km
+            # verschmelzen — sonst kollabieren gleichnamige Ketten-Filialen in Nachbarstädten
+            # zu einem Eintrag. Solche Ein-Token-Kerne nur bei Node+Way-Dublette (sehr nah)
+            # oder gleicher Stadt zusammenführen.
+            core_ok = same_core and (len(rc)>=2 and d<=20 or same_city or d<=3)
+            if core_ok or (ov_strict>=0.6 and len(sh)>=2 and d<=15) or (ov_loose>=0.6 and d<=2.5):
                 m=v; break
         if m is None:
             venues.append({"n":r["n"],"ci":r["ci"],"st":r["st"],"co":r["co"],"reg":r["reg"],
