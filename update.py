@@ -130,6 +130,13 @@ IMAXGUIDE_FIELD_FIX={
     {"Film Projector":"IMAX GT3D 15/70 mm",
      "note":"Seit Juni 2026 auch als IMAX-70mm-Filmsaal (neben Laser) — eine von 3 Sälen weltweit mit beiden Formaten."},
 }
+# Feste Koordinaten für imaxguide-Zeilen, deren Stadtname mehrdeutig ist und deshalb
+# vom Geocoder auf den falschen Ort gesetzt wird (z.B. Leonberg BW vs. Leonberg Bayern).
+# Erzwingt zugleich die Nähe zum OSM-Eintrag, damit beide zu einem Kino verschmelzen.
+# Schlüssel: (Länder-Slug, Stadt, Original-Name) -> (lat, lng).
+IMAXGUIDE_COORD_FIX={
+  ("germany","Leonberg","IMAX Leonberg"):(48.7994,9.0088),  # Traumpalast Leonberg bei Stuttgart
+}
 
 # ---------------------------------------------------------------- 2) Daten laden
 def load():
@@ -146,14 +153,17 @@ def load():
                 fieldfix=IMAXGUIDE_FIELD_FIX.get((slug,city,orig_name),{})
                 fp_val=fieldfix.get("Film Projector",(r.get("Film Projector") or "").strip())
                 cat,film=classify_imax(r.get("Screen Aspect Ratio (AR)",""),r.get("Digital Projector",""),fp_val)
-                rows.append({"n":name,"ci":city,
+                row={"n":name,"ci":city,
                   "st":(r.get("State") or "").strip(),"co":nm,"slug":slug,"reg":reg,
                   "ar":(r.get("Screen Aspect Ratio (AR)") or "").strip(),"cat":cat,"film":film,
                   "dp":(r.get("Digital Projector") or "").strip(),"fp":fp_val,
                   "w":num(r.get("Width")),"h":num(r.get("Height")),
                   "com":(r.get("Commercial films shown?","").strip().lower()=="yes"),
                   "tier":"imax","url":"","src":"imaxguide","srcurl":"https://github.com/r-imax/imaxguide",
-                  "note":fieldfix.get("note","")})
+                  "note":fieldfix.get("note","")}
+                coordfix=IMAXGUIDE_COORD_FIX.get((slug,city,orig_name))
+                if coordfix: row["lat"],row["lng"],row["exact"]=coordfix[0],coordfix[1],True
+                rows.append(row)
     # verifizierte IMAX-Ergänzungen (in der Quelle (noch) nicht enthalten)
     def imax_extra(slug,city,name,ar,dp,w,h,note="",lat=None,lng=None):
         nm,iso,reg,clat,clng=C[slug];cat,film=classify_imax(ar,dp,"No")
