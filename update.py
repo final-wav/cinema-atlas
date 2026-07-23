@@ -137,6 +137,13 @@ IMAXGUIDE_FIELD_FIX={
 IMAXGUIDE_COORD_FIX={
   ("germany","Leonberg","IMAX Leonberg"):(48.7994,9.0088),  # Traumpalast Leonberg bei Stuttgart
 }
+# Feste Stadt-Koordinaten, wenn der Open-Meteo-Geocoder bei mehrdeutigen Ortsnamen
+# den falschen Ort trifft. Gilt für ALLE Zeilen dieser Stadt (imaxguide, Premium-CSV …),
+# damit sie am selben, richtigen Ort landen und zu einem Kino verschmelzen.
+# Schlüssel: (Länder-Slug, Stadt) -> (lat, lng).
+CITY_COORD_FIX={
+  ("germany","Leonberg"):(48.7994,9.0088),  # Leonberg bei Stuttgart (nicht Leonberg/Oberpfalz)
+}
 
 # ---------------------------------------------------------------- 2) Daten laden
 def load():
@@ -268,8 +275,17 @@ def _norm(s):
     return re.sub(r"[^a-z0-9 ]"," ",s)
 
 OVERPASS=["https://overpass-api.de/api/interpreter",
+          "https://lz4.overpass-api.de/api/interpreter",
+          "https://z.overpass-api.de/api/interpreter",
           "https://overpass.kumi.systems/api/interpreter",
-          "https://lz4.overpass-api.de/api/interpreter"]
+          "https://overpass.private.coffee/api/interpreter",
+          "https://overpass.osm.ch/api/interpreter",
+          "https://maps.mail.ru/osm/tools/overpass/api/interpreter"]
+# Cache-First: ein Bundesland-Cache, der jünger als das hier ist, wird direkt
+# genutzt — kein Overpass-Aufruf. Verhindert, dass jeder Lauf gegen die (oft
+# überlasteten/ratelimitierten) Overpass-Server läuft. Zum Erzwingen eines
+# Refreshs: Umgebungsvariable OSM_REFRESH=1 setzen oder Cache-Datei löschen.
+OSM_CACHE_TTL = 7*24*3600  # 7 Tage
 # Deutschland wird in Bundesländer zerlegt. Grund: EINE deutschlandweite
 # Overpass-Abfrage läuft ins Timeout und liefert dann *stillschweigend Teildaten*
 # (Overpass antwortet mit HTTP 200 + "remark: … timed out" + halber Ergebnisliste).
@@ -326,15 +342,22 @@ def fetch_osm():
                '(node["amenity"="cinema"](area.a);way["amenity"="cinema"](area.a);'
                'relation["amenity"="cinema"](area.a););out center tags;')
             els=None
-            try:
-                els=_overpass_elements(q)
-                json.dump(els,open(cache,"w",encoding="utf-8"))     # nur *vollständige* Antwort cachen
-            except Exception:
-                if os.path.exists(cache):
-                    els=json.load(open(cache,encoding="utf-8"))
-                    log(f"  {code}: Abruf fehlgeschlagen -> {len(els)} aus Cache")
-                else:
-                    failed.append(code); log(f"  {code}: Abruf fehlgeschlagen, kein Cache -> LÜCKE"); continue
+            # Cache-First: frischen Cache direkt nutzen, kein Overpass-Aufruf
+            fresh = (os.path.exists(cache) and not os.environ.get("OSM_REFRESH")
+                     and time.time()-os.path.getmtime(cache) < OSM_CACHE_TTL)
+            if fresh:
+                els=json.load(open(cache,encoding="utf-8"))
+                log(f"  {code}: {len(els)} aus Cache (frisch)")
+            else:
+                try:
+                    els=_overpass_elements(q)
+                    json.dump(els,open(cache,"w",encoding="utf-8"))     # nur *vollständige* Antwort cachen
+                except Exception:
+                    if os.path.exists(cache):
+                        els=json.load(open(cache,encoding="utf-8"))
+                        log(f"  {code}: Abruf fehlgeschlagen -> {len(els)} aus Cache")
+                    else:
+                        failed.append(code); log(f"  {code}: Abruf fehlgeschlagen, kein Cache -> LÜCKE"); continue
             got=[r for r in (_osm_row(e,nm,reg) for e in els) if r]
             per[code]=len(got)
             for r in got:
@@ -484,6 +507,8 @@ def reverse_fill(rows):
 def geocode_all(rows):
     cache=json.load(open(GEO,encoding="utf-8")) if os.path.exists(GEO) else {}
     def gc(city,slug,state):
+        fix=CITY_COORD_FIX.get((slug,city))
+        if fix: return [fix[0],fix[1],True]
         key=f"{city}|{slug}|{state}"
         if key in cache: return cache[key]
         nm,iso,reg,clat,clng=C[slug]; res=None
