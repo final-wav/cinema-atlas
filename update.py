@@ -316,7 +316,13 @@ def _osm_row(el,nm,reg):
     t=el.get("tags",{})
     # Name-Fallback: sonst gingen unbenannte, aber via operator/brand identifizierbare Kinos verloren
     name=(t.get("name") or t.get("official_name") or t.get("operator") or t.get("brand") or "").strip()
-    if not name: return None
+    if not name:
+        # In OSM als amenity=cinema markiert, aber ohne Namen: NICHT verwerfen (sonst fehlen
+        # in manchen Städten echte Kinos). Adresse als Label, sonst generisch "Kino".
+        # "Kino" hat einen leeren Merge-Kern (Stoppwort) -> verschmilzt mit nichts, bleibt eigener Punkt.
+        street=(t.get("addr:street") or "").strip()
+        hn=(t.get("addr:housenumber") or "").strip()
+        name = ("Kino "+street+((" "+hn) if hn else "")) if street else "Kino"
     lat=el.get("lat") or (el.get("center") or {}).get("lat")
     lng=el.get("lon") or (el.get("center") or {}).get("lon")
     if lat is None or lng is None: return None
@@ -641,6 +647,24 @@ def write(rows):
         fh.write("const DATA="+json.dumps(rows,ensure_ascii=False)+";\n")
     log("• geschrieben:",OUT,f"({os.path.getsize(OUT)//1024} KB)")
 
+# Vollständigkeits-Garantie: JEDES als amenity=cinema getaggte OSM-Kino muss nach dem
+# Merge in den Enddaten auftauchen (als eigener Eintrag ODER als Format eines gemergten
+# Kinos). Fehlt eines, wird es laut gemeldet — so faellt kuenftig sofort auf, wenn die
+# Pipeline in irgendeiner Stadt Kinos verliert.
+def audit_osm_coverage(rows, venues):
+    osm_urls={r["srcurl"] for r in rows if r.get("src")=="OpenStreetMap" and r.get("srcurl")}
+    have=set()
+    for v in venues:
+        for f in v.get("formats",[]):
+            if f.get("srcurl"): have.add(f["srcurl"])
+    missing=sorted(osm_urls-have)
+    if missing:
+        log(f"  ⚠ VOLLSTÄNDIGKEIT: {len(missing)} OSM-Kino(s) NICHT in den Enddaten:")
+        for u in missing[:30]: log("     fehlt:",u)
+    else:
+        log(f"• Vollständigkeit OK: alle {len(osm_urls)} OSM-Kinos sind in den Enddaten.")
+    return missing
+
 if __name__=="__main__":
     sync_repo()
     rows=load()
@@ -648,6 +672,7 @@ if __name__=="__main__":
     reverse_fill(rows)
     geocode_all(rows)
     venues=merge_venues(rows)
+    audit_osm_coverage(rows, venues)
     venues=attach_rce(venues, fetch_rce())
     venues=apply_corrections(venues)
     log(f"• Merge: {len(rows)} Einträge → {len(venues)} Kinos ({len(rows)-len(venues)} Dubletten zusammengeführt)")
