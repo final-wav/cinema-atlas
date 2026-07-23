@@ -694,8 +694,8 @@ function initMap(){
   map.createPane('dots');map.getPane('dots').style.zIndex=650;
   dotRenderer=L.svg({pane:'dots'});
   setTiles();
-  cluster=L.markerClusterGroup({maxClusterRadius:48,chunkedLoading:true,showCoverageOnHover:false,
-    disableClusteringAtZoom:16,spiderfyOnMaxZoom:true});
+  // Kein Clustering: jedes Kino ist ein eigener Punkt, nie eine Zahl.
+  cluster=L.layerGroup();
   map.addLayer(cluster);
   let t;map.on('moveend',()=>{if(coupled){clearTimeout(t);t=setTimeout(renderList,120);}});
   map.on('click',e=>{ if(!pickMode)return; pickMode=false;
@@ -745,7 +745,7 @@ function drawMarkers(arr){
     markerById[id]=m;
     return m;
   });
-  cluster.addLayers(ms);
+  ms.forEach(m=>cluster.addLayer(m));
 }
 function highlightMarker(id,on){
   const m=markerById[id];if(!m)return;
