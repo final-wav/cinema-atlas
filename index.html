@@ -694,7 +694,8 @@ function initMap(){
   map.createPane('dots');map.getPane('dots').style.zIndex=650;
   dotRenderer=L.svg({pane:'dots'});
   setTiles();
-  cluster=L.markerClusterGroup({maxClusterRadius:48,chunkedLoading:true,showCoverageOnHover:false});
+  cluster=L.markerClusterGroup({maxClusterRadius:48,chunkedLoading:true,showCoverageOnHover:false,
+    disableClusteringAtZoom:16,spiderfyOnMaxZoom:true});
   map.addLayer(cluster);
   let t;map.on('moveend',()=>{if(coupled){clearTimeout(t);t=setTimeout(renderList,120);}});
   map.on('click',e=>{ if(!pickMode)return; pickMode=false;
@@ -720,10 +721,21 @@ function setTiles(){
 function drawMarkers(arr){
   if(!map)return;
   cluster.clearLayers();markerById={};
+  // Kinos auf identischen (nur stadtgenauen) Koordinaten leicht auffächern, damit sie
+  // als einzelne, klickbare Kreise sichtbar werden statt exakt übereinander zu liegen.
+  const groups={};
+  arr.forEach(d=>{const k=d.lat.toFixed(5)+','+d.lng.toFixed(5);(groups[k]=groups[k]||[]).push(d);});
+  const off={};
+  Object.values(groups).forEach(g=>{ if(g.length<2)return;
+    const R=0.00018; // ~20 m
+    g.forEach((d,i)=>{const a=2*Math.PI*i/g.length;
+      off[d.id]=[R*Math.cos(a), R*Math.sin(a)/Math.max(.2,Math.cos(d.lat*Math.PI/180))];});
+  });
   const ms=arr.map(d=>{
     const id=d.id,n=photoCounts[id]||0;
+    const o=off[id], lat=d.lat+(o?o[0]:0), lng=d.lng+(o?o[1]:0);
     const rad=d.cat==='film143'?12:(d.cat==='cinema'?10:11);
-    const m=L.circleMarker([d.lat,d.lng],{renderer:dotRenderer,radius:rad,weight:2,color:cv('--paper'),fillColor:catColor(d.cat),fillOpacity:.95});
+    const m=L.circleMarker([lat,lng],{renderer:dotRenderer,radius:rad,weight:2,color:cv('--paper'),fillColor:catColor(d.cat),fillOpacity:.95});
     m._key=id;m._base=rad;
     m.bindPopup(`<div class="pp"><div class="nm">${esc(d.n)}</div>
       <div class="mt">${esc(d.ci)}${d.st?', '+esc(d.st):''}, ${esc(d.co)}</div>
