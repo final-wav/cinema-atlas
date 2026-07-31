@@ -787,6 +787,7 @@ function openDetail(key){
     ${graphic}
     <div class="sectit">Formate &amp; Quellen</div>
     <table class="specs">${fmtRows}</table>
+    ${(d.halls&&d.halls.length)?`<div class="sectit">Säle</div>${hallsTable(d,imf)}`:''}
     <div class="sectit">Weiteres</div>
     <table class="specs">
       <tr><th>Kommerzielle Filme</th><td>${d.com?'ja':'nein'}</td></tr>
@@ -796,7 +797,6 @@ function openDetail(key){
       <div class="evbox">
         ${d.pdf?`<a class="evlink" href="${esc(d.pdf)}" target="_blank" rel="noopener">📄 Event-Datenblatt (PDF) — Säle, Leinwandmaße, Sitze ↗</a>`:''}
         ${d.rce?`<a class="evlink" href="${esc(d.rce)}" target="_blank" rel="noopener">Location-Details bei red-carpet-event.de ↗</a>`:''}
-        ${hallsTable(d,imf)}
         ${d.pdf?`<button class="ghost" style="margin-top:6px" onclick="showPdf(this,'${esc(d.pdf)}')">Datenblatt hier ansehen</button>`:''}
         ${rcePhotoGrid(d)}
       </div>`:''}
@@ -941,11 +941,15 @@ function saveOverride(d,patch){
 }
 function hallsTable(d,imf){
   if(!d.halls || !d.halls.length) return '';
-  const rows=d.halls.map(h=>{
-    const isImax = /imax/i.test(h.name);
-    return `<tr${isImax?' class="imaxrow"':''}><td>${esc(h.name)}</td><td>${h.seats}</td><td>${h.screen?esc(h.screen):'—'}</td></tr>`;
-  }).join('');
   const hasScreens = d.halls.some(h=>h.screen);
+  const hasFeat = d.halls.some(h=>h.feat);
+  // Dritte Spalte adaptiv: Leinwandmaße, wenn vorhanden — sonst Formate/Ausstattung.
+  const col3 = hasScreens ? 'Leinwand B×H' : (hasFeat ? 'Formate / Ausstattung' : '');
+  const rows=d.halls.map(h=>{
+    const isImax = /imax/i.test(h.name) || /imax|maxximum/i.test(h.feat||'');
+    const c3 = h.screen ? esc(h.screen) : (h.feat ? esc(h.feat) : '—');
+    return `<tr${isImax?' class="imaxrow"':''}><td>${esc(h.name)}</td><td>${h.seats}</td><td>${c3}</td></tr>`;
+  }).join('');
   let hint='';
   if(hasScreens){
     hint = imf
@@ -954,7 +958,7 @@ function hallsTable(d,imf){
       : `Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung).`;
   }
   return `<table class="hallstbl">
-    <thead><tr><th>Saal</th><th>Sitzplätze</th><th>Leinwand B×H</th></tr></thead>
+    <thead><tr><th>Saal</th><th>Sitzplätze</th><th>${col3}</th></tr></thead>
     <tbody>${rows}</tbody>
     <tfoot><tr><td>Gesamt (${d.halls.length} Säle)</td><td>${d.hallSeats||''}</td><td></td></tr></tfoot>
   </table>

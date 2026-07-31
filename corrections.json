@@ -1,0 +1,18 @@
+{
+  "93fff810d5": {
+    "n": "CinemaxX Magdeburg",
+    "note": "9 Säle mit Lux-/Ultra-Lux-Bestuhlung (Sitzplätze = Lux + Ultra Lux). Saal 7 mit MAXXIMUM SOUND. Alle Säle mit Dolby Digital 7.1/5.1.",
+    "halls": [
+      {"name": "1", "seats": 142, "screen": "", "feat": "2D · 3D · 4K · HFR 3D"},
+      {"name": "2", "seats": 60, "screen": "", "feat": "2D · 3D · 4K"},
+      {"name": "3", "seats": 60, "screen": "", "feat": "2D · 4K"},
+      {"name": "4", "seats": 75, "screen": "", "feat": "2D · 4K"},
+      {"name": "5", "seats": 76, "screen": "", "feat": "2D · 4K"},
+      {"name": "6", "seats": 103, "screen": "", "feat": "2D"},
+      {"name": "7", "seats": 145, "screen": "", "feat": "MAXXIMUM SOUND · 2D · 3D · 4K · HFR 3D"},
+      {"name": "8", "seats": 75, "screen": "", "feat": "2D · 3D · 4K"},
+      {"name": "9", "seats": 73, "screen": "", "feat": "2D · 4K"}
+    ],
+    "hallSeats": 809
+  }
+}
