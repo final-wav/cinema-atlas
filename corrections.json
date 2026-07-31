@@ -1,18 +1,1725 @@
 {
-  "93fff810d5": {
-    "n": "CinemaxX Magdeburg",
-    "note": "9 Säle mit Lux-/Ultra-Lux-Bestuhlung (Sitzplätze = Lux + Ultra Lux). Saal 7 mit MAXXIMUM SOUND. Alle Säle mit Dolby Digital 7.1/5.1.",
-    "halls": [
-      {"name": "1", "seats": 142, "screen": "", "feat": "2D · 3D · 4K · HFR 3D"},
-      {"name": "2", "seats": 60, "screen": "", "feat": "2D · 3D · 4K"},
-      {"name": "3", "seats": 60, "screen": "", "feat": "2D · 4K"},
-      {"name": "4", "seats": 75, "screen": "", "feat": "2D · 4K"},
-      {"name": "5", "seats": 76, "screen": "", "feat": "2D · 4K"},
-      {"name": "6", "seats": 103, "screen": "", "feat": "2D"},
-      {"name": "7", "seats": 145, "screen": "", "feat": "MAXXIMUM SOUND · 2D · 3D · 4K · HFR 3D"},
-      {"name": "8", "seats": 75, "screen": "", "feat": "2D · 3D · 4K"},
-      {"name": "9", "seats": 73, "screen": "", "feat": "2D · 4K"}
-    ],
-    "hallSeats": 809
-  }
+"93fff810d5": {
+"n": "CinemaxX Magdeburg",
+"halls": [
+{
+"name": "1",
+"seats": 142,
+"screen": "",
+"feat": "124 Lux + 18 Ultra Lux · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 60,
+"screen": "",
+"feat": "52 Lux + 8 Ultra Lux · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 60,
+"screen": "",
+"feat": "52 Lux + 8 Ultra Lux · 4K"
+},
+{
+"name": "4",
+"seats": 75,
+"screen": "",
+"feat": "69 Lux + 6 Ultra Lux · 4K"
+},
+{
+"name": "5",
+"seats": 76,
+"screen": "",
+"feat": "70 Lux + 6 Ultra Lux · 4K"
+},
+{
+"name": "6",
+"seats": 103,
+"screen": "",
+"feat": "96 Lux + 7 Ultra Lux"
+},
+{
+"name": "7",
+"seats": 145,
+"screen": "",
+"feat": "135 Lux + 10 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "8",
+"seats": 75,
+"screen": "",
+"feat": "69 Lux + 6 Ultra Lux · 4K · 3D"
+},
+{
+"name": "9",
+"seats": 73,
+"screen": "",
+"feat": "67 Lux + 6 Ultra Lux · 4K"
+}
+],
+"hallSeats": 809,
+"note": "Saaldaten: cinemaxx.de. Sitzplätze inkl. Lux-/Ultra-Lux-Bestuhlung."
+},
+"d56a9dfe0f": {
+"halls": [
+{
+"name": "1",
+"seats": 552,
+"screen": "",
+"feat": "311 Loge · 21 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 299,
+"screen": "",
+"feat": "187 Loge · 17 VIP · HFR 3D · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 154,
+"screen": "",
+"feat": "83 Loge · 12 VIP · HFR 3D · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 154,
+"screen": "",
+"feat": "83 Loge · 12 VIP · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 299,
+"screen": "",
+"feat": "187 Loge · 17 VIP · 4K · 3D"
+},
+{
+"name": "6",
+"seats": 299,
+"screen": "",
+"feat": "187 Loge · 17 VIP · 4K"
+},
+{
+"name": "7",
+"seats": 154,
+"screen": "",
+"feat": "83 Loge · 12 VIP · 4K"
+},
+{
+"name": "8",
+"seats": 154,
+"screen": "",
+"feat": "83 Loge · 12 VIP · 4K · 3D"
+},
+{
+"name": "9",
+"seats": 299,
+"screen": "",
+"feat": "187 Loge · 17 VIP · 4K · 3D"
+}
+],
+"hallSeats": 2364,
+"note": "Saaldaten: cinemaxx.de."
+},
+"23e62e18b1": {
+"halls": [
+{
+"name": "1",
+"seats": 118,
+"screen": "",
+"feat": "108 Lux + 10 Ultra Lux · MAXXIMUM SOUND · 3D"
+},
+{
+"name": "2",
+"seats": 52,
+"screen": "",
+"feat": "45 Lux + 7 Ultra Lux · 3D"
+},
+{
+"name": "3",
+"seats": 179,
+"screen": "",
+"feat": "166 Lux + 13 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 118,
+"screen": "",
+"feat": "108 Lux + 10 Ultra Lux · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 112,
+"screen": "",
+"feat": "102 Lux + 10 Ultra Lux · 4K · 3D"
+},
+{
+"name": "6",
+"seats": 112,
+"screen": "",
+"feat": "102 Lux + 10 Ultra Lux · 4K"
+},
+{
+"name": "7",
+"seats": 205,
+"screen": "",
+"feat": "192 Lux + 13 Ultra Lux · HFR 3D · 4K · 3D"
+},
+{
+"name": "8",
+"seats": 100,
+"screen": "",
+"feat": "92 Lux + 8 Ultra Lux · 4K"
+},
+{
+"name": "9",
+"seats": 100,
+"screen": "",
+"feat": "92 Lux + 8 Ultra Lux · 4K · 3D"
+},
+{
+"name": "10",
+"seats": 66,
+"screen": "",
+"feat": "58 Lux + 8 Ultra Lux · 4K · 3D"
+},
+{
+"name": "11",
+"seats": 10,
+"screen": "",
+"feat": "6 Lux + 4 Ultra Lux"
+},
+{
+"name": "12",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux"
+},
+{
+"name": "13",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux"
+},
+{
+"name": "14",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux"
+},
+{
+"name": "15",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux"
+},
+{
+"name": "16",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux · 4K"
+},
+{
+"name": "17",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux · 4K"
+},
+{
+"name": "18",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux · 4K"
+},
+{
+"name": "19",
+"seats": 20,
+"screen": "",
+"feat": "16 Lux + 4 Ultra Lux · 4K"
+}
+],
+"hallSeats": 1332,
+"note": "Saaldaten: cinemaxx.de."
+},
+"44d6ac6886": {
+"halls": [
+{
+"name": "1",
+"seats": 11,
+"screen": "",
+"feat": "3 Lux + 8 Ultra Lux"
+},
+{
+"name": "2",
+"seats": 66,
+"screen": "",
+"feat": "58 Lux + 8 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 101,
+"screen": "",
+"feat": "91 Lux + 10 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 110,
+"screen": "",
+"feat": "100 Lux + 10 Ultra Lux · 3D"
+},
+{
+"name": "5",
+"seats": 112,
+"screen": "",
+"feat": "104 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 64,
+"screen": "",
+"feat": "53 Lux + 11 Ultra Lux · 3D"
+},
+{
+"name": "7",
+"seats": 167,
+"screen": "",
+"feat": "156 Lux + 11 Ultra Lux · HFR 3D · 3D"
+},
+{
+"name": "8",
+"seats": 234,
+"screen": "",
+"feat": "220 Lux + 14 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+}
+],
+"hallSeats": 865,
+"note": "Saaldaten: cinemaxx.de."
+},
+"924273db98": {
+"halls": [
+{
+"name": "1",
+"seats": 145,
+"screen": "",
+"feat": "96 Loge · 0 VIP · 3D"
+},
+{
+"name": "2",
+"seats": 163,
+"screen": "",
+"feat": "114 Loge · 0 VIP · 3D"
+},
+{
+"name": "3",
+"seats": 178,
+"screen": "",
+"feat": "114 Loge · 0 VIP"
+},
+{
+"name": "4",
+"seats": 85,
+"screen": "",
+"feat": "65 Loge · 0 VIP · 3D"
+},
+{
+"name": "5",
+"seats": 49,
+"screen": "",
+"feat": "33 Loge · 0 VIP"
+},
+{
+"name": "6",
+"seats": 297,
+"screen": "",
+"feat": "203 Loge · 0 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "7",
+"seats": 186,
+"screen": "",
+"feat": "120 Loge · 0 VIP · 3D"
+},
+{
+"name": "8",
+"seats": 232,
+"screen": "",
+"feat": "162 Loge · 0 VIP · 3D"
+},
+{
+"name": "9",
+"seats": 342,
+"screen": "",
+"feat": "254 Loge · 0 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "10",
+"seats": 186,
+"screen": "",
+"feat": "120 Loge · 0 VIP"
+}
+],
+"hallSeats": 1863,
+"note": "Saaldaten: cinemaxx.de."
+},
+"1664b70e31": {
+"halls": [
+{
+"name": "1",
+"seats": 509,
+"screen": "",
+"feat": "237 Loge · 20 VIP · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 197,
+"screen": "",
+"feat": "91 Loge · 13 VIP · 4K"
+},
+{
+"name": "3",
+"seats": 194,
+"screen": "",
+"feat": "91 Loge · 13 VIP · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 333,
+"screen": "",
+"feat": "155 Loge · 17 VIP · HFR 3D · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 262,
+"screen": "",
+"feat": "132 Loge · 17 VIP · 4K"
+},
+{
+"name": "6",
+"seats": 262,
+"screen": "",
+"feat": "132 Loge · 17 VIP · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 101,
+"screen": "",
+"feat": "53 Loge · 10 VIP · 4K"
+},
+{
+"name": "8",
+"seats": 102,
+"screen": "",
+"feat": "54 Loge · 10 VIP · 4K"
+}
+],
+"hallSeats": 1960,
+"note": "Saaldaten: cinemaxx.de."
+},
+"35c67cbdac": {
+"halls": [
+{
+"name": "1",
+"seats": 453,
+"screen": "",
+"feat": "267 Loge · 18 Premium Seats · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 581,
+"screen": "",
+"feat": "283 Loge · 42 Premium Seats · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 453,
+"screen": "",
+"feat": "267 Loge · 18 Premium Seats · HFR 3D · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 291,
+"screen": "",
+"feat": "188 Loge · 15 Premium Seats · 4K"
+},
+{
+"name": "5",
+"seats": 291,
+"screen": "",
+"feat": "188 Loge · 15 Premium Seats · 4K"
+},
+{
+"name": "6",
+"seats": 224,
+"screen": "",
+"feat": "123 Loge · 11 Premium Seats · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 191,
+"screen": "",
+"feat": "108 Loge · 11 Premium Seats · 4K"
+},
+{
+"name": "8",
+"seats": 162,
+"screen": "",
+"feat": "114 Loge · 12 Premium Seats · 4K"
+},
+{
+"name": "9",
+"seats": 453,
+"screen": "",
+"feat": "267 Loge · 18 Premium Seats · 4K"
+},
+{
+"name": "10",
+"seats": 524,
+"screen": "",
+"feat": "311 Loge · 21 Premium Seats · MAXXIMUM SOUND · 4K · 3D"
+},
+{
+"name": "11",
+"seats": 453,
+"screen": "",
+"feat": "269 Loge · 16 Premium Seats · 4K"
+},
+{
+"name": "12",
+"seats": 291,
+"screen": "",
+"feat": "188 Loge · 15 Premium Seats · 4K · 3D"
+},
+{
+"name": "13",
+"seats": 124,
+"screen": "",
+"feat": "2 Loge · 0 Premium Seats · 4K"
+},
+{
+"name": "14",
+"seats": 224,
+"screen": "",
+"feat": "123 Loge · 11 Premium Seats · 4K"
+},
+{
+"name": "15",
+"seats": 191,
+"screen": "",
+"feat": "108 Loge · 11 Premium Seats · 4K"
+},
+{
+"name": "16",
+"seats": 161,
+"screen": "",
+"feat": "114 Loge · 11 Premium Seats · 4K"
+}
+],
+"hallSeats": 5067,
+"note": "Saaldaten: cinemaxx.de."
+},
+"2999d366ab": {
+"halls": [
+{
+"name": "1",
+"seats": 62,
+"screen": "",
+"feat": "55 Lux + 7 Ultra Lux · 3D"
+},
+{
+"name": "2",
+"seats": 65,
+"screen": "",
+"feat": "59 Lux + 6 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 60,
+"screen": "",
+"feat": "54 Lux + 6 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 176,
+"screen": "",
+"feat": "160 Lux + 16 Ultra Lux · HFR 3D · 3D"
+},
+{
+"name": "5",
+"seats": 62,
+"screen": "",
+"feat": "55 Lux + 7 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 65,
+"screen": "",
+"feat": "59 Lux + 6 Ultra Lux"
+},
+{
+"name": "7",
+"seats": 60,
+"screen": "",
+"feat": "54 Lux + 6 Ultra Lux"
+},
+{
+"name": "8",
+"seats": 139,
+"screen": "",
+"feat": "123 Lux + 16 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "9",
+"seats": 135,
+"screen": "",
+"feat": "124 Lux + 11 Ultra Lux"
+}
+],
+"hallSeats": 824,
+"note": "Saaldaten: cinemaxx.de."
+},
+"4d539f39fd": {
+"halls": [
+{
+"name": "1",
+"seats": 135,
+"screen": "",
+"feat": "87 Loge · 0 VIP · 3D"
+},
+{
+"name": "2",
+"seats": 152,
+"screen": "",
+"feat": "100 Loge · 0 VIP · 3D"
+},
+{
+"name": "3",
+"seats": 334,
+"screen": "",
+"feat": "241 Loge · 0 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "4",
+"seats": 85,
+"screen": "",
+"feat": "47 Loge · 0 VIP · 3D"
+},
+{
+"name": "5",
+"seats": 57,
+"screen": "",
+"feat": "34 Loge · 0 VIP"
+},
+{
+"name": "6",
+"seats": 72,
+"screen": "",
+"feat": "37 Loge · 0 VIP"
+},
+{
+"name": "7",
+"seats": 79,
+"screen": "",
+"feat": "44 Loge · 0 VIP"
+},
+{
+"name": "8",
+"seats": 140,
+"screen": "",
+"feat": "88 Loge · 0 VIP · 3D"
+},
+{
+"name": "9",
+"seats": 134,
+"screen": "",
+"feat": "82 Loge · 0 VIP · 3D"
+}
+],
+"hallSeats": 1188,
+"note": "Saaldaten: cinemaxx.de."
+},
+"9aaf2f918b": {
+"halls": [
+{
+"name": "1",
+"seats": 170,
+"screen": "",
+"feat": "84 Loge · 10 VIP · 4K"
+},
+{
+"name": "2",
+"seats": 300,
+"screen": "",
+"feat": "189 Loge · 16 VIP · 3D"
+},
+{
+"name": "3",
+"seats": 300,
+"screen": "",
+"feat": "189 Loge · 16 VIP · HFR 3D · 3D"
+},
+{
+"name": "4",
+"seats": 170,
+"screen": "",
+"feat": "84 Loge · 10 VIP · 3D"
+},
+{
+"name": "5",
+"seats": 136,
+"screen": "",
+"feat": "69 Loge · 11 VIP · 4K"
+},
+{
+"name": "6",
+"seats": 144,
+"screen": "",
+"feat": "71 Loge · 11 VIP · 4K"
+},
+{
+"name": "7",
+"seats": 635,
+"screen": "",
+"feat": "340 Loge · 22 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "8",
+"seats": 153,
+"screen": "",
+"feat": "71 Loge · 11 VIP · 3D"
+},
+{
+"name": "9",
+"seats": 136,
+"screen": "",
+"feat": "69 Loge · 11 VIP · 4K"
+},
+{
+"name": "10",
+"seats": 101,
+"screen": "",
+"feat": "48 Loge · 9 VIP · 4K"
+}
+],
+"hallSeats": 2245,
+"note": "Saaldaten: cinemaxx.de."
+},
+"740fc584d5": {
+"halls": [
+{
+"name": "1",
+"seats": 954,
+"screen": "",
+"feat": "433 Loge · 75 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "2",
+"seats": 165,
+"screen": "",
+"feat": "81 Loge · 24 VIP · 4K"
+},
+{
+"name": "3",
+"seats": 359,
+"screen": "",
+"feat": "173 Loge · 48 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "4",
+"seats": 203,
+"screen": "",
+"feat": "67 Loge · 42 VIP · 3D"
+},
+{
+"name": "5",
+"seats": 222,
+"screen": "",
+"feat": "86 Loge · 42 VIP"
+},
+{
+"name": "6",
+"seats": 233,
+"screen": "",
+"feat": "84 Loge · 45 VIP · HFR 3D · 3D"
+},
+{
+"name": "7",
+"seats": 165,
+"screen": "",
+"feat": "65 Loge · 28 VIP · 4K · 3D"
+},
+{
+"name": "8",
+"seats": 318,
+"screen": "",
+"feat": "128 Loge · 54 VIP · 3D"
+}
+],
+"hallSeats": 2619,
+"note": "Saaldaten: cinemaxx.de."
+},
+"eada77723a": {
+"halls": [
+{
+"name": "1",
+"seats": 185,
+"screen": "",
+"feat": "174 Lux + 11 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "2",
+"seats": 65,
+"screen": "",
+"feat": "59 Lux + 6 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 81,
+"screen": "",
+"feat": "73 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 65,
+"screen": "",
+"feat": "59 Lux + 6 Ultra Lux · 3D"
+},
+{
+"name": "5",
+"seats": 79,
+"screen": "",
+"feat": "71 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 72,
+"screen": "",
+"feat": "65 Lux + 7 Ultra Lux"
+},
+{
+"name": "7",
+"seats": 83,
+"screen": "",
+"feat": "76 Lux + 7 Ultra Lux · 3D"
+}
+],
+"hallSeats": 630,
+"note": "Saaldaten: cinemaxx.de."
+},
+"a0d7421221": {
+"halls": [
+{
+"name": "1",
+"seats": 132,
+"screen": "",
+"feat": "120 Lux + 12 Ultra Lux · 3D"
+},
+{
+"name": "2",
+"seats": 78,
+"screen": "",
+"feat": "72 Lux + 6 Ultra Lux · 3D"
+},
+{
+"name": "3",
+"seats": 73,
+"screen": "",
+"feat": "68 Lux + 5 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 169,
+"screen": "",
+"feat": "158 Lux + 11 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "5",
+"seats": 115,
+"screen": "",
+"feat": "105 Lux + 10 Ultra Lux · 3D"
+}
+],
+"hallSeats": 567,
+"note": "Saaldaten: cinemaxx.de."
+},
+"6718d5e349": {
+"halls": [
+{
+"name": "1",
+"seats": 480,
+"screen": "",
+"feat": "336 Loge · 0 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "2",
+"seats": 244,
+"screen": "",
+"feat": "162 Loge · 0 VIP · HFR 3D · 3D"
+},
+{
+"name": "3",
+"seats": 227,
+"screen": "",
+"feat": "145 Loge · 0 VIP · 3D"
+},
+{
+"name": "4",
+"seats": 224,
+"screen": "",
+"feat": "144 Loge · 0 VIP"
+},
+{
+"name": "5",
+"seats": 79,
+"screen": "",
+"feat": "51 Loge · 0 VIP · 3D"
+},
+{
+"name": "6",
+"seats": 79,
+"screen": "",
+"feat": "51 Loge · 0 VIP"
+},
+{
+"name": "7",
+"seats": 208,
+"screen": "",
+"feat": "139 Loge · 0 VIP · 3D"
+},
+{
+"name": "8",
+"seats": 226,
+"screen": "",
+"feat": "144 Loge · 0 VIP"
+},
+{
+"name": "9",
+"seats": 114,
+"screen": "",
+"feat": "71 Loge · 0 VIP · 3D"
+},
+{
+"name": "10",
+"seats": 224,
+"screen": "",
+"feat": "144 Loge · 0 VIP · HFR 3D · 3D"
+}
+],
+"hallSeats": 2105,
+"note": "Saaldaten: cinemaxx.de."
+},
+"b1518345fb": {
+"halls": [
+{
+"name": "1",
+"seats": 152,
+"screen": "",
+"feat": "138 Lux + 14 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "2",
+"seats": 55,
+"screen": "",
+"feat": "49 Lux + 6 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 56,
+"screen": "",
+"feat": "50 Lux + 6 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 73,
+"screen": "",
+"feat": "65 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "5",
+"seats": 86,
+"screen": "",
+"feat": "78 Lux + 8 Ultra Lux"
+},
+{
+"name": "6",
+"seats": 106,
+"screen": "",
+"feat": "96 Lux + 10 Ultra Lux"
+}
+],
+"hallSeats": 528,
+"note": "Saaldaten: cinemaxx.de."
+},
+"5f839ccfc1": {
+"halls": [
+{
+"name": "1",
+"seats": 410,
+"screen": "",
+"feat": "0 Loge · 0 VIP · 4K"
+},
+{
+"name": "2",
+"seats": 144,
+"screen": "",
+"feat": "0 Loge · 0 VIP · 4K"
+}
+],
+"hallSeats": 554,
+"note": "Saaldaten: cinemaxx.de."
+},
+"2252e375bf": {
+"halls": [
+{
+"name": "1",
+"seats": 54,
+"screen": "",
+"feat": "48 Lux + 6 Ultra Lux"
+},
+{
+"name": "2",
+"seats": 52,
+"screen": "",
+"feat": "46 Lux + 6 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 52,
+"screen": "",
+"feat": "46 Lux + 6 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 54,
+"screen": "",
+"feat": "48 Lux + 6 Ultra Lux"
+},
+{
+"name": "5",
+"seats": 133,
+"screen": "",
+"feat": "121 Lux + 12 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 133,
+"screen": "",
+"feat": "121 Lux + 12 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "7",
+"seats": 94,
+"screen": "",
+"feat": "84 Lux + 10 Ultra Lux · 3D"
+},
+{
+"name": "8",
+"seats": 94,
+"screen": "",
+"feat": "84 Lux + 10 Ultra Lux · 3D"
+},
+{
+"name": "9",
+"seats": 94,
+"screen": "",
+"feat": "84 Lux + 10 Ultra Lux"
+},
+{
+"name": "10",
+"seats": 94,
+"screen": "",
+"feat": "84 Lux + 10 Ultra Lux · 3D"
+}
+],
+"hallSeats": 854,
+"note": "Saaldaten: cinemaxx.de."
+},
+"f7894bc900": {
+"halls": [
+{
+"name": "1",
+"seats": 51,
+"screen": "",
+"feat": "43 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "2",
+"seats": 61,
+"screen": "",
+"feat": "53 Lux + 8 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 90,
+"screen": "",
+"feat": "81 Lux + 9 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 160,
+"screen": "",
+"feat": "149 Lux + 11 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "5",
+"seats": 18,
+"screen": "",
+"feat": "9 Lux + 9 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 35,
+"screen": "",
+"feat": "28 Lux + 7 Ultra Lux"
+},
+{
+"name": "7",
+"seats": 67,
+"screen": "",
+"feat": "59 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "8",
+"seats": 77,
+"screen": "",
+"feat": "68 Lux + 9 Ultra Lux · 3D"
+},
+{
+"name": "9",
+"seats": 169,
+"screen": "",
+"feat": "158 Lux + 11 Ultra Lux · 3D"
+},
+{
+"name": "10",
+"seats": 80,
+"screen": "",
+"feat": "71 Lux + 9 Ultra Lux"
+}
+],
+"hallSeats": 808,
+"note": "Saaldaten: cinemaxx.de."
+},
+"db83dd0d1a": {
+"halls": [
+{
+"name": "1",
+"seats": 690,
+"screen": "",
+"feat": "386 Loge · 22 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 142,
+"screen": "",
+"feat": "0 Loge · 142 VIP · 4K"
+},
+{
+"name": "3",
+"seats": 311,
+"screen": "",
+"feat": "180 Loge · 16 VIP · 4K"
+},
+{
+"name": "4",
+"seats": 311,
+"screen": "",
+"feat": "177 Loge · 16 VIP · 4K"
+},
+{
+"name": "5",
+"seats": 266,
+"screen": "",
+"feat": "166 Loge · 16 VIP"
+},
+{
+"name": "6",
+"seats": 304,
+"screen": "",
+"feat": "180 Loge · 16 VIP · HFR 3D · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 392,
+"screen": "",
+"feat": "214 Loge, 19 VIP · 32 D-Box Seats · MAXXIMUM SOUND · 4K · 3D"
+},
+{
+"name": "8",
+"seats": 139,
+"screen": "",
+"feat": "76 Loge, 12 VIP · 18 D-BOX Seats · 4K · 3D"
+},
+{
+"name": "9",
+"seats": 148,
+"screen": "",
+"feat": "71 Loge · 10 VIP · 4K · 3D"
+},
+{
+"name": "10",
+"seats": 148,
+"screen": "",
+"feat": "71 Loge · 10 VIP · 4K"
+},
+{
+"name": "11",
+"seats": 148,
+"screen": "",
+"feat": "71 Loge · 10 VIP · 4K"
+}
+],
+"hallSeats": 2999,
+"note": "Saaldaten: cinemaxx.de."
+},
+"05447d6dff": {
+"halls": [
+{
+"name": "1",
+"seats": 58,
+"screen": "",
+"feat": "51 Lux + 7 Ultra Lux · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 161,
+"screen": "",
+"feat": "149 Lux + 12 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 104,
+"screen": "",
+"feat": "95 Lux + 9 Ultra Lux · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 90,
+"screen": "",
+"feat": "81 Lux + 9 Ultra Lux · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 119,
+"screen": "",
+"feat": "109 Lux + 10 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "6",
+"seats": 31,
+"screen": "",
+"feat": "25 Lux + 6 Ultra Lux · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 21,
+"screen": "",
+"feat": "17 Lux + 4 Ultra Lux · 4K"
+}
+],
+"hallSeats": 584,
+"note": "Saaldaten: cinemaxx.de."
+},
+"3db7f5d244": {
+"halls": [
+{
+"name": "1",
+"seats": 548,
+"screen": "",
+"feat": "361 Loge · 20 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 171,
+"screen": "",
+"feat": "90 Loge · 11 VIP · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 299,
+"screen": "",
+"feat": "160 Loge · 17 VIP · HFR 3D · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 171,
+"screen": "",
+"feat": "90 Loge · 11 VIP · 4K"
+},
+{
+"name": "5",
+"seats": 171,
+"screen": "",
+"feat": "90 Loge · 11 VIP · 4K · 3D"
+},
+{
+"name": "6",
+"seats": 171,
+"screen": "",
+"feat": "90 Loge · 11 VIP · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 108,
+"screen": "",
+"feat": "53 Loge · 10 VIP · 4K"
+}
+],
+"hallSeats": 1639,
+"note": "Saaldaten: cinemaxx.de."
+},
+"d8be7562bc": {
+"halls": [
+{
+"name": "1",
+"seats": 416,
+"screen": "",
+"feat": "196 Loge · 38 Premium Seats · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 232,
+"screen": "",
+"feat": "106 Loge · 12 Premium Seats · 4K"
+},
+{
+"name": "3",
+"seats": 210,
+"screen": "",
+"feat": "104 Loge · 11 Premium Seats · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 127,
+"screen": "",
+"feat": "63 Loge · 9 Premium Seats · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 394,
+"screen": "",
+"feat": "205 Loge · 28 Premium Seats · 4K · 3D"
+},
+{
+"name": "6",
+"seats": 229,
+"screen": "",
+"feat": "132 Loge · 12 Premium Seats · 4K"
+},
+{
+"name": "7",
+"seats": 192,
+"screen": "",
+"feat": "100 Loge · 12 Premium Seats · 4K · 3D"
+},
+{
+"name": "8",
+"seats": 120,
+"screen": "",
+"feat": "63 Loge · 9 Premium Seats · 4K"
+}
+],
+"hallSeats": 1920,
+"note": "Saaldaten: cinemaxx.de."
+},
+"0a544f8ae7": {
+"halls": [
+{
+"name": "1",
+"seats": 289,
+"screen": "",
+"feat": "185 Loge · 0 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 176,
+"screen": "",
+"feat": "108 Loge · 0 VIP · 3D"
+},
+{
+"name": "3",
+"seats": 131,
+"screen": "",
+"feat": "74 Loge · 0 VIP"
+},
+{
+"name": "4",
+"seats": 124,
+"screen": "",
+"feat": "82 Loge · 0 VIP · 3D"
+},
+{
+"name": "5",
+"seats": 127,
+"screen": "",
+"feat": "85 Loge · 0 VIP"
+},
+{
+"name": "6",
+"seats": 174,
+"screen": "",
+"feat": "108 Loge · 0 VIP · 3D"
+},
+{
+"name": "7",
+"seats": 131,
+"screen": "",
+"feat": "70 Loge · 0 VIP"
+},
+{
+"name": "8",
+"seats": 171,
+"screen": "",
+"feat": "109 Loge · 0 VIP · 3D"
+}
+],
+"hallSeats": 1323,
+"note": "Saaldaten: cinemaxx.de."
+},
+"54030d520c": {
+"halls": [
+{
+"name": "1",
+"seats": 64,
+"screen": "",
+"feat": "56 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "2",
+"seats": 36,
+"screen": "",
+"feat": "30 Lux + 6 Ultra Lux"
+},
+{
+"name": "3",
+"seats": 69,
+"screen": "",
+"feat": "60 Lux + 9 Ultra Lux"
+},
+{
+"name": "4",
+"seats": 64,
+"screen": "",
+"feat": "56 Lux + 8 Ultra Lux"
+},
+{
+"name": "5",
+"seats": 64,
+"screen": "",
+"feat": "56 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 43,
+"screen": "",
+"feat": "36 Lux + 7 Ultra Lux"
+},
+{
+"name": "7",
+"seats": 55,
+"screen": "",
+"feat": "48 Lux + 7 Ultra Lux"
+},
+{
+"name": "8",
+"seats": 122,
+"screen": "",
+"feat": "111 Lux + 11 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "9",
+"seats": 103,
+"screen": "",
+"feat": "93 Lux + 10 Ultra Lux · 3D"
+}
+],
+"hallSeats": 620,
+"note": "Saaldaten: cinemaxx.de."
+},
+"e328cdf979": {
+"halls": [
+{
+"name": "1",
+"seats": 170,
+"screen": "",
+"feat": "159 Lux + 11 Ultra Lux · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "2",
+"seats": 102,
+"screen": "",
+"feat": "94 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "3",
+"seats": 41,
+"screen": "",
+"feat": "35 Lux + 6 Ultra Lux · 3D"
+},
+{
+"name": "4",
+"seats": 160,
+"screen": "",
+"feat": "149 Lux + 11 Ultra Lux · 3D"
+},
+{
+"name": "5",
+"seats": 102,
+"screen": "",
+"feat": "94 Lux + 8 Ultra Lux · 3D"
+},
+{
+"name": "6",
+"seats": 41,
+"screen": "",
+"feat": "35 Lux + 6 Ultra Lux"
+}
+],
+"hallSeats": 616,
+"note": "Saaldaten: cinemaxx.de."
+},
+"a8514bda7f": {
+"halls": [
+{
+"name": "1",
+"seats": 329,
+"screen": "",
+"feat": "173 Loge · 18 VIP · 3D"
+},
+{
+"name": "2",
+"seats": 216,
+"screen": "",
+"feat": "125 Loge · 15 VIP · 3D"
+},
+{
+"name": "3",
+"seats": 420,
+"screen": "",
+"feat": "223 Loge · 23 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+},
+{
+"name": "4",
+"seats": 167,
+"screen": "",
+"feat": "96 Loge · 11 VIP"
+},
+{
+"name": "5",
+"seats": 162,
+"screen": "",
+"feat": "92 Loge · 10 VIP · 3D"
+},
+{
+"name": "6",
+"seats": 251,
+"screen": "",
+"feat": "141 Loge · 18 VIP · 3D"
+}
+],
+"hallSeats": 1545,
+"note": "Saaldaten: cinemaxx.de."
+},
+"ebd9388ad5": {
+"halls": [
+{
+"name": "1",
+"seats": 501,
+"screen": "",
+"feat": "262 Loge · 43 Premium Seats · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 182,
+"screen": "",
+"feat": "85 Loge · 24 Premium Seats · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 163,
+"screen": "",
+"feat": "70 Loge · 24 Premium Seats · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 244,
+"screen": "",
+"feat": "112 Loge · 30 Premium Seats · HFR 3D · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 256,
+"screen": "",
+"feat": "112 Loge · 30 Premium Seats · 4K · 3D"
+},
+{
+"name": "6",
+"seats": 182,
+"screen": "",
+"feat": "92 Loge · 24 Premium Seats · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 163,
+"screen": "",
+"feat": "73 Loge · 24 Premium Seats · 4K"
+}
+],
+"hallSeats": 1691,
+"note": "Saaldaten: cinemaxx.de."
+},
+"dc96da6ed7": {
+"halls": [
+{
+"name": "1",
+"seats": 151,
+"screen": "",
+"feat": "77 Loge · 13 VIP · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 160,
+"screen": "",
+"feat": "86 Loge · 13 VIP · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 151,
+"screen": "",
+"feat": "77 Loge · 13 VIP · 4K"
+},
+{
+"name": "4",
+"seats": 266,
+"screen": "",
+"feat": "145 Loge · 17 VIP · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 163,
+"screen": "",
+"feat": "78 Loge · 13 VIP · 4K"
+},
+{
+"name": "6",
+"seats": 266,
+"screen": "",
+"feat": "145 Loge · 17 VIP · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 439,
+"screen": "",
+"feat": "204 Loge · 18 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+}
+],
+"hallSeats": 1596,
+"note": "Saaldaten: cinemaxx.de."
+},
+"b4f7b9b638": {
+"halls": [
+{
+"name": "1",
+"seats": 440,
+"screen": "",
+"feat": "165 Loge · 0 VIP · HFR 3D · 3D"
+},
+{
+"name": "2",
+"seats": 133,
+"screen": "",
+"feat": "48 Loge · 0 VIP · 3D"
+},
+{
+"name": "3",
+"seats": 133,
+"screen": "",
+"feat": "54 Loge · 0 VIP · 3D"
+},
+{
+"name": "4",
+"seats": 140,
+"screen": "",
+"feat": "49 Loge · 0 VIP"
+},
+{
+"name": "5",
+"seats": 209,
+"screen": "",
+"feat": "62 Loge · 0 VIP · 3D"
+},
+{
+"name": "6",
+"seats": 167,
+"screen": "",
+"feat": "48 Loge · 0 VIP"
+},
+{
+"name": "7",
+"seats": 167,
+"screen": "",
+"feat": "48 Loge · 0 VIP"
+},
+{
+"name": "8",
+"seats": 167,
+"screen": "",
+"feat": "48 Loge · 0 VIP · 3D"
+},
+{
+"name": "9",
+"seats": 188,
+"screen": "",
+"feat": "60 Loge · 0 VIP · MAXXIMUM SOUND · HFR 3D · 3D"
+}
+],
+"hallSeats": 1744,
+"note": "Saaldaten: cinemaxx.de."
+},
+"270ba334ff": {
+"halls": [
+{
+"name": "1",
+"seats": 271,
+"screen": "",
+"feat": "137 Loge · 19 VIP · 4K · 3D"
+},
+{
+"name": "2",
+"seats": 272,
+"screen": "",
+"feat": "138 Loge · 19 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+},
+{
+"name": "3",
+"seats": 131,
+"screen": "",
+"feat": "63 Loge · 13 VIP · 4K · 3D"
+},
+{
+"name": "4",
+"seats": 130,
+"screen": "",
+"feat": "58 Loge · 12 VIP · 4K · 3D"
+},
+{
+"name": "5",
+"seats": 185,
+"screen": "",
+"feat": "80 Loge · 16 VIP · 4K"
+},
+{
+"name": "6",
+"seats": 194,
+"screen": "",
+"feat": "100 Loge · 16 VIP · 4K · 3D"
+},
+{
+"name": "7",
+"seats": 647,
+"screen": "",
+"feat": "340 Loge · 21 VIP · MAXXIMUM SOUND · HFR 3D · 4K · 3D"
+}
+],
+"hallSeats": 1830,
+"note": "Saaldaten: cinemaxx.de."
+}
 }

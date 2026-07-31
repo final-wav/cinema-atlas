@@ -235,6 +235,9 @@ def load():
     cinema_extra("germany","Borken","Kinocenter Borken","https://www.kinocenterborken.de",
       51.847211,6.860071,srcurl="https://www.openstreetmap.org/way/244101550",
       note="Johann-Walling-Straße 26, 46325 Borken")
+    # CinemaxX SI-Centrum fehlte im OSM-Abruf (Saaldaten via corrections.json)
+    cinema_extra("germany","Stuttgart","CinemaxX Stuttgart SI-Centrum","https://www.cinemaxx.de/kinoprogramm/stuttgart-si-centrum/jetzt-im-kino",
+      48.7228,9.1635,note="Plieninger Straße, SI-Centrum, Stuttgart")
 
     # ---- Klassisches 70 mm (5-Perf, Todd-AO) — NICHT IMAX (das ist 15/70, 1.43:1). Getrennt erfasst. ----
     def film70_extra(slug,city,name,url,lat,lng,srcurl="",note=""):
