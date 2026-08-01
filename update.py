@@ -594,14 +594,19 @@ def merge_venues(rows):
             core_ok = same_core and (len(rc)>=2 and d<=20 or same_city or d<=3)
             if core_ok or (ov_strict>=0.6 and len(sh)>=2 and d<=15) or (ov_loose>=0.6 and d<=2.5):
                 m=v; break
+        r_osm = (r["src"]=="OpenStreetMap" and r["exact"])
         if m is None:
             venues.append({"n":r["n"],"ci":r["ci"],"st":r["st"],"co":r["co"],"reg":r["reg"],
               "lat":r["lat"],"lng":r["lng"],"exact":r["exact"],"url":r["url"],"com":r["com"],
-              "formats":[_fmt(r)],"_core":set(rc),"_city":rcity,"_nsrc":_srcrank(r["src"]),"_nl":len(r["n"])})
+              "formats":[_fmt(r)],"_core":set(rc),"_city":rcity,"_nsrc":_srcrank(r["src"]),"_nl":len(r["n"]),
+              "_coordosm":r_osm})
         else:
             m["formats"].append(_fmt(r)); m["_core"]|=rc
             if not m["_city"] and rcity: m["_city"]=rcity
-            if r["exact"] and not m["exact"]: m["lat"],m["lng"],m["exact"]=r["lat"],r["lng"],True
+            # Koordinaten übernehmen, wenn m noch keine echten hat ODER die neue Zeile aus OSM
+            # (venuegenaue Koordinate) kommt und m bisher nur stadtgenaue Listen-Koordinaten hatte.
+            if r["exact"] and (not m["exact"] or (r_osm and not m.get("_coordosm"))):
+                m["lat"],m["lng"],m["exact"]=r["lat"],r["lng"],True; m["_coordosm"]=r_osm
             if r["url"] and not m["url"]: m["url"]=r["url"]
             m["com"]=m["com"] or r["com"]
             rr=_srcrank(r["src"])

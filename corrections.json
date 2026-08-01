@@ -1721,5 +1721,99 @@
 ],
 "hallSeats": 1830,
 "note": "Saaldaten: cinemaxx.de."
+},
+"aa7873a5f3": {
+"lat": 52.5417516,
+"lng": 13.5420275,
+"ci": "Berlin",
+"note": "UCI Am Eastgate, Märkische Allee 176 (Eastgate, Marzahn)"
+},
+"dd4dd148f6": {
+"lat": 52.5052642,
+"lng": 13.4418072,
+"ci": "Berlin",
+"cats": [
+"cola190",
+"screenx",
+"cinema"
+],
+"formats": [
+{
+"cat": "cola190",
+"ar": "1.90:1",
+"dp": "IMAX CoLa",
+"fp": "No",
+"w": 22.3,
+"h": 13.5,
+"film": false,
+"note": "",
+"src": "imaxguide",
+"srcurl": "https://github.com/r-imax/imaxguide"
+},
+{
+"cat": "screenx",
+"ar": "",
+"dp": "",
+"fp": "",
+"w": null,
+"h": null,
+"film": false,
+"note": "270°",
+"src": "DigitaleLeinwand",
+"srcurl": "https://digitaleleinwand.de/screenx/"
+},
+{
+"cat": "cinema",
+"ar": "",
+"dp": "",
+"fp": "",
+"w": null,
+"h": null,
+"film": false,
+"note": "",
+"src": "OpenStreetMap",
+"srcurl": "https://www.openstreetmap.org/node/6058229939"
+}
+],
+"note": "UCI Luxe am Mercedes-Platz (East Side Gallery), Mildred-Harnack-Str."
+},
+"cb77d7e952": {
+"_delete": true
+},
+"c84e3cdaa5": {
+"cats": [
+"cinema",
+"dbox"
+],
+"formats": [
+{
+"cat": "cinema",
+"ar": "",
+"dp": "",
+"fp": "",
+"w": null,
+"h": null,
+"film": false,
+"note": "",
+"src": "OpenStreetMap",
+"srcurl": "https://www.openstreetmap.org/way/23261241"
+},
+{
+"cat": "dbox",
+"ar": "",
+"dp": "",
+"fp": "",
+"w": null,
+"h": null,
+"film": false,
+"note": "",
+"src": "DigitaleLeinwand",
+"srcurl": "https://digitaleleinwand.de/d-box/"
+}
+],
+"note": "Cineplex Alhambra, Seestraße 94 (Wedding) — mit D-BOX"
+},
+"41872f7c2d": {
+"_delete": true
 }
 }
