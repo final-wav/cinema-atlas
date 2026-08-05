@@ -56,9 +56,19 @@ header{border-bottom:1px solid var(--line2);padding:14px 22px 12px;display:flex;
   background:none;border:1px solid var(--line2);color:var(--ink);border-radius:2px;padding:6px 11px;cursor:pointer}
 .themebtn:hover{border-color:var(--accent);color:var(--accent)}
 
-/* Controls */
-.controls{border-bottom:1px solid var(--line);padding:10px 22px;display:flex;flex-wrap:wrap;
-  gap:14px 20px;align-items:center;flex:none}
+/* Controls — consolidated toolbar at the top of the results column */
+.panetools{flex:none;border-bottom:1px solid var(--line2);padding:12px 18px 14px;
+  display:flex;flex-direction:column;gap:11px;background:var(--paper)}
+.panetools .modesw{display:flex;width:100%}
+.panetools .modesw button{flex:1;text-align:center}
+.controls{display:flex;flex-direction:column;gap:11px;padding:0;border:0}
+.ctl-search{display:block}
+.ctl-search input[type=search]{width:100%;min-width:0}
+.selrow{display:flex;gap:8px;flex-wrap:wrap}
+.selrow .ctl{flex:1;min-width:120px;display:flex;flex-direction:column;align-items:stretch;gap:3px}
+.selrow select{width:100%}
+.facetrow{display:flex;flex-wrap:wrap;gap:5px 14px;align-items:center}
+.optrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 .ctl{display:flex;align-items:center;gap:8px}
 .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
 input[type=search],select{font-family:var(--sans);font-size:13px;background:var(--card);color:var(--ink);
@@ -84,7 +94,7 @@ input:focus,select:focus{border-color:var(--accent)}
 .modesw button:last-child{border-right:0}
 .modesw button.active{background:var(--accent);color:var(--accent-ink);font-weight:600}
 .modesw button:not(.active):hover{color:var(--ink)}
-.modehint{font-size:12px;color:var(--ink2)}
+.modehint{display:none}
 .dt-web{display:inline-block;margin-top:10px;font-size:13px;font-weight:600}
 .evbox{font-size:13.5px;line-height:1.5} .evbox .evlink{display:block;margin:5px 0;font-weight:500}
 .hallstbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
@@ -201,7 +211,7 @@ footer{display:none}
   /* ===== Mobile-first: full-screen map + draggable list sheet ===== */
   body{overflow:hidden}
   /* desktop chrome is emptied by JS, then hidden here */
-  header,.modebar,.controls,footer{display:none!important}
+  header,.panetools,footer{display:none!important}
   main{position:static;display:block}
   #listpane{width:auto;max-width:none;min-width:0;border:0;height:100%}
   #resizer{display:none}
@@ -300,45 +310,42 @@ footer{display:none}
   <button class="themebtn" id="langBtn" title="Sprache / Language">DE</button>
 </header>
 
-<div class="modebar">
-  <div class="modesw">
-    <button data-mode="imax">IMAX</button>
-    <button data-mode="premium">Premium</button>
-    <button data-mode="cinema">Alle Kinos</button>
-  </div>
-  <span class="modehint" id="modehint"></span>
-</div>
-
-<div class="controls">
-  <div class="ctl"><input type="search" id="q" placeholder="Suche: Kino, Stadt, Land …"></div>
-  <div class="ctl"><span class="lbl">Region</span>
-    <select id="region"><option value="">alle</option></select></div>
-  <div class="ctl"><span class="lbl">Land</span>
-    <select id="country"><option value="">alle Länder</option></select></div>
-  <div class="facets" id="facets"></div>
-  <button class="txtbtn" id="allOn">alle</button>
-  <button class="txtbtn" id="allOff">keine</button>
-  <div class="spacer" style="flex:1"></div>
-  <label class="check" id="detailWrap" style="display:none"><input type="checkbox" id="detailToggle"> 1.90-Technik aufschlüsseln</label>
-  <label class="check" title="Nur echte IMAX-70-mm-Filmprojektion (15/70, 1.43:1) — nicht klassisches 70 mm"><input type="checkbox" id="film70"> IMAX 70-mm-Film</label>
-  <label class="check"><input type="checkbox" id="commercial"> kommerziell</label>
-  <label class="check"><input type="checkbox" id="coupled" checked> an Karte koppeln</label>
-</div>
-
 <main>
   <section id="listpane">
-    <div class="listhead">
-      <span id="count">—</span>
-      <span>sortieren:
-        <select id="sort">
-          <option value="co">Land</option>
-          <option value="n">Name</option>
-          <option value="ci">Stadt</option>
-          <option value="area">Leinwandfläche</option>
-          <option value="ar">Seitenverhältnis</option>
-        </select>
-      </span>
+    <div class="panetools">
+      <div class="modesw">
+        <button data-mode="imax">IMAX</button>
+        <button data-mode="premium">Premium</button>
+        <button data-mode="cinema">Alle Kinos</button>
+      </div>
+      <span class="modehint" id="modehint"></span>
+      <div class="controls">
+        <div class="ctl ctl-search"><input type="search" id="q" placeholder="Suche: Kino, Stadt, Land …"></div>
+        <div class="selrow">
+          <div class="ctl"><span class="lbl">Region</span><select id="region"><option value="">alle</option></select></div>
+          <div class="ctl"><span class="lbl">Land</span><select id="country"><option value="">alle Länder</option></select></div>
+          <div class="ctl"><span class="lbl">Sort</span><select id="sort">
+            <option value="co">Land</option>
+            <option value="n">Name</option>
+            <option value="ci">Stadt</option>
+            <option value="area">Leinwandfläche</option>
+            <option value="ar">Seitenverhältnis</option>
+          </select></div>
+        </div>
+        <div class="facetrow">
+          <div class="facets" id="facets"></div>
+          <button class="txtbtn" id="allOn">alle</button>
+          <button class="txtbtn" id="allOff">keine</button>
+        </div>
+        <div class="optrow">
+          <label class="check" id="detailWrap" style="display:none"><input type="checkbox" id="detailToggle"> 1.90-Technik aufschlüsseln</label>
+          <label class="check" title="Nur echte IMAX-70-mm-Filmprojektion (15/70, 1.43:1) — nicht klassisches 70 mm"><input type="checkbox" id="film70"> IMAX 70-mm-Film</label>
+          <label class="check"><input type="checkbox" id="commercial"> kommerziell</label>
+          <label class="check"><input type="checkbox" id="coupled" checked> an Karte koppeln</label>
+        </div>
+      </div>
     </div>
+    <div class="listhead"><span id="count">—</span></div>
     <div id="rows"></div>
   </section>
   <div id="resizer" title="Ziehen, um die Breite anzupassen"></div>
@@ -1117,8 +1124,7 @@ function applyStaticLang(){
   const f70l=id('film70')&&id('film70').closest('label'); if(f70l){ setLabelText(f70l,t(' IMAX 70 mm film',' IMAX 70-mm-Film')); f70l.title=t('Only true IMAX 70 mm film projection (15/70, 1.43:1) — not classic 70 mm','Nur echte IMAX-70-mm-Filmprojektion (15/70, 1.43:1) — nicht klassisches 70 mm'); }
   setLabelText(id('commercial')&&id('commercial').closest('label'), t(' commercial',' kommerziell'));
   setLabelText(id('coupled')&&id('coupled').closest('label'), t(' couple to map',' an Karte koppeln'));
-  const sortSpan=id('sort')&&id('sort').parentElement;
-  if(sortSpan&&sortSpan.firstChild&&sortSpan.firstChild.nodeType===3) sortSpan.firstChild.nodeValue=t('sort: ','sortieren: ');
+  const sortLbl=id('sort')&&id('sort').closest('.ctl').querySelector('.lbl'); if(sortLbl)sortLbl.textContent=t('Sort','Sortierung');
   const so={co:t('Country','Land'),n:'Name',ci:t('City','Stadt'),area:t('Screen area','Leinwandfläche'),ar:t('Aspect ratio','Seitenverhältnis')};
   if(id('sort')) [...id('sort').options].forEach(o=>{ if(so[o.value]!=null)o.textContent=so[o.value]; });
   if(id('resizer')) id('resizer').title=t('Drag to adjust width','Ziehen, um die Breite anzupassen');
@@ -1252,6 +1258,7 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
     const sRegion=sec(t('Region & country','Region & Land'));
     moveTo(sRegion, byId('region').closest('.ctl'));
     moveTo(sRegion, byId('country').closest('.ctl'));
+    moveTo(sRegion, byId('sort').closest('.ctl'));
     const sFormats=sec(t('Formats','Formate'));
     moveTo(sFormats, byId('facets'));
     const txt=document.createElement('div'); txt.id='mtxtrow';
