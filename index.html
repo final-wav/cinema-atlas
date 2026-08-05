@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -297,6 +297,7 @@ footer{display:none}
   <button class="themebtn" id="reportBtn" title="Ein fehlendes oder falsches Kino melden">Fehler melden</button>
   <button class="themebtn" id="exportBtn" title="Eigene Korrekturen als corrections.json speichern (für update.py)">Export</button>
   <button class="themebtn" id="themeBtn">Dunkel</button>
+  <button class="themebtn" id="langBtn" title="Sprache / Language">DE</button>
 </header>
 
 <div class="modebar">
@@ -350,6 +351,25 @@ footer{display:none}
 <script src="cinema-data.js"></script>
 <script src="config.js"></script>
 <script>
+/* ================= i18n (EN default, toggle to DE) ================= */
+let LANG = localStorage.getItem('lang') || 'en';
+const t = (en,de)=> LANG==='de' ? de : en;   // inline bilingual helper
+// Region- und Ländernamen im Datensatz sind deutsch -> Anzeige-Übersetzung für EN
+const REG_EN={"Afrika":"Africa","Asien & Naher Osten":"Asia & Middle East","Europa":"Europe",
+  "Lateinamerika & Karibik":"Latin America & Caribbean","Nordamerika":"North America","Ozeanien":"Oceania"};
+const CO_EN={"Aruba":"Aruba","Australien":"Australia","Bahamas":"Bahamas","Bahrain":"Bahrain","Belgien":"Belgium",
+  "Brasilien":"Brazil","China":"China","Curaçao":"Curaçao","Dänemark":"Denmark","Deutschland":"Germany","Ecuador":"Ecuador",
+  "Finnland":"Finland","Frankreich":"France","Hongkong":"Hong Kong","Indien":"India","Indonesien":"Indonesia","Irland":"Ireland",
+  "Italien":"Italy","Japan":"Japan","Kanada":"Canada","Katar":"Qatar","Kolumbien":"Colombia","Kuwait":"Kuwait","Lettland":"Latvia",
+  "Luxemburg":"Luxembourg","Malaysia":"Malaysia","Marokko":"Morocco","Mexiko":"Mexico","Neuseeland":"New Zealand",
+  "Niederlande":"Netherlands","Norwegen":"Norway","Oman":"Oman","Österreich":"Austria","Peru":"Peru","Philippinen":"Philippines",
+  "Polen":"Poland","Portugal":"Portugal","Rumänien":"Romania","Saudi-Arabien":"Saudi Arabia","Schweden":"Sweden","Schweiz":"Switzerland",
+  "Serbien":"Serbia","Singapur":"Singapore","Slowakei":"Slovakia","Spanien":"Spain","Südafrika":"South Africa","Südkorea":"South Korea",
+  "Taiwan":"Taiwan","Thailand":"Thailand","Tschechien":"Czechia","Türkei":"Türkiye","UK":"UK","Ukraine":"Ukraine","Ungarn":"Hungary",
+  "USA":"USA","VAE":"UAE","Vietnam":"Vietnam"};
+const trReg=r=> LANG==='de' ? r : (REG_EN[r]||r);
+const trCo =c=> LANG==='de' ? c : (CO_EN[c]||c);
+
 const FORMATS={
   film143:{label:"IMAX 70 mm Film",short:"70 mm · 1.43",ar:"1.43:1",group:"imax"},
   laser143:{label:"IMAX 1.43:1 Laser",short:"1.43 · Laser",ar:"1.43:1",group:"imax"},
@@ -416,10 +436,10 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 const cid=d=>slug(d.n+'-'+d.ci);
 const area=d=>d.cat==='dome'?(d.w?Math.PI*(d.w/2)*(d.w/2):0):((d.w||0)*(d.h||0));
 function dimText(d){
-  if(d.cat==='dome') return d.w?{main:'Ø '+d.w+' m',sub:'Kuppel'}:{main:'—',sub:''};
-  if(d.w&&d.h) return {main:d.w+' × '+d.h,sub:'Meter (B×H)'};
+  if(d.cat==='dome') return d.w?{main:'Ø '+d.w+' m',sub:t('Dome','Kuppel')}:{main:'—',sub:''};
+  if(d.w&&d.h) return {main:d.w+' × '+d.h,sub:t('metres (W×H)','Meter (B×H)')};
   if(d.w) return {main:d.w+' m',sub:''};
-  return {main:'—',sub:'k. A.'};
+  return {main:'—',sub:t('n/a','k. A.')};
 }
 
 const active=new Set();   // aktive Chip-Keys der aktuellen Stufe
@@ -478,10 +498,31 @@ document.getElementById('allOn').onclick=()=>{curChips.forEach(c=>active.add(c.k
 document.getElementById('allOff').onclick=()=>{active.clear();facetsEl.querySelectorAll('.facet').forEach(b=>{b.classList.remove('on');b.classList.add('off');});render();};
 
 // Umschalter: IMAX -> Premium -> Alle Kinos (einzige Stelle für die grobe Ebene)
-const SCOPEHINT={
-  imax:'Nur IMAX — weltweit, mit Leinwandmaßen.',
-  premium:'IMAX + Premium-Formate (Dolby Cinema, ScreenX, 4DX, iSense, Atmos) — derzeit Deutschland.',
-  cinema:'Zusätzlich alle übrigen Kinos aus OpenStreetMap (derzeit Deutschland), mit Website-Link.'};
+const SCOPEHINT={imax:'',premium:'',cinema:''};
+// Setzt alle sprachabhängigen Labels in FORMATS/FDESC/SCOPES/SCOPEHINT auf die aktuelle Sprache
+function applyFmtLang(){
+  FORMATS.film143.label=t('IMAX 70 mm film','IMAX 70 mm Film');
+  FORMATS.other.label=t('IMAX other','IMAX Sonstige'); FORMATS.other.short=t('Other','Sonstige');
+  FORMATS.classic70.label=t('70 mm (classic, 5-perf)','70 mm (klassisch, 5-Perf)');
+  FORMATS.cinema.label=t('Cinema (general)','Kino (allgemein)'); FORMATS.cinema.short=t('Cinema','Kino');
+  FDESC.classic70=t(
+    '70 mm (classic) — analogue 5-perf film projection (Todd-AO family, ~2.20:1) on a large, sometimes curved screen. NOT IMAX: IMAX 70 mm runs 15 perforations sideways and is nearly square (1.43:1). Classic 70 mm is 5-perf, vertical, wide and panoramic.',
+    '70 mm (klassisch) — analoge 5-Perf-Filmprojektion (Todd-AO-Linie, ~2,20:1) auf großer, teils gekrümmter Leinwand. NICHT IMAX: IMAX-70-mm läuft mit 15 Perforationen quer und ist fast quadratisch (1,43:1). Klassisches 70 mm ist 5-Perf, vertikal, breit-panoramisch.');
+  FDESC.dolby_cinema=t('Dolby Cinema — Dolby Vision laser projection (very high contrast, HDR) plus Dolby Atmos in a purpose-designed auditorium.','Dolby Cinema — Dolby-Vision-Laserprojektion (sehr hoher Kontrast, HDR) plus Dolby Atmos in einem eigens gestalteten Saal.');
+  FDESC.screenx=t('ScreenX (CJ 4DPLEX) — 270° panorama: the image extends onto the left and right side walls.','ScreenX (CJ 4DPLEX) — 270°-Panorama: das Bild wird auf die linke und rechte Seitenwand erweitert.');
+  FDESC.fourdx=t('4DX (CJ 4DPLEX) — motion seats plus effects: wind, water, fog and scent in sync with the film.','4DX (CJ 4DPLEX) — Bewegungssitze plus Effekte: Wind, Wasser, Nebel, Duft synchron zum Film.');
+  FDESC.isense=t('iSense — UCI premium auditorium with a large screen and Dolby Atmos.','iSense — UCI-Premiumsaal mit großer Leinwand und Dolby Atmos.');
+  FDESC.atmos=t('Dolby Atmos — object-based 3D sound with additional ceiling speakers.','Dolby Atmos — objektbasierter 3D-Ton mit zusätzlichen Deckenlautsprechern.');
+  FDESC.dbox=t('D-BOX motion seats — individual seats move in sync with the film (motion like 4DX, but without wind/water/scent).','D-BOX Motion-Seats — einzelne Sitze bewegen sich synchron zum Film (Bewegung wie bei 4DX, jedoch ohne Wind/Wasser/Duft).');
+  FDESC.cinema=t('Regular cinema — location & website from OpenStreetMap. Any premium format it may have is not recorded separately here.','Reguläres Kino — Standort & Website aus OpenStreetMap. Ein evtl. vorhandenes Premium-Format ist hier nicht separat erfasst.');
+  SCOPEHINT.imax=t('IMAX only — worldwide, with screen dimensions.','Nur IMAX — weltweit, mit Leinwandmaßen.');
+  SCOPEHINT.premium=t('IMAX + premium formats (Dolby Cinema, ScreenX, 4DX, iSense, Atmos) — currently Germany.','IMAX + Premium-Formate (Dolby Cinema, ScreenX, 4DX, iSense, Atmos) — derzeit Deutschland.');
+  SCOPEHINT.cinema=t('Plus all remaining cinemas from OpenStreetMap (currently Germany), with website links.','Zusätzlich alle übrigen Kinos aus OpenStreetMap (derzeit Deutschland), mit Website-Link.');
+  SCOPES.imax.chips[0].label=t('70 mm film','70 mm Film');
+  SCOPES.premium.chips[1].label=t('70 mm (classic)','70 mm (klassisch)');
+  SCOPES.cinema.chips[1].label=t('Premium formats','Premium-Formate');
+  SCOPES.cinema.chips[2].label=t('Other cinemas','sonstige Kinos');
+}
 function setScope(s){
   scope=s;
   document.querySelectorAll('.modesw button').forEach(b=>b.classList.toggle('active',b.dataset.mode===s));
@@ -516,9 +557,9 @@ cpl.addEventListener('change',()=>{coupled=cpl.checked;render();});
 function fillCountries(){
   const reg=regionEl.value, cur=countryEl.value;
   const cnt={};DATA.filter(d=>!reg||d.reg===reg).forEach(d=>cnt[d.co]=(cnt[d.co]||0)+1);
-  countryEl.innerHTML='<option value="">alle Länder</option>';
-  Object.keys(cnt).sort((a,b)=>a.localeCompare(b,'de'))
-    .forEach(c=>countryEl.add(new Option(`${c} (${cnt[c]})`,c)));
+  countryEl.innerHTML=`<option value="">${t('all countries','alle Länder')}</option>`;
+  Object.keys(cnt).sort((a,b)=>trCo(a).localeCompare(trCo(b),LANG))
+    .forEach(c=>countryEl.add(new Option(`${trCo(c)} (${cnt[c]})`,c)));
   countryEl.value=[...countryEl.options].some(o=>o.value===cur)?cur:'';
 }
 fillCountries();
@@ -545,7 +586,7 @@ function distKm(aLat,aLng,bLat,bLng){
 }
 const fmtDist=km=> km<1?Math.round(km*1000)+' m' : km<10?km.toFixed(1)+' km' : Math.round(km)+' km';
 async function geocodePlace(q){
-  const url='https://geocoding-api.open-meteo.com/v1/search?count=1&language=de&format=json&name='+encodeURIComponent(q);
+  const url='https://geocoding-api.open-meteo.com/v1/search?count=1&language='+LANG+'&format=json&name='+encodeURIComponent(q);
   const r=await fetch(url); if(!r.ok) throw new Error('HTTP '+r.status);
   const j=await r.json();
   if(!j.results||!j.results.length) return null;
@@ -554,7 +595,7 @@ async function geocodePlace(q){
 }
 async function searchNearest(q){
   q=(q||'').trim(); if(!q||nearBusy) return;
-  nearBusy=true; nearError=''; setCountBusy('Suche Ort „'+q+'“ …');
+  nearBusy=true; nearError=''; setCountBusy(t('Searching for “'+q+'” …','Suche Ort „'+q+'“ …'));
   try{
     const geo=await geocodePlace(q);
     if(!geo){ nearAnchor=null; nearError=q; nearBusy=false; render(); return; }
@@ -571,7 +612,7 @@ function placeNearMarker(a){
   try{
     nearMarker=L.circleMarker([a.lat,a.lng],{renderer:dotRenderer,radius:9,weight:3,
       color:cv('--accent'),fillColor:cv('--accent'),fillOpacity:.22}).addTo(map);
-    nearMarker.bindPopup('<div class="pp"><div class="nm">'+esc(a.label)+'</div><div class="mt">Suchort</div></div>');
+    nearMarker.bindPopup('<div class="pp"><div class="nm">'+esc(a.label)+'</div><div class="mt">'+t('Search location','Suchort')+'</div></div>');
   }catch(e){}
 }
 function fitNear(){
@@ -603,7 +644,7 @@ function baseFiltered(){
     .filter(d=>!countryEl.value||d.co===countryEl.value)
     .filter(d=>!f70.checked||d.film)
     .filter(d=>!fcom.checked||d.com)
-    .filter(d=>{if(!terms.length)return true;const h=norm([d.n,d.ci,d.st,d.co,d.reg].join(' '));return terms.every(t=>h.includes(t));});
+    .filter(d=>{if(!terms.length)return true;const h=norm([d.n,d.ci,d.st,d.co,d.reg,CO_EN[d.co]||'',REG_EN[d.reg]||''].join(' '));return terms.every(t=>h.includes(t));});
   const k=sortEl.value;
   arr.sort((a,b)=>{
     let va,vb;
@@ -629,15 +670,15 @@ function rowHtml(d,terms,near,grouped){
   const id=d.id,n=photoCounts[id]||0;
   const badges=d.cats.map(c=>`<span><span class="sw" style="background:${catColor(c)}"></span>${FORMATS[c]?FORMATS[c].short:c}</span>`).join('');
   // im Stadt-gruppierten Umkreis-Modus steht die Stadt schon in der Überschrift
-  const loc = grouped ? (d.st?esc(d.st):'') : `${hl(d.ci,terms)}${d.st?', '+esc(d.st):''} — ${hl(d.co,terms)}`;
+  const loc = grouped ? (d.st?esc(d.st):'') : `${hl(d.ci,terms)}${d.st?', '+esc(d.st):''} — ${hl(trCo(d.co),terms)}`;
   return `<div class="row" data-id="${esc(id)}" data-key="${esc(id)}">
-      <div class="name">${hl(d.n,terms)}${d._edited?'<span class="edited" title="lokal bearbeitet">✎</span>':''}</div>
+      <div class="name">${hl(d.n,terms)}${d._edited?`<span class="edited" title="${t('locally edited','lokal bearbeitet')}">✎</span>`:''}</div>
       ${loc?`<div class="loc">${loc}</div>`:''}
       <div class="meta">
         ${near&&d._dist!=null?`<span class="ndist">≈ ${fmtDist(d._dist)}</span>`:''}
         ${badges}
         ${d.film?'<span class="seventy">70 mm</span>':''}
-        ${n?`<span>${n} Foto${n>1?'s':''}</span>`:''}
+        ${n?`<span>${n} ${n>1?t('photos','Fotos'):t('photo','Foto')}</span>`:''}
       </div>
     </div>`;
 }
@@ -646,9 +687,14 @@ function renderList(){
   const vis=inBounds(base);
   const terms=norm(qEl.value).split(/\s+/).filter(Boolean);
   const near=!!nearAnchor, q=qEl.value.trim();
-  if(!nearBusy) document.getElementById('count').textContent =
-    near ? `Umgebung von „${nearAnchor.label}“ · ${vis.length} Kinos in ${new Set(vis.map(d=>d.ci+'|'+d.co)).size} Städten`
-         : (coupled&&map? `${vis.length} im Kartenausschnitt · ` : '') + `${base.length} Treffer (von ${DATA.length})`;
+  if(!nearBusy){
+    const nCities=new Set(vis.map(d=>d.ci+'|'+d.co)).size;
+    document.getElementById('count').textContent =
+      near ? t(`Around “${nearAnchor.label}” · ${vis.length} cinemas in ${nCities} cities`,
+               `Umgebung von „${nearAnchor.label}“ · ${vis.length} Kinos in ${nCities} Städten`)
+           : (coupled&&map? t(`${vis.length} in map view · `,`${vis.length} im Kartenausschnitt · `) : '')
+             + t(`${base.length} results (of ${DATA.length})`,`${base.length} Treffer (von ${DATA.length})`);
+  }
   let html;
   if(near){
     // nach Stadt gruppieren, Städte nach Entfernung des nächsten Kinos sortiert
@@ -660,20 +706,21 @@ function renderList(){
     });
     const body=[...groups.values()].sort((a,b)=>a.dist-b.dist).map(g=>{
       const nn=g.items.length;
+      const kino=nn>1?t('cinemas','Kinos'):t('cinema','Kino');
       const head=`<div class="citehead"><span class="cname">${esc(g.ci)}</span>`+
-        `<span class="cmeta">${esc(g.co)} · ≈ ${fmtDist(g.dist)} · ${nn} Kino${nn>1?'s':''}</span></div>`;
+        `<span class="cmeta">${esc(trCo(g.co))} · ≈ ${fmtDist(g.dist)} · ${nn} ${kino}</span></div>`;
       return head+g.items.map(d=>rowHtml(d,terms,near,true)).join('');
     }).join('');
-    const note=`<div class="nearnote">Umgebung von <b>${esc(nearAnchor.label)}</b> — nach Entfernung sortiert.<button class="txtbtn" id="nearClear">zurücksetzen</button></div>`;
+    const note=`<div class="nearnote">${t('Around','Umgebung von')} <b>${esc(nearAnchor.label)}</b> — ${t('sorted by distance','nach Entfernung sortiert')}.<button class="txtbtn" id="nearClear">${t('reset','zurücksetzen')}</button></div>`;
     html=note+body;
   }else if(vis.length){
     html=vis.map(d=>rowHtml(d,terms,near,false)).join('');
   }else if(nearError){
-    html=`<div class="empty" style="padding:30px 22px">Ort „${esc(nearError)}“ nicht gefunden. Bitte Schreibweise prüfen.<button class="txtbtn" id="nearClear" style="display:block;margin-top:10px">zurücksetzen</button></div>`;
+    html=`<div class="empty" style="padding:30px 22px">${t('Location','Ort')} „${esc(nearError)}“ ${t('not found. Please check the spelling.','nicht gefunden. Bitte Schreibweise prüfen.')}<button class="txtbtn" id="nearClear" style="display:block;margin-top:10px">${t('reset','zurücksetzen')}</button></div>`;
   }else if(q && base.length===0){
-    html=`<div class="empty" style="padding:30px 22px">Keine direkten Treffer für „${esc(q)}“.<button class="addbtn" id="nearGo" style="display:block;margin-top:14px">Kinos in der Nähe zeigen</button></div>`;
+    html=`<div class="empty" style="padding:30px 22px">${t('No direct matches for','Keine direkten Treffer für')} „${esc(q)}“.<button class="addbtn" id="nearGo" style="display:block;margin-top:14px">${t('Show cinemas nearby','Kinos in der Nähe zeigen')}</button></div>`;
   }else{
-    html=`<div class="empty" style="padding:30px 22px">Keine Säle im aktuellen Ausschnitt. Karte herauszoomen oder „an Karte koppeln“ abschalten.</div>`;
+    html=`<div class="empty" style="padding:30px 22px">${t('No auditoriums in the current view. Zoom the map out or turn off “couple to map”.','Keine Säle im aktuellen Ausschnitt. Karte herauszoomen oder „an Karte koppeln“ abschalten.')}</div>`;
   }
   rowsEl.innerHTML=html;
 }
@@ -702,7 +749,7 @@ function initMap(){
     const la=e.latlng.lat.toFixed(5),ln=e.latlng.lng.toFixed(5);
     const eLat=document.getElementById('e_lat'),eLng=document.getElementById('e_lng');
     if(eLat&&eLng){eLat.value=la;eLng.value=ln;}
-    const ph=document.getElementById('e_pickhint'); if(ph)ph.textContent='Standort gesetzt: '+la+', '+ln+' — jetzt „Speichern".';
+    const ph=document.getElementById('e_pickhint'); if(ph)ph.textContent=t('Location set: '+la+', '+ln+' — now “Save”.','Standort gesetzt: '+la+', '+ln+' — jetzt „Speichern".');
   });
   drawMarkers(lastBase.length?lastBase:baseFiltered());
 }
@@ -738,9 +785,9 @@ function drawMarkers(arr){
     const m=L.circleMarker([lat,lng],{renderer:dotRenderer,radius:rad,weight:2,color:cv('--paper'),fillColor:catColor(d.cat),fillOpacity:.95});
     m._key=id;m._base=rad;
     m.bindPopup(`<div class="pp"><div class="nm">${esc(d.n)}</div>
-      <div class="mt">${esc(d.ci)}${d.st?', '+esc(d.st):''}, ${esc(d.co)}</div>
+      <div class="mt">${esc(d.ci)}${d.st?', '+esc(d.st):''}, ${esc(trCo(d.co))}</div>
       <div class="mt">${d.cats.map(c=>FORMATS[c]?FORMATS[c].label:c).join(' · ')}${d.film?' · 70 mm':''}</div>
-      <div class="mt">${dimText(d).main!=='—'?dimText(d).main+' m':''}${n?(dimText(d).main!=='—'?' · ':'')+n+' Foto'+(n>1?'s':''):''}</div></div>`);
+      <div class="mt">${dimText(d).main!=='—'?dimText(d).main+' m':''}${n?(dimText(d).main!=='—'?' · ':'')+n+' '+(n>1?t('photos','Fotos'):t('photo','Foto')):''}</div></div>`);
     m.on('click',()=>openDetail(id));
     markerById[id]=m;
     return m;
@@ -765,7 +812,7 @@ function openDetail(key){
   const f=FORMATS[d.cat],id=d.id;
   const imf=d.formats.find(ff=>IMAXCATS.has(ff.cat)&&ff.w);
   const graphic=imf
-    ? `<div class="dt-svg">${screenGraphic(imf)}</div><div class="dt-cap">Leinwand maßstabsgetreu — Figur = 1,80 m</div>`
+    ? `<div class="dt-svg">${screenGraphic(imf)}</div><div class="dt-cap">${t('Screen to scale — figure = 1.80 m','Leinwand maßstabsgetreu — Figur = 1,80 m')}</div>`
     : (FDESC[d.cat]?`<div class="dt-svg" style="font-size:13.5px;line-height:1.6">${esc(FDESC[d.cat])}</div>`:'');
   const fmtRows=d.formats.slice().sort((a,b)=>PRIO(a.cat)-PRIO(b.cat)).map(ff=>{
     const lab=FORMATS[ff.cat]?FORMATS[ff.cat].label:ff.cat;
@@ -779,31 +826,35 @@ function openDetail(key){
     const sr=ff.srcurl?`<a href="${esc(ff.srcurl)}" target="_blank" rel="noopener">${esc(ff.src)} ↗</a>`:esc(ff.src||'');
     return `<tr><th><span class="sw" style="background:${catColor(ff.cat)};display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:6px"></span>${esc(lab)}<span class="muted">${det}</span></th><td>${sr}</td></tr>`;
   }).join('');
+  const kicker0 = d.formats.length>1 ? d.formats.length+' '+t('formats','Formate') : esc(f.label);
+  const kickerFlags = (d.film?' · '+t('70 mm film','70-mm-Film'):'')
+    + (d._edited?' · '+t('locally changed (suggestion pending)','lokal geändert (Vorschlag ausstehend)')
+       : (d._approved?' · '+t('corrected','korrigiert'):''));
   dtin.innerHTML=`
-    <div class="dt-kicker">${d.formats.length>1?d.formats.length+' Formate':esc(f.label)}${d.film?' · 70-mm-Film':''}${d._edited?' · lokal geändert (Vorschlag ausstehend)':(d._approved?' · korrigiert':'')}<button class="editlink" onclick="startEdit('${d.id}')">bearbeiten</button><button class="editlink" onclick="openReportForm('${d.id}')">melden</button></div>
+    <div class="dt-kicker">${kicker0}${kickerFlags}<button class="editlink" onclick="startEdit('${d.id}')">${t('edit','bearbeiten')}</button><button class="editlink" onclick="openReportForm('${d.id}')">${t('report','melden')}</button></div>
     <div class="dt-name">${esc(d.n)}</div>
-    <div class="dt-loc">${esc(d.ci)}${d.st?', '+esc(d.st):''} — ${esc(d.co)} · ${esc(d.reg)}</div>
-    ${d.url?`<a class="dt-web" href="${esc(d.url)}" target="_blank" rel="noopener">Website des Kinos ↗</a>`:''}
+    <div class="dt-loc">${esc(d.ci)}${d.st?', '+esc(d.st):''} — ${esc(trCo(d.co))} · ${esc(trReg(d.reg))}</div>
+    ${d.url?`<a class="dt-web" href="${esc(d.url)}" target="_blank" rel="noopener">${t('Cinema website','Website des Kinos')} ↗</a>`:''}
     ${graphic}
-    <div class="sectit">Formate &amp; Quellen</div>
+    <div class="sectit">${t('Formats &amp; sources','Formate &amp; Quellen')}</div>
     <table class="specs">${fmtRows}</table>
-    ${(d.halls&&d.halls.length)?`<div class="sectit">Säle</div>${hallsTable(d,imf)}`:''}
-    <div class="sectit">Weiteres</div>
+    ${(d.halls&&d.halls.length)?`<div class="sectit">${t('Auditoriums','Säle')}</div>${hallsTable(d,imf)}`:''}
+    <div class="sectit">${t('More','Weiteres')}</div>
     <table class="specs">
-      <tr><th>Kommerzielle Filme</th><td>${d.com?'ja':'nein'}</td></tr>
-      <tr><th>Standort</th><td>${d.lat.toFixed(3)}, ${d.lng.toFixed(3)}${d.exact===false?' (genähert)':''}</td></tr>
+      <tr><th>${t('Commercial films','Kommerzielle Filme')}</th><td>${d.com?t('yes','ja'):t('no','nein')}</td></tr>
+      <tr><th>${t('Location','Standort')}</th><td>${d.lat.toFixed(3)}, ${d.lng.toFixed(3)}${d.exact===false?' ('+t('approx.','genähert')+')':''}</td></tr>
     </table>
-    ${(d.rce||d.pdf)?`<div class="sectit">Event & Vermietung</div>
+    ${(d.rce||d.pdf)?`<div class="sectit">${t('Events & rental','Event & Vermietung')}</div>
       <div class="evbox">
-        ${d.pdf?`<a class="evlink" href="${esc(d.pdf)}" target="_blank" rel="noopener">📄 Event-Datenblatt (PDF) — Säle, Leinwandmaße, Sitze ↗</a>`:''}
-        ${d.rce?`<a class="evlink" href="${esc(d.rce)}" target="_blank" rel="noopener">Location-Details bei red-carpet-event.de ↗</a>`:''}
-        ${d.pdf?`<button class="ghost" style="margin-top:6px" onclick="showPdf(this,'${esc(d.pdf)}')">Datenblatt hier ansehen</button>`:''}
+        ${d.pdf?`<a class="evlink" href="${esc(d.pdf)}" target="_blank" rel="noopener">${t('📄 Event data sheet (PDF) — auditoriums, screen sizes, seats','📄 Event-Datenblatt (PDF) — Säle, Leinwandmaße, Sitze')} ↗</a>`:''}
+        ${d.rce?`<a class="evlink" href="${esc(d.rce)}" target="_blank" rel="noopener">${t('Location details at red-carpet-event.de','Location-Details bei red-carpet-event.de')} ↗</a>`:''}
+        ${d.pdf?`<button class="ghost" style="margin-top:6px" onclick="showPdf(this,'${esc(d.pdf)}')">${t('View data sheet here','Datenblatt hier ansehen')}</button>`:''}
         ${rcePhotoGrid(d)}
       </div>`:''}
-    <div class="sectit">Eigene Fotos</div>
+    <div class="sectit">${t('Your own photos','Eigene Fotos')}</div>
     <div class="pgrid" id="pgrid"></div>
-    <label class="addbtn">Foto(s) hinzufügen<input type="file" id="pfile" accept="image/*" multiple hidden></label>
-    <div class="hint">Lokal in diesem Browser gespeichert (IndexedDB) — kein Upload. Klick aufs Bild = groß, ✕ = löschen.</div>`;
+    <label class="addbtn">${t('Add photo(s)','Foto(s) hinzufügen')}<input type="file" id="pfile" accept="image/*" multiple hidden></label>
+    <div class="hint">${t('Stored locally in this browser (IndexedDB) — no upload. Click the image = large, ✕ = delete.','Lokal in diesem Browser gespeichert (IndexedDB) — kein Upload. Klick aufs Bild = groß, ✕ = löschen.')}</div>`;
   sidepanel.classList.add('open'); sidepanel.scrollTop=0;
   curId=id;fillPhotos();
   if(map && isFinite(d.lat)&&isFinite(d.lng)){ try{
@@ -816,7 +867,7 @@ function openDetail(key){
     e.target.value='';photoCounts=await countAll();fillPhotos();
   };
   }catch(err){console.error('openDetail-Fehler:',err);
-    if(dtin) dtin.innerHTML='<div class="dt-kicker" style="color:var(--accent)">Anzeige-Fehler</div><div class="hint">'+esc((err&&err.message)||String(err))+'</div>';
+    if(dtin) dtin.innerHTML='<div class="dt-kicker" style="color:var(--accent)">'+t('Display error','Anzeige-Fehler')+'</div><div class="hint">'+esc((err&&err.message)||String(err))+'</div>';
     sidepanel.classList.add('open');}
 }
 let curId=null,urls=[];
@@ -824,10 +875,10 @@ function revoke(){urls.forEach(u=>URL.revokeObjectURL(u));urls=[];}
 async function fillPhotos(){
   const g=document.getElementById('pgrid');if(!g)return;revoke();
   let ph=[];try{ph=await getPhotos(curId);}catch(e){}
-  g.innerHTML=ph.length?'':'<div class="empty">Noch keine Fotos.</div>';
+  g.innerHTML=ph.length?'':`<div class="empty">${t('No photos yet.','Noch keine Fotos.')}</div>`;
   ph.forEach(p=>{const u=URL.createObjectURL(p.blob);urls.push(u);
     const el=document.createElement('div');el.className='thumb';
-    el.innerHTML=`<img src="${u}"><button class="del" title="Löschen">✕</button>`;
+    el.innerHTML=`<img src="${u}"><button class="del" title="${t('Delete','Löschen')}">✕</button>`;
     el.querySelector('img').onclick=()=>window.open(u,'_blank');
     el.querySelector('.del').onclick=async()=>{await delPhoto(p.id);photoCounts=await countAll();fillPhotos();render();};
     g.appendChild(el);});
@@ -838,31 +889,31 @@ const ev=id=>{const el=document.getElementById(id);return el?el.value.trim():'';
 window.startEdit=function(id){
   const d=dataById[id];if(!d||!dtin)return; editingId=id;
   dtin.innerHTML=`
-    <div class="dt-kicker">Änderung vorschlagen</div>
+    <div class="dt-kicker">${t('Suggest a change','Änderung vorschlagen')}</div>
     <div class="dt-name" style="font-size:21px">${esc(d.n)}</div>
-    <div class="hint">Wird als Vorschlag eingereicht und von Hand geprüft. Bis dahin siehst nur du hier die Vorschau.</div>
+    <div class="hint">${t('Submitted as a suggestion and reviewed by hand. Until then only you see this preview.','Wird als Vorschlag eingereicht und von Hand geprüft. Bis dahin siehst nur du hier die Vorschau.')}</div>
     <div class="editform">
       <label>Name<input id="e_n" value="${esc(d.n)}"></label>
-      <label>Stadt<input id="e_ci" value="${esc(d.ci)}"></label>
-      <label>Land<input id="e_co" value="${esc(d.co)}"></label>
-      <label>Website (URL)<input id="e_url" value="${esc(d.url||'')}"></label>
-      <label>Notiz<input id="e_note" value="${esc(d.note||'')}"></label>
+      <label>${t('City','Stadt')}<input id="e_ci" value="${esc(d.ci)}"></label>
+      <label>${t('Country','Land')}<input id="e_co" value="${esc(d.co)}"></label>
+      <label>${t('Website (URL)','Website (URL)')}<input id="e_url" value="${esc(d.url||'')}"></label>
+      <label>${t('Note','Notiz')}<input id="e_note" value="${esc(d.note||'')}"></label>
       <div class="erow">
-        <label>Breite (lat)<input id="e_lat" value="${d.lat}"></label>
-        <label>Länge (lng)<input id="e_lng" value="${d.lng}"></label>
+        <label>${t('Latitude (lat)','Breite (lat)')}<input id="e_lat" value="${d.lat}"></label>
+        <label>${t('Longitude (lng)','Länge (lng)')}<input id="e_lng" value="${d.lng}"></label>
       </div>
-      <button class="ghost" id="e_pick" type="button">📍 Standort auf der Karte anklicken</button>
-      <div class="hint" id="e_pickhint">Button drücken, dann auf die Karte klicken — die Koordinaten werden übernommen.</div>
-      <div class="erow"><button class="addbtn" id="e_save" type="button">Vorschlagen</button>
-        <button class="ghost" id="e_cancel" type="button">Abbrechen</button></div>
+      <button class="ghost" id="e_pick" type="button">${t('📍 Click the location on the map','📍 Standort auf der Karte anklicken')}</button>
+      <div class="hint" id="e_pickhint">${t('Press the button, then click the map — the coordinates are taken over.','Button drücken, dann auf die Karte klicken — die Koordinaten werden übernommen.')}</div>
+      <div class="erow"><button class="addbtn" id="e_save" type="button">${t('Suggest','Vorschlagen')}</button>
+        <button class="ghost" id="e_cancel" type="button">${t('Cancel','Abbrechen')}</button></div>
       <div class="hint" id="e_status"></div>
-      <div class="erow"><button class="ghost" id="e_reset" type="button">Eigene lokale Änderung zurücksetzen</button>
-        <button class="ghost danger" id="e_del" type="button">Bei mir ausblenden</button></div>
+      <div class="erow"><button class="ghost" id="e_reset" type="button">${t('Reset my local change','Eigene lokale Änderung zurücksetzen')}</button>
+        <button class="ghost danger" id="e_del" type="button">${t('Hide for me','Bei mir ausblenden')}</button></div>
     </div>`;
   sidepanel.classList.add('open');
   document.getElementById('e_pick').onclick=()=>{pickMode=true;
-    document.getElementById('e_pickhint').textContent='Klicke jetzt auf die Karte …';
-    if(innerWidth<=880){document.body.classList.add('showmap');viewBtn.textContent='Liste';if(map)map.invalidateSize();}};
+    document.getElementById('e_pickhint').textContent=t('Now click the map …','Klicke jetzt auf die Karte …');
+    if(innerWidth<=880){document.body.classList.add('showmap');viewBtn.textContent=t('List','Liste');if(map)map.invalidateSize();}};
   document.getElementById('e_cancel').onclick=()=>{pickMode=false;openDetail(id);};
   document.getElementById('e_save').onclick=async()=>{
     const patch={n:ev('e_n'),ci:ev('e_ci'),co:ev('e_co'),url:ev('e_url'),note:ev('e_note'),
@@ -870,10 +921,10 @@ window.startEdit=function(id){
     const btn=document.getElementById('e_save'), status=document.getElementById('e_status');
     if(!window.CINEMA_WORKER_BASE){
       saveOverride(d,patch); pickMode=false; openDetail(id);
-      alert('Hinweis: Meldefunktion ist nicht eingerichtet (config.js) — die Änderung ist nur in diesem Browser sichtbar und wurde nicht übermittelt.');
+      alert(t('Note: the reporting function is not set up (config.js) — the change is only visible in this browser and was not submitted.','Hinweis: Meldefunktion ist nicht eingerichtet (config.js) — die Änderung ist nur in diesem Browser sichtbar und wurde nicht übermittelt.'));
       return;
     }
-    btn.disabled=true; status.textContent='Wird gesendet …';
+    btn.disabled=true; status.textContent=t('Sending …','Wird gesendet …');
     try{
       const original={n:d.n,ci:d.ci,co:d.co,url:d.url||'',note:d.note||'',lat:d.lat,lng:d.lng};
       const res=await fetch(window.CINEMA_WORKER_BASE.replace(/\/$/,'')+'/suggest',{method:'POST',
@@ -881,11 +932,11 @@ window.startEdit=function(id){
         body:JSON.stringify({id,cinema:d.n,city:d.ci,original,patch})});
       if(!res.ok) throw new Error('HTTP '+res.status);
       saveOverride(d,patch); pickMode=false; openDetail(id);
-    }catch(e){ status.textContent='Senden fehlgeschlagen: '+e.message; btn.disabled=false; }
+    }catch(e){ status.textContent=t('Sending failed: ','Senden fehlgeschlagen: ')+e.message; btn.disabled=false; }
   };
-  document.getElementById('e_reset').onclick=()=>{ if(!confirm('Deine eigene lokale Änderung an diesem Eintrag verwerfen?'))return;
+  document.getElementById('e_reset').onclick=()=>{ if(!confirm(t('Discard your local change to this entry?','Deine eigene lokale Änderung an diesem Eintrag verwerfen?')))return;
     delete OVERRIDES[id]; persistOverrides(); location.reload(); };
-  document.getElementById('e_del').onclick=()=>{ if(!confirm('Diesen Eintrag nur bei dir (lokal) ausblenden?'))return;
+  document.getElementById('e_del').onclick=()=>{ if(!confirm(t('Hide this entry only for you (locally)?','Diesen Eintrag nur bei dir (lokal) ausblenden?')))return;
     OVERRIDES[id]={_delete:true}; persistOverrides(); pickMode=false; closeDetail(); render(); };
 };
 
@@ -893,24 +944,24 @@ window.startEdit=function(id){
 window.openReportForm=function(id){
   const d = id ? dataById[id] : null;
   dtin.innerHTML = `
-    <div class="dt-kicker">Kino melden</div>
-    <div class="dt-name" style="font-size:21px">Fehlt ein Kino oder stimmt etwas nicht?</div>
-    <div class="hint" style="margin-top:6px">Kurze Beschreibung reicht — jede Meldung wird von Hand geprüft, bevor sie übernommen wird. Kein Login nötig.</div>
+    <div class="dt-kicker">${t('Report a cinema','Kino melden')}</div>
+    <div class="dt-name" style="font-size:21px">${t('Is a cinema missing or something wrong?','Fehlt ein Kino oder stimmt etwas nicht?')}</div>
+    <div class="hint" style="margin-top:6px">${t('A short description is enough — every report is checked by hand before it is applied. No login needed.','Kurze Beschreibung reicht — jede Meldung wird von Hand geprüft, bevor sie übernommen wird. Kein Login nötig.')}</div>
     <div class="editform">
-      <label>Kino-Name<input id="r_n" value="${d?esc(d.n):''}"></label>
-      <label>Stadt<input id="r_ci" value="${d?esc(d.ci):''}"></label>
-      <label>Art der Meldung<select id="r_kind">
-        <option value="fehlt">Kino fehlt komplett</option>
-        <option value="standort">Standort ist falsch</option>
-        <option value="format">Format/Ausstattung falsch oder fehlt</option>
-        <option value="sonstiges">Sonstiges</option>
+      <label>${t('Cinema name','Kino-Name')}<input id="r_n" value="${d?esc(d.n):''}"></label>
+      <label>${t('City','Stadt')}<input id="r_ci" value="${d?esc(d.ci):''}"></label>
+      <label>${t('Type of report','Art der Meldung')}<select id="r_kind">
+        <option value="fehlt">${t('Cinema is completely missing','Kino fehlt komplett')}</option>
+        <option value="standort">${t('Location is wrong','Standort ist falsch')}</option>
+        <option value="format">${t('Format/equipment wrong or missing','Format/Ausstattung falsch oder fehlt')}</option>
+        <option value="sonstiges">${t('Other','Sonstiges')}</option>
       </select></label>
-      <label>Beschreibung<input id="r_msg" placeholder="z. B. welches Format, welche Adresse …"></label>
-      <label>Kontakt (optional, für Rückfragen)<input id="r_contact" placeholder="E-Mail"></label>
+      <label>${t('Description','Beschreibung')}<input id="r_msg" placeholder="${t('e.g. which format, which address …','z. B. welches Format, welche Adresse …')}"></label>
+      <label>${t('Contact (optional, for questions)','Kontakt (optional, für Rückfragen)')}<input id="r_contact" placeholder="${t('email','E-Mail')}"></label>
       <input type="text" id="r_hp" name="website" autocomplete="off" tabindex="-1" aria-hidden="true"
         style="position:absolute;left:-9999px;width:1px;height:1px">
-      <div class="erow"><button class="addbtn" id="r_send" type="button">Melden</button>
-        <button class="ghost" id="r_cancel" type="button">Abbrechen</button></div>
+      <div class="erow"><button class="addbtn" id="r_send" type="button">${t('Report','Melden')}</button>
+        <button class="ghost" id="r_cancel" type="button">${t('Cancel','Abbrechen')}</button></div>
       <div class="hint" id="r_status"></div>
     </div>`;
   sidepanel.classList.add('open'); sidepanel.scrollTop=0;
@@ -920,15 +971,15 @@ window.openReportForm=function(id){
     const base=window.CINEMA_WORKER_BASE;
     const payload={cinema:ev('r_n'),city:ev('r_ci'),kind:document.getElementById('r_kind').value,
       message:ev('r_msg'),contact:ev('r_contact'),website:ev('r_hp')};
-    if(!payload.message){status.textContent='Bitte kurz beschreiben, worum es geht.';return;}
-    if(!base){status.textContent='Meldefunktion ist noch nicht eingerichtet (Worker-URL fehlt in config.js).';return;}
-    btn.disabled=true; status.textContent='Wird gesendet …';
+    if(!payload.message){status.textContent=t('Please briefly describe what it is about.','Bitte kurz beschreiben, worum es geht.');return;}
+    if(!base){status.textContent=t('Reporting is not set up yet (worker URL missing in config.js).','Meldefunktion ist noch nicht eingerichtet (Worker-URL fehlt in config.js).');return;}
+    btn.disabled=true; status.textContent=t('Sending …','Wird gesendet …');
     try{
       const res=await fetch(base.replace(/\/$/,'')+'/report',{method:'POST',
         headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       if(!res.ok) throw new Error('HTTP '+res.status);
-      status.textContent='Danke! Die Meldung wurde übermittelt.'; btn.style.display='none';
-    }catch(e){ status.textContent='Senden fehlgeschlagen — versuch es später nochmal.'; btn.disabled=false; }
+      status.textContent=t('Thanks! Your report was submitted.','Danke! Die Meldung wurde übermittelt.'); btn.style.display='none';
+    }catch(e){ status.textContent=t('Sending failed — please try again later.','Senden fehlgeschlagen — versuch es später nochmal.'); btn.disabled=false; }
   };
 };
 document.getElementById('reportBtn').onclick=()=>openReportForm();
@@ -944,7 +995,7 @@ function hallsTable(d,imf){
   const hasScreens = d.halls.some(h=>h.screen);
   const hasFeat = d.halls.some(h=>h.feat);
   // Dritte Spalte adaptiv: Leinwandmaße, wenn vorhanden — sonst Formate/Ausstattung.
-  const col3 = hasScreens ? 'Leinwand B×H' : (hasFeat ? 'Formate / Ausstattung' : '');
+  const col3 = hasScreens ? t('Screen W×H','Leinwand B×H') : (hasFeat ? t('Formats / equipment','Formate / Ausstattung') : '');
   const rows=d.halls.map(h=>{
     const isImax = /imax/i.test(h.name) || /imax|maxximum/i.test(h.feat||'');
     const c3 = h.screen ? esc(h.screen) : (h.feat ? esc(h.feat) : '—');
@@ -953,14 +1004,14 @@ function hallsTable(d,imf){
   let hint='';
   if(hasScreens){
     hint = imf
-      ? `Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung) — weicht vom `+
-        `projizierten ${esc(imf.ar||'IMAX')}-Bild oben ab (das ist die Betreiberangabe).`
-      : `Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung).`;
+      ? t(`Screen sizes here = physical area per the event data sheet (incl. frame/masking) — differs from the projected ${esc(imf.ar||'IMAX')} image above (that is the operator's figure).`,
+          `Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung) — weicht vom projizierten ${esc(imf.ar||'IMAX')}-Bild oben ab (das ist die Betreiberangabe).`)
+      : t('Screen sizes here = physical area per the event data sheet (incl. frame/masking).','Leinwandmaße hier = physische Fläche laut Event-Datenblatt (inkl. Rahmen/Maskierung).');
   }
   return `<table class="hallstbl">
-    <thead><tr><th>Saal</th><th>Sitzplätze</th><th>${col3}</th></tr></thead>
+    <thead><tr><th>${t('Auditorium','Saal')}</th><th>${t('Seats','Sitzplätze')}</th><th>${col3}</th></tr></thead>
     <tbody>${rows}</tbody>
-    <tfoot><tr><td>Gesamt (${d.halls.length} Säle)</td><td>${d.hallSeats||''}</td><td></td></tr></tfoot>
+    <tfoot><tr><td>${t('Total','Gesamt')} (${d.halls.length} ${t('auditoriums','Säle')})</td><td>${d.hallSeats||''}</td><td></td></tr></tfoot>
   </table>
   ${hint?`<div class="hint">${hint}</div>`:''}`;
 }
@@ -971,17 +1022,17 @@ function rcePhotoGrid(d){
       <img src="${esc(p.thumb)}" loading="lazy" alt="${esc(p.caption)}">
       ${p.caption?`<div class="cap">${esc(p.caption)}</div>`:''}
     </div>`).join('');
-  return `<div class="small" style="margin-top:12px;color:var(--ink2)">Fotos (red-carpet-event.de)</div>
+  return `<div class="small" style="margin-top:12px;color:var(--ink2)">${t('Photos (red-carpet-event.de)','Fotos (red-carpet-event.de)')}</div>
     <div class="rcegrid">${tiles}</div>`;
 }
 window.showPdf=function(btn,url){
   const f=document.createElement('iframe');
-  f.src=url; f.title='Event-Datenblatt';
+  f.src=url; f.title=t('Event data sheet','Event-Datenblatt');
   f.style.cssText='width:100%;height:520px;border:1px solid var(--line2);border-radius:6px;margin-top:10px;background:#fff';
   btn.replaceWith(f);
 };
 document.getElementById('exportBtn').onclick=()=>{
-  if(!Object.keys(OVERRIDES).length){alert('Noch keine eigenen Korrekturen vorhanden.\\nBearbeite ein Kino (Detail → „bearbeiten").');return;}
+  if(!Object.keys(OVERRIDES).length){alert(t('No corrections of your own yet.\\nEdit a cinema (detail → “edit”).','Noch keine eigenen Korrekturen vorhanden.\\nBearbeite ein Kino (Detail → „bearbeiten").'));return;}
   const blob=new Blob([JSON.stringify(OVERRIDES,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='corrections.json';
   document.body.appendChild(a);a.click();a.remove();
@@ -1007,7 +1058,7 @@ function screenGraphic(d){
   if(!w||!h){
     return `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
       <rect x="${padL}" y="${padT}" width="${availW}" height="${availH}" fill="none" stroke="${cv('--line2')}" stroke-dasharray="4 4"/>
-      <text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="${cv('--mono')}" font-size="12" fill="${cv('--ink2')}">keine Maßangabe</text></svg>`;
+      <text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="${cv('--mono')}" font-size="12" fill="${cv('--ink2')}">${t('no dimensions','keine Maßangabe')}</text></svg>`;
   }
   const sc=Math.min(availW/w, availH/Math.max(h,human));
   const sw=w*sc, sh=h*sc, sx=padL, sy=ground-sh;
@@ -1032,7 +1083,7 @@ function humanPath(x,ground,hh,hw){
 const themeBtn=document.getElementById('themeBtn');
 function applyTheme(t){
   document.documentElement.dataset.theme=t;
-  themeBtn.textContent = t==='dark'?'Hell':'Dunkel';
+  themeBtn.textContent = t==='dark' ? (LANG==='de'?'Hell':'Light') : (LANG==='de'?'Dunkel':'Dark');
   localStorage.setItem('imaxTheme',t);
   // refresh swatch colors + markers
   document.querySelectorAll('.facet').forEach(b=>{b.querySelector('.sw').style.background=catColor(b.dataset.k);});
@@ -1040,6 +1091,60 @@ function applyTheme(t){
 }
 themeBtn.onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 applyTheme(localStorage.getItem('imaxTheme')||'light');
+
+/* ---- Sprache anwenden (Static-DOM + Chips + Re-Render) ---- */
+function setLabelText(label,txt){ if(!label)return;
+  const tn=[...label.childNodes].reverse().find(n=>n.nodeType===3 && n.nodeValue.trim()!=='');
+  if(tn) tn.nodeValue=txt; else label.appendChild(document.createTextNode(txt)); }
+function applyStaticLang(){
+  const id=x=>document.getElementById(x), $=s=>document.querySelector(s);
+  const tag=$('header .tag'); if(tag) tag.innerHTML=t(
+    'Cinema auditoriums by premium format — IMAX worldwide (with screen dimensions), plus <b>Dolby&nbsp;Cinema</b>, <b>ScreenX</b>, <b>4DX</b>, <b>iSense</b> &amp; <b>Dolby&nbsp;Atmos</b> (starting with Germany).',
+    'Kinosäle nach Premium-Format — IMAX weltweit (mit Leinwandmaßen), dazu <b>Dolby&nbsp;Cinema</b>, <b>ScreenX</b>, <b>4DX</b>, <b>iSense</b> &amp; <b>Dolby&nbsp;Atmos</b> (Start: Deutschland).');
+  if(id('viewBtn')) id('viewBtn').textContent=t('Map','Karte');
+  const gl=document.querySelector('a[href="anleitung.html"]'); if(gl){ gl.textContent=t('Guide','Anleitung'); gl.title=t('Guide: add and edit entries, formats, coordinates','Anleitung: Einträge hinzufügen, bearbeiten, Formate, Koordinaten'); }
+  if(id('reportBtn')){ id('reportBtn').textContent=t('Report error','Fehler melden'); id('reportBtn').title=t('Report a missing or incorrect cinema','Ein fehlendes oder falsches Kino melden'); }
+  if(id('exportBtn')){ id('exportBtn').textContent=t('Export','Export'); id('exportBtn').title=t('Save your corrections as corrections.json (for update.py)','Eigene Korrekturen als corrections.json speichern (für update.py)'); }
+  const mb={imax:'IMAX',premium:'Premium',cinema:t('All cinemas','Alle Kinos')};
+  document.querySelectorAll('.modesw button').forEach(b=>{ if(mb[b.dataset.mode]!=null)b.textContent=mb[b.dataset.mode]; });
+  if(id('q')) id('q').placeholder=t('Search: cinema, city, country …','Suche: Kino, Stadt, Land …');
+  const regLbl=id('region')&&id('region').closest('.ctl').querySelector('.lbl'); if(regLbl)regLbl.textContent='Region';
+  const coLbl=id('country')&&id('country').closest('.ctl').querySelector('.lbl'); if(coLbl)coLbl.textContent=t('Country','Land');
+  if(id('region')) [...id('region').options].forEach(o=>{ o.textContent = o.value ? trReg(o.value) : t('all','alle'); });
+  if(id('allOn')) id('allOn').textContent=t('all','alle');
+  if(id('allOff')) id('allOff').textContent=t('none','keine');
+  setLabelText(id('detailWrap'), t(' break down 1.90 tech',' 1.90-Technik aufschlüsseln'));
+  const f70l=id('film70')&&id('film70').closest('label'); if(f70l){ setLabelText(f70l,t(' IMAX 70 mm film',' IMAX 70-mm-Film')); f70l.title=t('Only true IMAX 70 mm film projection (15/70, 1.43:1) — not classic 70 mm','Nur echte IMAX-70-mm-Filmprojektion (15/70, 1.43:1) — nicht klassisches 70 mm'); }
+  setLabelText(id('commercial')&&id('commercial').closest('label'), t(' commercial',' kommerziell'));
+  setLabelText(id('coupled')&&id('coupled').closest('label'), t(' couple to map',' an Karte koppeln'));
+  const sortSpan=id('sort')&&id('sort').parentElement;
+  if(sortSpan&&sortSpan.firstChild&&sortSpan.firstChild.nodeType===3) sortSpan.firstChild.nodeValue=t('sort: ','sortieren: ');
+  const so={co:t('Country','Land'),n:'Name',ci:t('City','Stadt'),area:t('Screen area','Leinwandfläche'),ar:t('Aspect ratio','Seitenverhältnis')};
+  if(id('sort')) [...id('sort').options].forEach(o=>{ if(so[o.value]!=null)o.textContent=so[o.value]; });
+  if(id('resizer')) id('resizer').title=t('Drag to adjust width','Ziehen, um die Breite anzupassen');
+}
+function relabelChips(){
+  facetsEl.querySelectorAll('.facet').forEach(b=>{
+    const c=curChips.find(x=>x.key===b.dataset.k); if(!c)return;
+    b.innerHTML=`<span class="sw" style="background:${cv(c.color)}"></span>${c.label}<span class="ct">${chipCount(c)}</span>`;
+  });
+}
+function setLang(l){
+  LANG = (l==='de')?'de':'en';
+  localStorage.setItem('lang',LANG); document.documentElement.lang=LANG;
+  applyFmtLang(); applyStaticLang();
+  const lb=document.getElementById('langBtn'); if(lb) lb.textContent = LANG==='de'?'EN':'DE';
+  applyTheme(document.documentElement.dataset.theme||'light');   // Theme-Button-Label auffrischen
+  const mh=document.getElementById('modehint'); if(mh) mh.textContent=SCOPEHINT[scope]||'';
+  fillCountries(); relabelChips(); render();
+  if(sidepanel.classList.contains('open') && curId && !editingId){ try{ openDetail(curId); }catch(e){} }
+  if(window.__mobileRelabel) window.__mobileRelabel();
+}
+document.documentElement.lang=LANG;
+applyFmtLang(); applyStaticLang();
+const langBtn=document.getElementById('langBtn');
+langBtn.textContent = LANG==='de'?'EN':'DE';
+langBtn.onclick=()=> setLang(LANG==='de'?'en':'de');
 
 /* ---- Legacy toggle button (hidden on mobile; kept as a reference used by startEdit) ---- */
 const viewBtn=document.getElementById('viewBtn');
@@ -1103,12 +1208,12 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
     const mk=(id,html)=>{ const d=document.createElement('div'); d.id=id; if(html)d.innerHTML=html; return d; };
     const chrome=mk('mchrome',
       `<div id="mtop"><label id="msearch"></label>`+
-      `<button id="mfilterbtn" type="button"><span>Filter</span><span class="fdot"></span></button></div>`+
+      `<button id="mfilterbtn" type="button"><span>${t('Filter','Filter')}</span><span class="fdot"></span></button></div>`+
       `<div id="mmode"></div>`);
     const sheet=mk('msheet',`<div id="mhandle"><div class="grip"></div></div><div id="msheetbody"></div>`);
     const filter=mk('mfilter',
       `<div id="mfilterhead"><span class="brand">Cinema&middot;Atlas</span>`+
-      `<button id="mfilterdone" type="button">Fertig</button></div><div id="mfilterbody"></div>`);
+      `<button id="mfilterdone" type="button">${t('Done','Fertig')}</button></div><div id="mfilterbody"></div>`);
     document.body.append(chrome,sheet,filter);
     els={chrome,sheet,filter,
       msearch:chrome.querySelector('#msearch'), mmode:chrome.querySelector('#mmode'),
@@ -1144,22 +1249,23 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
     moveTo(els.body, byId('listpane'));
     // filter sheet content
     const fb=els.fbody; fb.innerHTML='';
-    const sRegion=sec('Region & Land');
+    const sRegion=sec(t('Region & country','Region & Land'));
     moveTo(sRegion, byId('region').closest('.ctl'));
     moveTo(sRegion, byId('country').closest('.ctl'));
-    const sFormats=sec('Formate');
+    const sFormats=sec(t('Formats','Formate'));
     moveTo(sFormats, byId('facets'));
     const txt=document.createElement('div'); txt.id='mtxtrow';
     moveTo(txt, byId('allOn')); moveTo(txt, byId('allOff')); moveTo(txt, byId('detailWrap'));
     sFormats.appendChild(txt);
-    const sOpts=sec('Optionen');
+    const sOpts=sec(t('Options','Optionen'));
     moveTo(sOpts, byId('film70').closest('label'));
     moveTo(sOpts, byId('commercial').closest('label'));
     moveTo(sOpts, byId('coupled').closest('label'));
-    const sMore=sec('Mehr');
+    const sMore=sec(t('More','Mehr'));
     const acts=document.createElement('div'); acts.id='mactions';
     moveTo(acts, $('header a[href="anleitung.html"]'));
     moveTo(acts, byId('reportBtn')); moveTo(acts, byId('exportBtn')); moveTo(acts, byId('themeBtn'));
+    moveTo(acts, byId('langBtn'));
     sMore.appendChild(acts);
     fb.append(sRegion,sFormats,sOpts,sMore);
 
@@ -1214,6 +1320,16 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
   function sync(){ mq.matches ? (active||enter()) : (active&&exit()); }
   mq.addEventListener ? mq.addEventListener('change',sync) : mq.addListener(sync);
   addEventListener('orientationchange',()=>active&&setTimeout(()=>{setSheet(Math.round(innerHeight*0.46));kickMap();},250));
+  // Sprachwechsel: Labels der mobilen Hülle IN PLACE auffrischen (NICHT enter() neu
+  // aufrufen — das würde die verschobenen Buttons via fb.innerHTML='' verlieren)
+  window.__mobileRelabel=function(){
+    if(!built) return;
+    if(els.fdone) els.fdone.textContent=t('Done','Fertig');
+    const fspan=els.fbtn&&els.fbtn.querySelector('span'); if(fspan) fspan.textContent=t('Filter','Filter');
+    const labels=els.fbody?els.fbody.querySelectorAll('.msec > .mlabel'):[];
+    const txt=[t('Region & country','Region & Land'),t('Formats','Formate'),t('Options','Optionen'),t('More','Mehr')];
+    labels.forEach((el,i)=>{ if(txt[i]!=null) el.textContent=txt[i]; });
+  };
   sync();
 })();
 </script>
