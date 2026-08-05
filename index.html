@@ -443,7 +443,7 @@ function dimText(d){
 }
 
 const active=new Set();   // aktive Chip-Keys der aktuellen Stufe
-let photoCounts={},db=null,coupled=true,scope='premium',detailOn=false,curChips=[];
+let photoCounts={},db=null,coupled=true,scope='cinema',detailOn=false,curChips=[];
 
 /* ---- Korrekturen: geteilt (von Admin bestätigt, aus corrections.json) + lokal (eigener Browser) ---- */
 const PATCH_FIELDS=['n','ci','co','st','url','note','lat','lng'];
@@ -1185,7 +1185,7 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
 (async function boot(){
   await loadSharedCorrections();
   initMap();
-  setScope('premium');
+  setScope('cinema');
   openDB().then(async()=>{photoCounts=await countAll();render();if(map)drawMarkers(lastBase);}).catch(()=>{});
 })();
 
