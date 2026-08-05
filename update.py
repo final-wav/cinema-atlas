@@ -256,8 +256,7 @@ def load():
       49.0013,8.3985,srcurl="https://www.in70mm.com/festival/karlsruhe/index.htm",
       note="klassisches 70 mm auf gekrümmter Todd-AO-Leinwand · Marienstraße 16")
     film70_extra("germany","Hannover","Astor Grand Cinema","https://hannover.premiumkino.de/",
-      52.3705,9.7332,srcurl="https://hannover.premiumkino.de/70mm",
-      note="klassisches 70 mm (5-Perf) · Nikolaistraße 8 · zusätzlich zu Dolby-Cinema-Saal")
+      52.3705,9.7332,srcurl="https://hannover.premiumkino.de/70mm")
 
     # Premium-Formate aus gepflegter CSV (Dolby Cinema, ScreenX, 4DX, iSense, Atmos)
     n_extra=0
