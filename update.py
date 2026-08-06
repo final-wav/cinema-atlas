@@ -188,6 +188,11 @@ def load():
     imax_extra("germany","Düsseldorf","UCI Kinowelt & IMAX","1.90:1","IMAX CoLa",None,None,
       "ehemaliger iSense-Saal, jetzt IMAX with Laser · Hammer Straße 29-31 (Medienhafen) · Leinwandmaß nicht verifiziert",
       lat=51.2133,lng=6.7524)
+    imax_extra("germany","Hamburg","UCI Wandsbek & IMAX","1.90:1","IMAX CoLa",None,None,
+      "Friedrich-Ebert-Damm 391 · erstes IMAX in Norddeutschland (2023), Dual-Laser",
+      lat=53.5849,lng=10.0772)
+    imax_extra("germany","Hamburg","UCI Othmarschen Park & IMAX","1.90:1","IMAX CoLa",None,None,
+      "Baurstraße 2, 22605 Hamburg",lat=53.5555,lng=9.8935)
     imax_extra("denmark","Kopenhagen","CinemaxX Fisketorvet & IMAX","1.90:1","",None,None)
     imax_extra("ireland","Dublin","Cineworld Dublin & IMAX","1.90:1","",None,None)
     imax_extra("ireland","Dublin","ODEON Blanchardstown & IMAX","1.90:1","",None,None)
