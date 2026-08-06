@@ -661,6 +661,17 @@ def write(rows):
         fh.write("const GEN="+json.dumps(gen)+";\n")
         fh.write("const DATA="+json.dumps(rows,ensure_ascii=False)+";\n")
     log("• geschrieben:",OUT,f"({os.path.getsize(OUT)//1024} KB)")
+    # Cache-Buster in index.html auf den aktuellen Stand setzen, damit Browser die neue
+    # (große) Datendatei zwingend neu laden — sonst zeigt der Cache alte Kinos.
+    try:
+        idx=os.path.join(HERE,"index.html")
+        ver=re.sub(r"[^0-9]","",gen) or str(int(time.time()))
+        html=open(idx,encoding="utf-8").read()
+        html2=re.sub(r'src="cinema-data\.js(\?v=[^"]*)?"', f'src="cinema-data.js?v={ver}"', html)
+        if html2!=html:
+            open(idx,"w",encoding="utf-8").write(html2); log("• Cache-Buster gesetzt: ?v="+ver)
+    except Exception as e:
+        log("  (Cache-Buster nicht gesetzt:",e,")")
 
 # Vollständigkeits-Garantie: JEDES als amenity=cinema getaggte OSM-Kino muss nach dem
 # Merge in den Enddaten auftauchen (als eigener Eintrag ODER als Format eines gemergten
