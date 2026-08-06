@@ -744,7 +744,8 @@ rowsEl.addEventListener('mouseout',e=>{const r=e.target.closest('.row');if(r)hig
 let map,cluster,markerById={},dataById={},dotRenderer=null;
 DATA.forEach(d=>dataById[d.id]=d);
 function initMap(){
-  map=L.map('map',{worldCopyJump:true,zoomControl:true}).setView([25,5],2);
+  // Fallback-Ansicht (Deutschland), falls kein Standort freigegeben wird — nicht die ganze Weltkarte
+  map=L.map('map',{worldCopyJump:true,zoomControl:true}).setView([51.163,10.45],6);
   map.createPane('dots');map.getPane('dots').style.zIndex=650;
   dotRenderer=L.svg({pane:'dots'});
   setTiles();
@@ -759,6 +760,21 @@ function initMap(){
     const ph=document.getElementById('e_pickhint'); if(ph)ph.textContent=t('Location set: '+la+', '+ln+' — now “Save”.','Standort gesetzt: '+la+', '+ln+' — jetzt „Speichern".');
   });
   drawMarkers(lastBase.length?lastBase:baseFiltered());
+  locateUser();
+}
+// Karte am Standort der Person starten (~50 km Radius). Bei Ablehnung/Fehler bleibt die Fallback-Ansicht.
+let didLocate=false;
+function locateUser(){
+  if(didLocate || !map || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{ try{
+      didLocate=true;
+      const la=pos.coords.latitude, ln=pos.coords.longitude;
+      map.fitBounds(L.latLng(la,ln).toBounds(100000), {maxZoom:12, animate:true, duration:.8}); // 100 km Kante = ~50 km Radius
+    }catch(e){} },
+    ()=>{},   // abgelehnt oder nicht verfügbar -> Fallback-Ansicht behalten
+    {enableHighAccuracy:false, timeout:9000, maximumAge:600000}
+  );
 }
 // Karte folgt dem Theme: Hell = OpenStreetMap, Dunkel = Voyager (invertiert -> farbig & dunkel)
 const MAPSTYLES={
