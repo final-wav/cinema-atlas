@@ -762,19 +762,31 @@ function initMap(){
   drawMarkers(lastBase.length?lastBase:baseFiltered());
   locateUser();
 }
-// Karte am Standort der Person starten (~50 km Radius). Bei Ablehnung/Fehler bleibt die Fallback-Ansicht.
+// Karte am Standort der Person starten (~50 km Radius). Zweistufig:
+// 1) präziser Standort per Geolocation (mit Erlaubnis) -> ~50 km Radius
+// 2) sonst grobe Ortung per IP (ohne Erlaubnis, Land/Stadt) -> etwas weiter
+// 3) sonst bleibt die Deutschland-Fallback-Ansicht
 let didLocate=false;
+function goTo(la,ln,edgeM){
+  if(didLocate||!map||!isFinite(la)||!isFinite(ln))return;
+  didLocate=true;
+  try{ map.fitBounds(L.latLng(la,ln).toBounds(edgeM),{maxZoom:12,animate:true,duration:.8}); }catch(e){}
+}
+function ipFallback(){
+  if(didLocate)return;
+  fetch('https://ipapi.co/json/').then(r=>r.ok?r.json():null).then(j=>{
+    if(j) goTo(parseFloat(j.latitude),parseFloat(j.longitude),150000);   // IP ist gröber -> ~75 km Radius
+  }).catch(()=>{});
+}
 function locateUser(){
-  if(didLocate || !map || !navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    pos=>{ try{
-      didLocate=true;
-      const la=pos.coords.latitude, ln=pos.coords.longitude;
-      map.fitBounds(L.latLng(la,ln).toBounds(100000), {maxZoom:12, animate:true, duration:.8}); // 100 km Kante = ~50 km Radius
-    }catch(e){} },
-    ()=>{},   // abgelehnt oder nicht verfügbar -> Fallback-Ansicht behalten
-    {enableHighAccuracy:false, timeout:9000, maximumAge:600000}
-  );
+  if(didLocate||!map)return;
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=>goTo(pos.coords.latitude,pos.coords.longitude,100000),   // 100 km Kante = ~50 km Radius
+      ()=>ipFallback(),                                             // abgelehnt/Timeout -> IP-Ortung
+      {enableHighAccuracy:false,timeout:9000,maximumAge:600000}
+    );
+  } else ipFallback();
 }
 // Karte folgt dem Theme: Hell = OpenStreetMap, Dunkel = Voyager (invertiert -> farbig & dunkel)
 const MAPSTYLES={
