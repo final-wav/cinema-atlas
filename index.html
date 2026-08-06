@@ -745,7 +745,12 @@ let map,cluster,markerById={},dataById={},dotRenderer=null;
 DATA.forEach(d=>dataById[d.id]=d);
 function initMap(){
   // Fallback-Ansicht (Deutschland), falls kein Standort freigegeben wird — nicht die ganze Weltkarte
-  map=L.map('map',{worldCopyJump:true,zoomControl:true}).setView([51.163,10.45],6);
+  map=L.map('map',{worldCopyJump:true,zoomControl:true,
+    zoomSnap:0,               // kontinuierlicher, fraktionaler Zoom (nicht in ganze Stufen einrasten)
+    zoomDelta:0.5,            // +/- Buttons & Tastatur in feineren Schritten
+    wheelPxPerZoomLevel:140,  // Mausrad/Trackpad weniger sprunghaft -> smoother
+    wheelDebounceTime:18,
+    zoomAnimation:true}).setView([51.163,10.45],6);
   map.createPane('dots');map.getPane('dots').style.zIndex=650;
   dotRenderer=L.svg({pane:'dots'});
   setTiles();
