@@ -24,6 +24,7 @@
   --c-dolby_cinema:#3b4cc0; --c-screenx:#0e7c86; --c-fourdx:#c0398b;
   --c-atmos:#9a7d2e; --c-isense:#a8632a; --c-cinema:#9aa0a6; --c-dbox:#1f7a6b;
   --c-classic70:#c85a1e;
+  --cmp-a:#0e7c86; --cmp-b:#c1352b;
   --shadow:none;
 }
 html[data-theme="dark"]{
@@ -36,6 +37,7 @@ html[data-theme="dark"]{
   --c-dolby_cinema:#6f7fe0; --c-screenx:#3fb0bb; --c-fourdx:#e06bb4;
   --c-atmos:#c4ab66; --c-isense:#cf9152; --c-cinema:#7f8690; --c-dbox:#3fb0a0;
   --c-classic70:#e88a4a;
+  --cmp-a:#3fb0bb; --cmp-b:#e2574c;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
@@ -200,6 +202,62 @@ mark{background:color-mix(in srgb,var(--accent) 22%,transparent);color:inherit;p
 .ghost.danger{color:var(--accent);border-color:var(--accent)}
 .edited{color:var(--accent);font-size:11px;margin-left:5px}
 
+/* ===== Screen Comparison Modal ===== */
+.cmp-modal{position:fixed;inset:0;z-index:2200;display:flex;align-items:center;justify-content:center;padding:16px}
+.cmp-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(2px)}
+.cmp-card{position:relative;z-index:1;background:var(--card);border:1px solid var(--line2);border-radius:3px;
+  width:880px;max-width:100%;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 18px 45px rgba(0,0,0,.38);overflow:hidden}
+.cmp-header{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid var(--line)}
+.cmp-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.cmp-title{font-family:var(--serif);font-size:22px;font-weight:600;margin:4px 0 0;color:var(--ink);letter-spacing:-.01em}
+.cmp-close{background:none;border:0;font-size:26px;line-height:1;color:var(--ink2);cursor:pointer;padding:0 4px}
+.cmp-close:hover{color:var(--accent)}
+.cmp-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 22px}
+.cmp-pickers{display:flex;gap:12px;align-items:flex-end;margin-bottom:10px}
+.cmp-slot{flex:1;min-width:0}
+.cmp-slot-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);
+  display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.cmp-badge-dot{display:inline-block;width:9px;height:9px;border-radius:1px}
+.cmp-badge-dot.a{background:var(--cmp-a)}
+.cmp-badge-dot.b{background:var(--cmp-b)}
+.cmp-select{width:100%;background:var(--paper);color:var(--ink);border:1px solid var(--line2);border-radius:2px;
+  padding:7px 9px;font-size:12.5px;font-family:var(--sans)}
+.cmp-select:focus{border-color:var(--accent);outline:none}
+.cmp-swap-btn{flex:none;background:var(--paper2);border:1px solid var(--line2);border-radius:2px;height:35px;width:38px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--ink);transition:border-color .15s}
+.cmp-swap-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cmp-presets{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:14px;font-size:11px}
+.cmp-presets-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-right:2px}
+.cmp-preset-chips{display:flex;flex-wrap:wrap;gap:5px}
+.cmp-preset-btn{background:var(--paper);border:1px solid var(--line2);border-radius:2px;padding:3px 8px;font-size:11px;
+  font-family:var(--mono);color:var(--ink2);cursor:pointer;transition:all .15s}
+.cmp-preset-btn:hover{border-color:var(--accent);color:var(--ink);background:var(--paper2)}
+.cmp-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cmp-view-modes button{padding:5px 12px;font-size:12px}
+.cmp-legend{display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:var(--ink2)}
+.cmp-leg-item{display:inline-flex;align-items:center;gap:6px}
+.cmp-swatch{display:inline-block;width:12px;height:7px;border-radius:1px}
+.cmp-swatch.a{background:var(--cmp-a)}
+.cmp-swatch.b{background:var(--cmp-b);border:1px dashed var(--cmp-b)}
+.cmp-graphic-wrap{background:var(--paper);border:1px solid var(--line);border-radius:2px;padding:12px 14px 8px;margin-bottom:14px}
+.cmp-graphic-cap{font-family:var(--mono);font-size:10.5px;color:var(--ink2);letter-spacing:.04em;text-align:center;margin-top:6px}
+.cmp-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.cmp-table th,.cmp-table td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.cmp-table thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink2);font-weight:500;text-align:left;border-bottom:1px solid var(--line2)}
+.cmp-table tbody th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink2);font-weight:400;text-align:left;width:24%}
+.cmp-table td.col-a{font-family:var(--mono);font-size:12px;width:32%;color:var(--ink)}
+.cmp-table td.col-b{font-family:var(--mono);font-size:12px;width:32%;color:var(--ink)}
+.cmp-table td.col-diff{font-family:var(--mono);font-size:11px;width:12%;text-align:right}
+.cmp-table tr:hover td{background:var(--paper2)}
+.diff-pos{color:var(--accent);font-weight:600}
+.diff-neg{color:var(--ink2)}
+.diff-neutral{color:var(--ink2)}
+.cmp-footer{display:flex;align-items:center;gap:10px;padding:12px 20px;border-top:1px solid var(--line);background:var(--paper2)}
+.cmp-share-status{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.cmp-spacer{flex:1}
+
 footer{display:none}
 
 /* Mobile scaffold: hidden on desktop, activated by the media query below.
@@ -294,6 +352,18 @@ footer{display:none}
   .dt-x{top:calc(env(safe-area-inset-top,0px) + 12px);font-size:26px}
   .dt-in{padding:26px 20px calc(env(safe-area-inset-bottom,0px) + 60px)}
   .dt-name{font-size:24px}
+
+  /* --- compare modal mobile sheet --- */
+  .cmp-modal{padding:0;align-items:flex-end}
+  .cmp-card{border-radius:16px 16px 0 0;max-height:92vh;border-bottom:0}
+  .cmp-header{padding:14px 16px 10px}
+  .cmp-body{padding:14px 16px 20px}
+  .cmp-pickers{flex-direction:column;gap:8px}
+  .cmp-swap-btn{align-self:center;transform:rotate(90deg);height:30px;width:32px}
+  .cmp-toolbar{flex-direction:column;align-items:flex-start;gap:8px}
+  .cmp-table thead th:nth-child(4),.cmp-table tbody td.col-diff{display:none}
+  .cmp-table tbody th{width:30%}
+  .cmp-table td.col-a,.cmp-table td.col-b{width:35%}
 }
 </style>
 </head>
@@ -304,6 +374,7 @@ footer{display:none}
   <div class="spacer"></div>
   <button class="themebtn viewtg" id="viewBtn">Karte</button>
   <a class="themebtn" href="anleitung.html" target="_blank" style="text-decoration:none" title="Anleitung: Einträge hinzufügen, bearbeiten, Formate, Koordinaten">Anleitung</a>
+  <button class="themebtn" id="compareBtn" title="Zwei Leinwände vergleichen">Vergleichen</button>
   <button class="themebtn" id="reportBtn" title="Ein fehlendes oder falsches Kino melden">Fehler melden</button>
   <button class="themebtn" id="exportBtn" title="Eigene Korrekturen als corrections.json speichern (für update.py)">Export</button>
   <button class="themebtn" id="themeBtn">Dunkel</button>
@@ -351,6 +422,62 @@ footer{display:none}
   <div id="resizer" title="Ziehen, um die Breite anzupassen"></div>
   <div id="map"></div>
   <aside id="sidepanel"><button class="dt-x" id="sidex">×</button><div class="dt-in" id="sidein"></div></aside>
+
+  <!-- Screen Comparison Modal -->
+  <div id="compareModal" class="cmp-modal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="cmpTitle">
+    <div class="cmp-backdrop" id="cmpBackdrop"></div>
+    <div class="cmp-card">
+      <div class="cmp-header">
+        <div class="cmp-title-wrap">
+          <div class="cmp-kicker" id="cmpKicker">Cinema Atlas &mdash; Maßstabsvergleich</div>
+          <h2 class="cmp-title" id="cmpTitle">Leinwandvergleich</h2>
+        </div>
+        <button class="cmp-close" id="cmpClose" title="Schließen">&times;</button>
+      </div>
+      <div class="cmp-body">
+        <div class="cmp-pickers">
+          <div class="cmp-slot">
+            <div class="cmp-slot-label"><span class="cmp-badge-dot a"></span><span id="cmpSlotLabelA">Kino A</span></div>
+            <select id="cmpSelectA" class="cmp-select"></select>
+          </div>
+          <button class="cmp-swap-btn" id="cmpSwapBtn" title="Kinos tauschen" type="button">&harr;</button>
+          <div class="cmp-slot">
+            <div class="cmp-slot-label"><span class="cmp-badge-dot b"></span><span id="cmpSlotLabelB">Kino B</span></div>
+            <select id="cmpSelectB" class="cmp-select"></select>
+          </div>
+        </div>
+
+        <div class="cmp-presets" id="cmpPresets">
+          <span class="cmp-presets-label" id="cmpPresetsLabel">Referenzen:</span>
+          <div class="cmp-preset-chips" id="cmpPresetChips"></div>
+        </div>
+
+        <div class="cmp-toolbar">
+          <div class="modesw cmp-view-modes">
+            <button id="cmpBtnOverlay" class="on" type="button">Überlagerung</button>
+            <button id="cmpBtnSide" type="button">Nebeneinander</button>
+          </div>
+          <div class="cmp-legend" id="cmpLegend">
+            <span class="cmp-leg-item"><span class="cmp-swatch a"></span><span id="cmpLegA">Kino A</span></span>
+            <span class="cmp-leg-item"><span class="cmp-swatch b"></span><span id="cmpLegB">Kino B</span></span>
+          </div>
+        </div>
+
+        <div class="cmp-graphic-wrap" id="cmpGraphicWrap">
+          <div id="cmpSvg"></div>
+          <div class="cmp-graphic-cap" id="cmpGraphicCap">Maßstabsgetreu &mdash; Figur = 1,80 m</div>
+        </div>
+
+        <div id="cmpSpecsWrap"></div>
+      </div>
+      <div class="cmp-footer">
+        <button class="themebtn" id="cmpShareBtn" type="button">Link kopieren</button>
+        <span class="cmp-share-status" id="cmpShareStatus"></span>
+        <div class="cmp-spacer"></div>
+        <button class="themebtn" id="cmpCloseBtn" type="button">Schließen</button>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -852,7 +979,7 @@ function openDetail(key){
   const f=FORMATS[d.cat],id=d.id;
   const imf=d.formats.find(ff=>IMAXCATS.has(ff.cat)&&ff.w);
   const graphic=imf
-    ? `<div class="dt-svg">${screenGraphic(imf)}</div><div class="dt-cap">${t('Screen to scale — figure = 1.80 m','Leinwand maßstabsgetreu — Figur = 1,80 m')}</div>`
+    ? `<div class="dt-svg">${screenGraphic(imf)}</div><div class="dt-cap">${t('Screen to scale — figure = 1.80 m','Leinwand maßstabsgetreu — Figur = 1,80 m')} · <button class="editlink" style="margin:0;font-size:10.5px" onclick="openCompare('${d.id}')">${t('compare screen','Leinwand vergleichen')}</button></div>`
     : (FDESC[d.cat]?`<div class="dt-svg" style="font-size:13.5px;line-height:1.6">${esc(FDESC[d.cat])}</div>`:'');
   const fmtRows=d.formats.slice().sort((a,b)=>PRIO(a.cat)-PRIO(b.cat)).map(ff=>{
     const lab=FORMATS[ff.cat]?FORMATS[ff.cat].label:ff.cat;
@@ -871,7 +998,7 @@ function openDetail(key){
     + (d._edited?' · '+t('locally changed (suggestion pending)','lokal geändert (Vorschlag ausstehend)')
        : (d._approved?' · '+t('corrected','korrigiert'):''));
   dtin.innerHTML=`
-    <div class="dt-kicker">${kicker0}${kickerFlags}<button class="editlink" onclick="startEdit('${d.id}')">${t('edit','bearbeiten')}</button><button class="editlink" onclick="openReportForm('${d.id}')">${t('report','melden')}</button></div>
+    <div class="dt-kicker">${kicker0}${kickerFlags}<button class="editlink" onclick="openCompare('${d.id}')">${t('compare','vergleichen')}</button><button class="editlink" onclick="startEdit('${d.id}')">${t('edit','bearbeiten')}</button><button class="editlink" onclick="openReportForm('${d.id}')">${t('report','melden')}</button></div>
     <div class="dt-name">${esc(d.n)}</div>
     <div class="dt-loc">${esc(d.ci)}${d.st?', '+esc(d.st):''} — ${esc(trCo(d.co))} · ${esc(trReg(d.reg))}</div>
     ${d.url?`<a class="dt-web" href="${esc(d.url)}" target="_blank" rel="noopener">${t('Cinema website','Website des Kinos')} ↗</a>`:''}
@@ -1161,6 +1288,18 @@ function applyStaticLang(){
   const so={co:t('Country','Land'),n:'Name',ci:t('City','Stadt'),area:t('Screen area','Leinwandfläche'),ar:t('Aspect ratio','Seitenverhältnis')};
   if(id('sort')) [...id('sort').options].forEach(o=>{ if(so[o.value]!=null)o.textContent=so[o.value]; });
   if(id('resizer')) id('resizer').title=t('Drag to adjust width','Ziehen, um die Breite anzupassen');
+  if(id('compareBtn')){ id('compareBtn').textContent=t('Compare','Vergleichen'); id('compareBtn').title=t('Compare two screens','Zwei Leinwände vergleichen'); }
+  if(id('cmpKicker')) id('cmpKicker').textContent=t('Cinema Atlas — Scale Comparison','Cinema Atlas — Maßstabsvergleich');
+  if(id('cmpTitle')) id('cmpTitle').textContent=t('Screen Comparison','Leinwandvergleich');
+  if(id('cmpSlotLabelA')) id('cmpSlotLabelA').textContent=t('Cinema A','Kino A');
+  if(id('cmpSlotLabelB')) id('cmpSlotLabelB').textContent=t('Cinema B','Kino B');
+  if(id('cmpSwapBtn')) id('cmpSwapBtn').title=t('Swap cinemas','Kinos tauschen');
+  if(id('cmpPresetsLabel')) id('cmpPresetsLabel').textContent=t('Benchmarks:','Referenzen:');
+  if(id('cmpBtnOverlay')) id('cmpBtnOverlay').textContent=t('Overlay','Überlagerung');
+  if(id('cmpBtnSide')) id('cmpBtnSide').textContent=t('Side by side','Nebeneinander');
+  if(id('cmpGraphicCap')) id('cmpGraphicCap').textContent=t('To scale — figure = 1.80 m. Colors: Cinema A (cyan, solid), Cinema B (crimson, dashed).','Maßstabsgetreu — Figur = 1,80 m. Farben: Kino A (Cyan, durchgezogen), Kino B (Karminrot, gestrichelt).');
+  if(id('cmpShareBtn')) id('cmpShareBtn').textContent=t('Copy link','Link kopieren');
+  if(id('cmpCloseBtn')) id('cmpCloseBtn').textContent=t('Close','Schließen');
 }
 function relabelChips(){
   facetsEl.querySelectorAll('.facet').forEach(b=>{
@@ -1178,6 +1317,9 @@ function setLang(l){
   fillCountries(); relabelChips(); render();
   if(sidepanel.classList.contains('open') && curId && !editingId){ try{ openDetail(curId); }catch(e){} }
   if(window.__mobileRelabel) window.__mobileRelabel();
+  if(document.getElementById('compareModal') && document.getElementById('compareModal').style.display !== 'none'){
+    populateCompareSelects(); renderComparePresets(); updateCompare();
+  }
 }
 document.documentElement.lang=LANG;
 applyFmtLang(); applyStaticLang();
@@ -1220,12 +1362,465 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
   resizer.addEventListener('pointercancel',stop);
 })();
 
+/* ================= Screen Comparison ================= */
+let cmpCinemaA = null;
+let cmpCinemaB = null;
+let cmpViewMode = 'overlay'; // 'overlay' | 'side'
+
+function fmtNum(n, decimals = 1){
+  if(n == null || isNaN(n)) return '—';
+  const s = Number(n).toFixed(decimals);
+  return LANG === 'de' ? s.replace('.', ',') : s;
+}
+
+function getScreenInfo(idOrObj){
+  const d = typeof idOrObj === 'string' ? dataById[idOrObj] : idOrObj;
+  if (!d) return null;
+  let w = d.w, h = d.h, cat = d.cat, ar = d.ar, dp = d.dp || '', fp = d.fp || '';
+  if (d.formats && d.formats.length) {
+    const imf = d.formats.find(ff => IMAXCATS.has(ff.cat) && ff.w) || d.formats.find(ff => ff.w && ff.h) || d.formats[0];
+    if (imf) {
+      if (imf.w) w = imf.w;
+      if (imf.h) h = imf.h;
+      if (imf.cat) cat = imf.cat;
+      if (imf.ar) ar = imf.ar;
+      if (imf.dp) dp = imf.dp;
+      if (imf.fp) fp = imf.fp;
+    }
+  }
+  const isDome = cat === 'dome';
+  const effectiveW = w ? Number(w) : 0;
+  const effectiveH = isDome ? (w ? Number(w) / 2 : 0) : (h ? Number(h) : 0);
+  const area = isDome ? (w ? Math.round(Math.PI * Math.pow(Number(w) / 2, 2) / 2 * 10) / 10 : null) : (w && h ? Math.round(Number(w) * Number(h) * 10) / 10 : null);
+  const diag = (w && h) ? Math.round(Math.sqrt(Math.pow(Number(w), 2) + Math.pow(Number(h), 2)) * 10) / 10 : null;
+  const diagInch = diag ? Math.round(diag * 39.3701) : null;
+  return {
+    id: d.id,
+    n: d.n,
+    ci: d.ci,
+    co: d.co,
+    reg: d.reg,
+    cat,
+    ar,
+    dp,
+    fp,
+    w: w ? Number(w) : null,
+    h: h ? Number(h) : null,
+    effectiveW,
+    effectiveH,
+    isDome,
+    area,
+    diag,
+    diagInch,
+    hallSeats: d.hallSeats || null,
+    hasDims: !!(w && (h || isDome))
+  };
+}
+
+function getBenchmarkScreens(){
+  return [
+    { id: '316ed5e2c1', label: t('Leonberg (38.8 m · largest)','Leonberg (38,8 m · Größte)') },
+    { id: 'd8f36d31ad', label: 'Karlsruhe (22,3 m · 1.43 GT)' },
+    { id: 'ded1d3424d', label: 'Sinsheim (27,0 m · 1.43)' },
+    { id: 'a867f14953', label: 'BFI London (26,0 m · 15/70)' },
+    { id: '02ab194167', label: 'Melbourne (32,0 m · 1.43)' },
+    { id: '6b6a09665e', label: 'Pooler (30,8 m · USA)' }
+  ];
+}
+
+function populateCompareSelects(){
+  const selA = document.getElementById('cmpSelectA');
+  const selB = document.getElementById('cmpSelectB');
+  if(!selA || !selB) return;
+
+  const list = [];
+  for(const k in dataById){
+    const d = dataById[k];
+    const s = getScreenInfo(d);
+    if(s && s.hasDims) list.push(s);
+  }
+
+  const de = list.filter(s => s.co === 'Deutschland').sort((a,b)=>(b.area||0)-(a.area||0));
+  const worldTop = list.filter(s => s.co !== 'Deutschland').sort((a,b)=>(b.area||0)-(a.area||0)).slice(0, 50);
+  const worldRest = list.filter(s => s.co !== 'Deutschland' && !worldTop.some(w=>w.id===s.id))
+                        .sort((a,b)=>a.n.localeCompare(b.n));
+
+  const buildGroup = (label, arr) => {
+    if(!arr.length) return '';
+    const opts = arr.map(s => {
+      const dimStr = s.isDome ? `Ø ${s.w} m` : `${s.w} × ${s.h} m`;
+      const arStr = s.ar ? ` · ${s.ar}` : '';
+      const areaStr = s.area ? ` · ${s.area} m²` : '';
+      return `<option value="${s.id}">${esc(s.ci)}: ${esc(s.n)} (${dimStr}${arStr}${areaStr})</option>`;
+    }).join('');
+    return `<optgroup label="${esc(label)}">${opts}</optgroup>`;
+  };
+
+  const html = buildGroup(t('Germany','Deutschland'), de) +
+               buildGroup(t('Worldwide (Top 50)','Weltweit (Top 50)'), worldTop) +
+               buildGroup(t('Worldwide (Other)','Weltweit (Weitere)'), worldRest);
+
+  selA.innerHTML = html;
+  selB.innerHTML = html;
+  if(cmpCinemaA) selA.value = cmpCinemaA;
+  if(cmpCinemaB) selB.value = cmpCinemaB;
+}
+
+function renderComparePresets(){
+  const wrap = document.getElementById('cmpPresetChips');
+  if(!wrap) return;
+  const benchmarks = getBenchmarkScreens();
+  wrap.innerHTML = benchmarks.map(b => {
+    return `<button type="button" class="cmp-preset-btn" onclick="setCompareSlotB('${b.id}')">${esc(b.label)}</button>`;
+  }).join('');
+}
+
+function renderCompareSvg(sA, sB, mode){
+  if(!sA || !sB) return '';
+  const W = 760, H = 280;
+  const padL = 36, padR = 36, padT = 24, padB = 44;
+  const ground = H - padB;
+  const availW = W - padL - padR;
+  const availH = ground - padT;
+  const human = 1.8;
+
+  const colA = cv('--cmp-a');
+  const colB = cv('--cmp-b');
+
+  const effWA = sA.effectiveW || 1;
+  const effHA = sA.effectiveH || 1;
+  const effWB = sB.effectiveW || 1;
+  const effHB = sB.effectiveH || 1;
+
+  if(mode === 'side'){
+    const gapMeters = 4.0;
+    const totalW = effWA + effWB + gapMeters;
+    const maxH = Math.max(effHA, effHB, human);
+    const sc = Math.min(availW / (totalW * 1.05), availH / maxH);
+
+    const swA = effWA * sc, shA = effHA * sc;
+    const swB = effWB * sc, shB = effHB * sc;
+    const gapPx = gapMeters * sc;
+    const totalPx = swA + swB + gapPx;
+
+    const startX = (W - totalPx) / 2;
+    const sxA = startX, syA = ground - shA;
+    const sxB = sxA + swA + gapPx, syB = ground - shB;
+
+    const hh = human * sc;
+    const hw = Math.max(hh * 0.22, 2.8);
+    const hx = sxA + swA + (gapPx / 2);
+
+    let shapeA = '';
+    if(sA.isDome){
+      const rA = swA / 2, cxA = sxA + rA;
+      shapeA = `<path d="M ${cxA - rA} ${ground} A ${rA} ${rA} 0 0 1 ${cxA + rA} ${ground} Z" fill="${colA}" fill-opacity=".18" stroke="${colA}" stroke-width="2"/>`;
+    } else {
+      shapeA = `<rect x="${sxA}" y="${syA}" width="${swA}" height="${shA}" fill="${colA}" fill-opacity=".18" stroke="${colA}" stroke-width="2"/>`;
+    }
+
+    let shapeB = '';
+    if(sB.isDome){
+      const rB = swB / 2, cxB = sxB + rB;
+      shapeB = `<path d="M ${cxB - rB} ${ground} A ${rB} ${rB} 0 0 1 ${cxB + rB} ${ground} Z" fill="${colB}" fill-opacity=".18" stroke="${colB}" stroke-width="2" stroke-dasharray="6 4"/>`;
+    } else {
+      shapeB = `<rect x="${sxB}" y="${syB}" width="${swB}" height="${shB}" fill="${colB}" fill-opacity=".18" stroke="${colB}" stroke-width="2" stroke-dasharray="6 4"/>`;
+    }
+
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <line x1="${padL}" y1="${ground}" x2="${W - padR}" y2="${ground}" stroke="${cv('--line2')}" stroke-width="1.5"/>
+      ${shapeA}
+      ${shapeB}
+      ${humanPath(hx, ground, hh, hw)}
+      <text x="${hx}" y="${ground + 15}" text-anchor="middle" font-family="${cv('--mono')}" font-size="9.5" fill="${cv('--ink2')}">1,80 m</text>
+      <text x="${sxA + swA / 2}" y="${ground + 16}" text-anchor="middle" font-family="${cv('--mono')}" font-size="11" font-weight="600" fill="${colA}">${sA.w ? fmtNum(sA.w) + ' m' : ''}</text>
+      ${!sA.isDome && sA.h ? `<text x="${sxA - 6}" y="${syA + shA / 2}" text-anchor="end" dominant-baseline="middle" font-family="${cv('--mono')}" font-size="11" font-weight="600" fill="${colA}" transform="rotate(-90 ${sxA - 6} ${syA + shA / 2})">${fmtNum(sA.h)} m</text>` : ''}
+      <text x="${sxB + swB / 2}" y="${ground + 16}" text-anchor="middle" font-family="${cv('--mono')}" font-size="11" font-weight="600" fill="${colB}">${sB.w ? fmtNum(sB.w) + ' m' : ''}</text>
+      ${!sB.isDome && sB.h ? `<text x="${sxB + swB + 6}" y="${syB + shB / 2}" text-anchor="start" dominant-baseline="middle" font-family="${cv('--mono')}" font-size="11" font-weight="600" fill="${colB}" transform="rotate(90 ${sxB + swB + 6} ${syB + shB / 2})">${fmtNum(sB.h)} m</text>` : ''}
+    </svg>`;
+  }
+
+  // OVERLAY MODE
+  const maxW = Math.max(effWA, effWB);
+  const maxH = Math.max(effHA, effHB, human);
+  const sc = Math.min(availW / (maxW * 1.15), availH / maxH);
+
+  const swA = effWA * sc, shA = effHA * sc;
+  const swB = effWB * sc, shB = effHB * sc;
+
+  const cx = W / 2;
+  const sxA = cx - swA / 2, syA = ground - shA;
+  const sxB = cx - swB / 2, syB = ground - shB;
+
+  const hh = human * sc;
+  const hw = Math.max(hh * 0.22, 2.8);
+  const rightmost = cx + Math.max(swA, swB) / 2;
+  let hx = rightmost + 20;
+  if(hx > W - padR - 8){
+    const leftmost = cx - Math.max(swA, swB) / 2;
+    hx = Math.max(leftmost - 20, padL + 10);
+  }
+
+  let shapeA = '';
+  if(sA.isDome){
+    const rA = swA / 2;
+    shapeA = `<path d="M ${cx - rA} ${ground} A ${rA} ${rA} 0 0 1 ${cx + rA} ${ground} Z" fill="${colA}" fill-opacity=".18" stroke="${colA}" stroke-width="2.5"/>`;
+  } else {
+    shapeA = `<rect x="${sxA}" y="${syA}" width="${swA}" height="${shA}" fill="${colA}" fill-opacity=".18" stroke="${colA}" stroke-width="2.5"/>`;
+  }
+
+  let shapeB = '';
+  if(sB.isDome){
+    const rB = swB / 2;
+    shapeB = `<path d="M ${cx - rB} ${ground} A ${rB} ${rB} 0 0 1 ${cx + rB} ${ground} Z" fill="${colB}" fill-opacity=".18" stroke="${colB}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+  } else {
+    shapeB = `<rect x="${sxB}" y="${syB}" width="${swB}" height="${shB}" fill="${colB}" fill-opacity=".18" stroke="${colB}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
+  }
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block">
+    <line x1="${padL}" y1="${ground}" x2="${W - padR}" y2="${ground}" stroke="${cv('--line2')}" stroke-width="1.5"/>
+    ${shapeA}
+    ${shapeB}
+    ${humanPath(hx, ground, hh, hw)}
+    <text x="${hx}" y="${ground + 15}" text-anchor="middle" font-family="${cv('--mono')}" font-size="9.5" fill="${cv('--ink2')}">1,80 m</text>
+    <text x="${cx}" y="${ground + 16}" text-anchor="middle" font-family="${cv('--mono')}" font-size="11" font-weight="600" fill="${colA}">A: ${sA.w ? fmtNum(sA.w) + ' m' : ''}${sA.h ? ' × ' + fmtNum(sA.h) + ' m' : ''}</text>
+    <text x="${cx}" y="${ground + 32}" text-anchor="middle" font-family="${cv('--mono')}" font-size="11" font-weight="600" fill="${colB}">B: ${sB.w ? fmtNum(sB.w) + ' m' : ''}${sB.h ? ' × ' + fmtNum(sB.h) + ' m' : ''}</text>
+  </svg>`;
+}
+
+function renderCompareSpecs(sA, sB){
+  if(!sA || !sB) return '';
+  const areaA = sA.area, areaB = sB.area;
+  let diffAreaStr = '—';
+  let diffAreaClass = 'diff-neutral';
+  if(areaA && areaB){
+    const dVal = areaA - areaB;
+    const pct = Math.round((dVal / areaB) * 100);
+    const sign = dVal > 0 ? '+' : '';
+    diffAreaStr = `${sign}${pct}% (${sign}${fmtNum(dVal)} m²)`;
+    diffAreaClass = dVal > 0 ? 'diff-pos' : (dVal < 0 ? 'diff-neg' : 'diff-neutral');
+  }
+
+  const diffW = (sA.w && sB.w) ? ((sA.w - sB.w > 0 ? '+' : '') + fmtNum(sA.w - sB.w) + ' m') : '—';
+  const diffH = (sA.h && sB.h) ? ((sA.h - sB.h > 0 ? '+' : '') + fmtNum(sA.h - sB.h) + ' m') : '—';
+  const diffDiag = (sA.diag && sB.diag) ? ((sA.diag - sB.diag > 0 ? '+' : '') + fmtNum(sA.diag - sB.diag) + ' m') : '—';
+
+  const catLabA = FORMATS[sA.cat] ? FORMATS[sA.cat].label : sA.cat;
+  const catLabB = FORMATS[sB.cat] ? FORMATS[sB.cat].label : sB.cat;
+  const techA = [catLabA, sA.dp, sA.fp].filter(Boolean).join(' · ');
+  const techB = [catLabB, sB.dp, sB.fp].filter(Boolean).join(' · ');
+
+  return `
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>${t('Metric','Metrik')}</th>
+          <th style="color:var(--cmp-a)"><span class="cmp-swatch a"></span><a href="javascript:void(0)" onclick="closeCompare(); openDetail('${sA.id}')" style="color:inherit;text-decoration:underline">${esc(sA.n)}</a></th>
+          <th style="color:var(--cmp-b)"><span class="cmp-swatch b"></span><a href="javascript:void(0)" onclick="closeCompare(); openDetail('${sB.id}')" style="color:inherit;text-decoration:underline">${esc(sB.n)}</a></th>
+          <th style="text-align:right">${t('Delta (A vs B)','Differenz (A zu B)')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>${t('Screen Area','Leinwandfläche')}</th>
+          <td class="col-a"><strong>${areaA ? fmtNum(areaA) + ' m²' : '—'}</strong></td>
+          <td class="col-b"><strong>${areaB ? fmtNum(areaB) + ' m²' : '—'}</strong></td>
+          <td class="col-diff ${diffAreaClass}">${diffAreaStr}</td>
+        </tr>
+        <tr>
+          <th>${t('Width × Height','Breite × Höhe')}</th>
+          <td class="col-a">${sA.w ? fmtNum(sA.w) + ' × ' + (sA.h ? fmtNum(sA.h) : '—') + ' m' : '—'}</td>
+          <td class="col-b">${sB.w ? fmtNum(sB.w) + ' × ' + (sB.h ? fmtNum(sB.h) : '—') + ' m' : '—'}</td>
+          <td class="col-diff">${diffW} / ${diffH}</td>
+        </tr>
+        <tr>
+          <th>${t('Diagonal','Diagonale')}</th>
+          <td class="col-a">${sA.diag ? fmtNum(sA.diag) + ' m' + (sA.diagInch ? ' (~' + sA.diagInch + '″)' : '') : '—'}</td>
+          <td class="col-b">${sB.diag ? fmtNum(sB.diag) + ' m' + (sB.diagInch ? ' (~' + sB.diagInch + '″)' : '') : '—'}</td>
+          <td class="col-diff">${diffDiag}</td>
+        </tr>
+        <tr>
+          <th>${t('Aspect Ratio','Seitenverhältnis')}</th>
+          <td class="col-a">${esc(sA.ar || '—')}</td>
+          <td class="col-b">${esc(sB.ar || '—')}</td>
+          <td class="col-diff">${(sA.ar && sB.ar && sA.ar !== sB.ar) ? esc(sA.ar + ' vs ' + sB.ar) : '—'}</td>
+        </tr>
+        <tr>
+          <th>${t('Technology','Technologie')}</th>
+          <td class="col-a">${esc(techA)}</td>
+          <td class="col-b">${esc(techB)}</td>
+          <td class="col-diff">—</td>
+        </tr>
+        <tr>
+          <th>${t('Location','Standort')}</th>
+          <td class="col-a">${esc(sA.ci)}, ${esc(trCo(sA.co))}</td>
+          <td class="col-b">${esc(sB.ci)}, ${esc(trCo(sB.co))}</td>
+          <td class="col-diff">—</td>
+        </tr>
+        ${(sA.hallSeats || sB.hallSeats) ? `
+        <tr>
+          <th>${t('Seats','Sitzplätze')}</th>
+          <td class="col-a">${sA.hallSeats ? sA.hallSeats + ' ' + t('seats','Plätze') : '—'}</td>
+          <td class="col-b">${sB.hallSeats ? sB.hallSeats + ' ' + t('seats','Plätze') : '—'}</td>
+          <td class="col-diff">${(sA.hallSeats && sB.hallSeats) ? ((sA.hallSeats - sB.hallSeats > 0 ? '+' : '') + (sA.hallSeats - sB.hallSeats)) : '—'}</td>
+        </tr>` : ''}
+      </tbody>
+    </table>
+  `;
+}
+
+function updateCompareGraphic(){
+  const sA = getScreenInfo(cmpCinemaA);
+  const sB = getScreenInfo(cmpCinemaB);
+  const wrap = document.getElementById('cmpSvg');
+  if(wrap && sA && sB){
+    wrap.innerHTML = renderCompareSvg(sA, sB, cmpViewMode);
+  }
+}
+
+function updateCompare(){
+  const sA = getScreenInfo(cmpCinemaA);
+  const sB = getScreenInfo(cmpCinemaB);
+  if(!sA || !sB) return;
+
+  const legA = document.getElementById('cmpLegA');
+  const legB = document.getElementById('cmpLegB');
+  if(legA) legA.textContent = `${sA.n} (${sA.w}×${sA.h||'—'} m)`;
+  if(legB) legB.textContent = `${sB.n} (${sB.w}×${sB.h||'—'} m)`;
+
+  updateCompareGraphic();
+
+  const specsWrap = document.getElementById('cmpSpecsWrap');
+  if(specsWrap) specsWrap.innerHTML = renderCompareSpecs(sA, sB);
+
+  updateCompareUrl(cmpCinemaA, cmpCinemaB);
+}
+
+function setCompareSlotB(id){
+  cmpCinemaB = id;
+  const selB = document.getElementById('cmpSelectB');
+  if(selB) selB.value = id;
+  updateCompare();
+}
+
+function openCompare(idA, idB){
+  const defaultA = '316ed5e2c1'; // Leonberg
+  const defaultB = 'd8f36d31ad'; // Karlsruhe
+
+  if(!idA && !idB){
+    cmpCinemaA = defaultA;
+    cmpCinemaB = defaultB;
+  } else if(idA && !idB){
+    cmpCinemaA = idA;
+    cmpCinemaB = (idA === defaultA) ? defaultB : defaultA;
+  } else {
+    cmpCinemaA = idA || defaultA;
+    cmpCinemaB = idB || defaultB;
+  }
+
+  populateCompareSelects();
+  renderComparePresets();
+
+  const selA = document.getElementById('cmpSelectA');
+  const selB = document.getElementById('cmpSelectB');
+  if(selA) selA.value = cmpCinemaA;
+  if(selB) selB.value = cmpCinemaB;
+
+  const m = document.getElementById('compareModal');
+  if(m) m.style.display = 'flex';
+
+  updateCompare();
+}
+
+function closeCompare(){
+  const m = document.getElementById('compareModal');
+  if(m) m.style.display = 'none';
+  updateCompareUrl(null, null);
+}
+
+function updateCompareUrl(idA, idB){
+  try{
+    const url = new URL(window.location);
+    if(idA && idB){
+      url.searchParams.set('compare', `${idA},${idB}`);
+    } else {
+      url.searchParams.delete('compare');
+    }
+    history.replaceState(null, '', url);
+  }catch(e){}
+}
+
+function checkCompareUrlParam(){
+  try{
+    const urlParams = new URLSearchParams(window.location.search);
+    const p = urlParams.get('compare');
+    if(p){
+      const parts = p.split(',');
+      if(parts[0]) openCompare(parts[0], parts[1] || null);
+    }
+  }catch(e){}
+}
+
+// Compare Event listeners
+document.getElementById('compareBtn').onclick = () => openCompare();
+document.getElementById('cmpClose').onclick = closeCompare;
+document.getElementById('cmpCloseBtn').onclick = closeCompare;
+document.getElementById('cmpBackdrop').onclick = closeCompare;
+document.getElementById('cmpSwapBtn').onclick = () => {
+  const tmp = cmpCinemaA;
+  cmpCinemaA = cmpCinemaB;
+  cmpCinemaB = tmp;
+  const selA = document.getElementById('cmpSelectA');
+  const selB = document.getElementById('cmpSelectB');
+  if(selA) selA.value = cmpCinemaA;
+  if(selB) selB.value = cmpCinemaB;
+  updateCompare();
+};
+document.getElementById('cmpSelectA').onchange = e => {
+  cmpCinemaA = e.target.value;
+  updateCompare();
+};
+document.getElementById('cmpSelectB').onchange = e => {
+  cmpCinemaB = e.target.value;
+  updateCompare();
+};
+document.getElementById('cmpBtnOverlay').onclick = () => {
+  cmpViewMode = 'overlay';
+  document.getElementById('cmpBtnOverlay').classList.add('on');
+  document.getElementById('cmpBtnSide').classList.remove('on');
+  updateCompareGraphic();
+};
+document.getElementById('cmpBtnSide').onclick = () => {
+  cmpViewMode = 'side';
+  document.getElementById('cmpBtnSide').classList.add('on');
+  document.getElementById('cmpBtnOverlay').classList.remove('on');
+  updateCompareGraphic();
+};
+document.getElementById('cmpShareBtn').onclick = () => {
+  try{
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      const st = document.getElementById('cmpShareStatus');
+      if(st){
+        st.textContent = t('Link copied!','Link kopiert!');
+        setTimeout(() => { st.textContent = ''; }, 2600);
+      }
+    });
+  }catch(e){}
+};
+window.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    const m = document.getElementById('compareModal');
+    if(m && m.style.display !== 'none') closeCompare();
+  }
+});
+
 /* ---- Boot ---- */
 (async function boot(){
   await loadSharedCorrections();
   initMap();
   setScope('cinema');
   openDB().then(async()=>{photoCounts=await countAll();render();if(map)drawMarkers(lastBase);}).catch(()=>{});
+  checkCompareUrlParam();
 })();
 
 /* =====================================================================
@@ -1304,6 +1899,7 @@ viewBtn.onclick=()=>{document.body.classList.toggle('showmap');if(map)setTimeout
     const sMore=sec(t('More','Mehr'));
     const acts=document.createElement('div'); acts.id='mactions';
     moveTo(acts, $('header a[href="anleitung.html"]'));
+    moveTo(acts, byId('compareBtn'));
     moveTo(acts, byId('reportBtn')); moveTo(acts, byId('exportBtn')); moveTo(acts, byId('themeBtn'));
     moveTo(acts, byId('langBtn'));
     sMore.appendChild(acts);
